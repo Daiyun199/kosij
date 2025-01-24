@@ -1,0 +1,42 @@
+/* CustomButton.css */
+
+.custom-button {
+    padding: 10px 20px;
+    font-size: 14px;
+    font-weight: 600;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: background-color 0.3s, box-shadow 0.3s;
+  }
+  
+  .custom-button.primary {
+    background-color: #1890ff;
+    color: #fff;
+  }
+  
+  .custom-button.secondary {
+    background-color: #f0f0f0;
+    color: #000;
+    border: 1px solid #d9d9d9;
+  }
+  
+  .custom-button.danger {
+    background-color: #ff4d4f;
+    color: #fff;
+  }
+  
+  .custom-button.disabled {
+    background-color: #d9d9d9;
+    color: #bfbfbf;
+    cursor: not-allowed;
+  }
+  
+  .custom-button:hover:not(.disabled) {
+    opacity: 0.8;
+  }
+  
+  .custom-button:active:not(.disabled) {
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  }
+  

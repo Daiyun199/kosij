@@ -1,3 +1,4 @@
+"use client";
 import React, { useState } from "react";
 import "./Table.css";
 
@@ -59,7 +60,6 @@ const DynamicTable = <DataType extends KeyedData>({
         </tbody>
       </table>
 
-      {/* Pagination */}
       <div className="pagination">
         <button
           onClick={() => handlePageChange(1)}

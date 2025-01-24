@@ -1,123 +1,117 @@
 .container {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height:auto;
-    background-color: #f8f9fa;
-    width: 100%;
-  }
-  
-  .card {
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    background-color: white;
-    border-radius: 8px;
-    padding: 24px;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-    width: 100%;
-    height: 80vh;
-  }
-  
-  .avatarSection {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    margin-bottom: 20px;
-    flex:1;
-  }
-  .infoSection{
-    flex:1;
-    gap:40px;
-    display: flex;
-    flex-direction: column;
-  }
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  background-color: #f8f9fa;
+  padding: 20px;
+}
 
-  .avatar {
-    width: 350px;
-    height:350px;
-    border: 2px solid #dcdcdc;
-    border-radius: 50%;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    overflow: hidden; 
-    margin-bottom: 12px;
-    position: relative; 
-  }
+.card {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  background-color: white;
+  border-radius: 8px;
+  padding: 24px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  width: 90%;
+  max-width: 1200px;
+  gap: 20px;
+  flex-wrap: wrap;
+}
 
- 
+.avatarSection {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex: 1 1 300px; /* Linh hoạt về kích thước */
+  gap: 20px;
+}
+
+.infoSection {
+  flex: 2 1 400px; /* Linh hoạt về kích thước */
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.avatar {
+  width: 250px;
+  height: 250px;
+  border: 2px solid #dcdcdc;
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow: hidden;
+}
+
 .avatar img {
-  width: 100%; 
+  width: 100%;
   height: 100%;
   object-fit: cover;
-  object-position: center; 
+  object-position: center;
 }
-  
-  .uploadButton {
-    background-color: #f1f1f1;
-    border: 1px solid #dcdcdc;
-    padding: 8px 12px;
-    border-radius: 4px;
-    cursor: pointer;
-    font-size: 14px;
-  }
-  
-  .uploadButton:hover {
-    background-color: #e2e2e2;
-  }
-  
-  .infoSection {
-    width: 100%;
-  }
-  
-  .title {
-    text-align: center;
-    color: #333;
-    margin-bottom: 16px;
-    font-size: 25px;
-    font-weight: bold;
-  }
-  
-  .form {
-    display: flex;
-    flex-direction: column;
-    gap:20px;
-  }
-  
-  .input {
-    border: 1px solid #dcdcdc;
-    border-radius: 4px;
-    padding: 10px 12px;
-    margin-bottom: 12px;
-    font-size: 14px;
-  }
-  
-  .updateButton {
-    background-color: #0E34AB;
-    color: white;
-    border: none;
-    padding: 12px;
-    border-radius: 4px;
-    cursor: pointer;
-    font-size: 16px;
-  }
-  
-  .updateButton:hover {
-    background-color: #4a6dd8;
-  }
-  /* Responsive cho màn hình nhỏ hơn 768px (điện thoại và máy tính bảng nhỏ) */
-@media (max-width: 768px) {
-  .card {
-    flex-direction: column; 
-    height: auto; 
-    padding: 16px; 
-  }
 
-  .avatarSection, .infoSection {
-    flex: none; 
-    width: 100%; 
-    margin-bottom: 20px; 
+.uploadButton {
+  background-color: #f1f1f1;
+  border: 1px solid #dcdcdc;
+  padding: 8px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: background-color 0.2s ease-in-out;
+}
+
+.uploadButton:hover {
+  background-color: #e2e2e2;
+}
+
+.title {
+  text-align: center;
+  color: #333;
+  font-size: 25px;
+  font-weight: bold;
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.input {
+  border: 1px solid #dcdcdc;
+  border-radius: 4px;
+  padding: 12px;
+  font-size: 14px;
+  width: 100%;
+}
+
+.updateButton {
+  background-color: #0E34AB;
+  color: white;
+  border: none;
+  padding: 12px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 16px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  transition: background-color 0.2s ease-in-out;
+}
+
+.updateButton:hover {
+  background-color: #4a6dd8;
+}
+
+/* Responsive cho màn hình nhỏ hơn */
+@media (max-width: 1024px) {
+  .card {
+    flex-direction: column;
+    align-items: stretch;
+    padding: 20px;
   }
 
   .avatar {
@@ -126,13 +120,12 @@
   }
 
   .title {
-    font-size: 20px; 
-    margin-bottom: 12px;
+    font-size: 22px;
   }
 
   .input {
     font-size: 14px;
-    padding: 8px 10px;
+    padding: 10px;
   }
 
   .updateButton {
@@ -141,15 +134,31 @@
   }
 }
 
-
-@media (max-width: 480px) {
-  .card {
-    padding: 12px; 
-  }
-
+@media (max-width: 768px) {
   .avatar {
     width: 150px;
     height: 150px;
+  }
+
+  .title {
+    font-size: 20px;
+  }
+
+  .input {
+    font-size: 12px;
+    padding: 8px;
+  }
+
+  .updateButton {
+    font-size: 12px;
+    padding: 8px;
+  }
+}
+
+@media (max-width: 480px) {
+  .avatar {
+    width: 120px;
+    height: 120px;
   }
 
   .title {
@@ -158,11 +167,11 @@
 
   .input {
     font-size: 12px;
-    padding: 6px 8px;
+    padding: 6px;
   }
 
   .updateButton {
     font-size: 12px;
-    padding: 8px;
+    padding: 6px;
   }
 }

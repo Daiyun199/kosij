@@ -1,42 +1,105 @@
-/* CustomButton.css */
+
 
 .custom-button {
-    padding: 10px 20px;
-    font-size: 14px;
-    font-weight: 600;
-    border: none;
-    border-radius: 10px;
-    cursor: pointer;
-    transition: background-color 0.3s, box-shadow 0.3s;
-  }
-  
-  .custom-button.primary {
-    background-color: #1890ff;
-    color: #fff;
-  }
-  
-  .custom-button.secondary {
-    background-color: #f0f0f0;
-    color: #000;
-    border: 1px solid #d9d9d9;
-  }
-  
-  .custom-button.danger {
-    background-color: #ff4d4f;
-    color: #fff;
-  }
-  
-  .custom-button.disabled {
-    background-color: #d9d9d9;
-    color: #bfbfbf;
-    cursor: not-allowed;
-  }
-  
-  .custom-button:hover:not(.disabled) {
-    opacity: 0.8;
-  }
-  
-  .custom-button:active:not(.disabled) {
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
-  }
-  
+  padding: 14px 28px;
+  font-size: 16px;
+  font-weight: 700;
+  border: none;
+  border-radius: 50px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.custom-button.primary {
+  background: linear-gradient(135deg, #4facfe, #00f2fe); 
+  color: #fff;
+  box-shadow: 0 8px 20px rgba(79, 172, 254, 0.5);
+}
+
+.custom-button.secondary {
+  background: linear-gradient(135deg, #f5f5f5, #e0e0e0); 
+  color: #333;
+  border: 1px solid #d9d9d9;
+  box-shadow: 0 8px 15px rgba(224, 224, 224, 0.4);
+}
+
+.custom-button.danger {
+  background: linear-gradient(135deg, #ff5858, #f09819); 
+  color: #fff;
+  box-shadow: 0 8px 20px rgba(255, 88, 88, 0.5);
+}
+
+.custom-button.default {
+  background: linear-gradient(135deg, #6dd5ed, #ccf1db); 
+  color: #303030;
+  box-shadow: 0 8px 20px rgba(109, 213, 237, 0.4);
+}
+
+.custom-button.disabled {
+  background: linear-gradient(135deg, #e0e0e0, #f5f5f5); 
+  color: #bfbfbf;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+.custom-button:hover:not(.disabled) {
+  transform: translateY(-3px);
+  box-shadow: 0 12px 25px rgba(0, 0, 0, 0.2);
+}
+
+.custom-button:hover.primary:not(.disabled) {
+  background: linear-gradient(135deg, #3a9afe, #00e4fe); 
+}
+
+.custom-button:hover.secondary:not(.disabled) {
+  background: linear-gradient(135deg, #ffffff, #f2f2f2); 
+}
+
+.custom-button:hover.danger:not(.disabled) {
+  background: linear-gradient(135deg, #ff7875, #ffa502); 
+}
+
+.custom-button:hover.default:not(.disabled) {
+  background: linear-gradient(135deg, #a1e8ff, #d8f8e3); 
+}
+
+.custom-button::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 200%;
+  height: 100%;
+  background: rgba(255, 255, 255, 0.2);
+  transform: skewX(-45deg);
+  transition: all 0.3s ease-in-out;
+}
+
+.custom-button:hover::before {
+  left: 100%;
+  transition: all 0.5s ease-in-out;
+}
+
+.custom-button:active:not(.disabled) {
+  transform: translateY(1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.custom-button .icon {
+  margin-right: 10px;
+  display: flex;
+  align-items: center;
+  font-size: 18px;
+}
+
+.custom-button:focus {
+  outline: 2px solid #4facfe;
+  outline-offset: 4px;
+}

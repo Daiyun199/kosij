@@ -1,85 +1,136 @@
+
 .dynamic-table {
-    margin: 20px;
-    font-family: Arial, sans-serif;
-    font-size: 14px;
- 
-  }
-  
-  .antd-style-table {
-    width: 100%;
-    border-collapse: collapse;
-    background-color: #fff;
-  }
-  
-  .table-header-cell {
-    padding: 12px 15px;
-    text-align: left;
-    background-color: #e4e4e4;
-    border-bottom: 1px solid #ddd;
-    font-weight: bold;
-    position: relative;
-  }
-  .table-header-cell::after {
-    content: "";
-    position: absolute;
-    top: 10%; 
-    right: 0;
-    width: 1px; 
-    height: 70%; 
-    background-color: #ddd; 
-  }
-  
-  .table-cell {
-    padding: 12px 15px;
-    text-align: left;
-    border-bottom: 1px solid #ddd;
-  }
-  
-  .table-cell button {
-    padding: 5px 10px;
-    background-color: #1890ff;
-    color: white;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-  }
-  
-  .table-cell button:hover {
-    background-color: #40a9ff;
-  }
-  
-  .pagination {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    margin-top: 20px;
-    gap: 5px;
-  }
-  
-  .pagination-btn {
-    padding: 6px 12px;
-    background-color: #fff;
-    border: 1px solid #d9d9d9;
-    cursor: pointer;
-    border-radius: 4px;
-    transition: all 0.3s;
-  }
-  
-  .pagination-btn:hover {
-    background-color: #e6f7ff;
-    border-color: #40a9ff;
-  }
-  
-  .pagination-btn:disabled {
-    background-color: #f5f5f5;
-    cursor: not-allowed;
-    border-color: #d9d9d9;
-  }
-  
-  .active-page {
-    background-color: #1890ff;
-    color: white;
-    border-color: #1890ff;
-  }
-  
-  
+  margin: 20px;
+  font-family: 'Roboto', Arial, sans-serif;
+  font-size: 14px;
+  color: #333;
+  border-radius: 8px; 
+  overflow: hidden;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); 
+  background: #f8f8f8; 
+  min-height: 70vh;
+  flex-direction: column; 
+  display: flex;
+  justify-content: space-between;
+}
+
+.antd-style-table {
+  width: 100%;
+  border-collapse: separate; 
+  border-spacing: 0; 
+  background-color: #fff;
+}
+
+.table-header-cell {
+  padding: 16px;
+  text-align: left;
+  background-color: #eaf4fc; 
+  color: #305f90;   
+  border-bottom: 2px solid #d9d9d9;
+  font-weight: bold;
+  position: relative;
+  font-size: 15px;
+}
+
+.table-header-cell::after {
+  content: "";
+  position: absolute;
+  top: 20%;
+  right: 0;
+  width: 1px;
+  height: 60%;
+  background-color: #ddd;
+}
+
+.table-cell {
+  padding: 14px 16px;
+  text-align: left;
+  border-bottom: 1px solid #f0f0f0;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.table-cell:hover {
+  background-color: #e6f7ff; 
+  color: #333;
+}
+
+.table-cell:nth-child(even) {
+  background-color: #fafafa; 
+}
+
+.table-cell:nth-child(odd) {
+  background-color: #fff;
+}
+
+.table-cell button {
+  padding: 6px 12px;
+  background-color: #1890ff;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.table-cell button:hover {
+  background-color: #40a9ff;
+}
+
+.pagination {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  margin-bottom: 20px;
+  margin-right: 20px;
+  gap: 8px;
+}
+
+.pagination-btn {
+  padding: 8px 14px;
+  background-color: #fff;
+  border: 1px solid #d9d9d9;
+  cursor: pointer;
+  border-radius: 6px;
+  transition: all 0.3s ease;
+  font-size: 14px;
+}
+
+.pagination-btn:hover {
+  background-color: #e6f7ff;
+  border-color: #40a9ff;
+}
+
+.pagination-btn:disabled {
+  background-color: #f5f5f5;
+  cursor: not-allowed;
+  border-color: #d9d9d9;
+}
+
+.active-page {
+  background-color: #1890ff;
+  color: white;
+  border-color: #1890ff;
+  font-weight: bold;
+}
+
+
+.antd-style-table tr:hover:not(:first-child) {
+  background-color: #e6f7ff;
+}
+
+
+.antd-style-table thead tr:first-child th:first-child {
+  border-top-left-radius: 8px;
+}
+
+.antd-style-table thead tr:first-child th:last-child {
+  border-top-right-radius: 8px;
+}
+
+.antd-style-table tbody tr:last-child td:first-child {
+  border-bottom-left-radius: 8px;
+}
+
+.antd-style-table tbody tr:last-child td:last-child {
+  border-bottom-right-radius: 8px;
+}

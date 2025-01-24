@@ -2,7 +2,7 @@ import React from "react";
 import "./Button.css";
 
 interface CustomButtonProps {
-  type?: "primary" | "secondary" | "danger";
+  type?: "primary" | "secondary" | "danger" | "default";
   onClick?: () => void;
   children: React.ReactNode;
   disabled?: boolean;

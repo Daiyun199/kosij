@@ -1,0 +1,162 @@
+
+body {
+    font-family: 'Roboto', sans-serif;
+    background: linear-gradient(120deg, #eef2f7, #ffffff); 
+    margin: 0;
+    padding: 0;
+    color: #333333;
+  }
+  
+  h1 {
+    text-align: center;
+    font-size: 36px;
+    font-weight: bold;
+    color: #1565c0; 
+    margin-bottom: 20px;
+    padding-top: 20px;
+    text-transform: uppercase;
+    letter-spacing: 1.2px;
+    text-shadow: 1px 1px 5px rgba(0, 0, 0, 0.1); 
+  }
+  
+ 
+  .form {
+    max-width: 650px;
+    margin: 60px auto;
+    background: #ffffff;
+    padding: 40px 50px;
+    border-radius: 20px; 
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1); 
+    transition: transform 0.4s ease, box-shadow 0.4s ease;
+  }
+  
+  .form:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2); 
+  }
+  
+  .form-group {
+    margin-bottom: 25px;
+  }
+  
+  label {
+    display: block;
+    font-size: 18px;
+    font-weight: 700;
+    color: #0d47a1;
+    margin-bottom: 8px;
+    text-transform: capitalize;
+  }
+  
+  input, select {
+    width: 100%;
+    padding: 14px 18px;
+    font-size: 16px;
+    border: 1px solid #ccd1d9;
+    border-radius: 12px;
+    background-color: #f9f9f9;
+    transition: all 0.4s ease;
+    outline: none;
+  }
+  
+  input:focus, select:focus {
+    border-color: #1565c0;
+    box-shadow: 0 0 12px rgba(21, 101, 192, 0.3);
+  }
+  
+  input:hover, select:hover {
+    background-color: #f4f4f4;
+    border-color: #b0bec5;
+  }
+  
+  select {
+    cursor: pointer;
+  }
+  
+  .error {
+    color: #e53935;
+    font-size: 14px;
+    margin-top: 5px;
+    font-style: italic;
+    font-weight: 500;
+  }
+  
+
+  .staff-button {
+    display: block;
+    width: 100%;
+    background: linear-gradient(90deg, #1565c0, #1e88e5); 
+    color: #ffffff;
+    font-size: 18px;
+    font-weight: bold;
+    padding: 14px;
+    border: none;
+    border-radius: 15px;
+    cursor: pointer;
+    transition: all 0.3s ease-in-out;
+    text-transform: uppercase;
+    letter-spacing: 1.2px;
+  }
+  
+  .staff-button:hover {
+    background: linear-gradient(90deg, #135ba1, #1565c0);
+    transform: scale(1.02);
+  }
+  
+  .staff-button:active {
+    transform: scale(0.98); 
+    background: linear-gradient(90deg, #0b3c91, #114c91);
+  }
+  
+
+  @media (max-width: 768px) {
+    .form {
+      padding: 30px 20px;
+    }
+  
+    h1 {
+      font-size: 30px;
+    }
+  
+    .staff-button {
+      font-size: 16px;
+      padding: 12px;
+    }
+  }
+  
+
+  input::placeholder {
+    color: #aaa;
+    font-style: italic;
+  }
+  
+  input:focus::placeholder {
+    color: transparent;
+  }
+  
+  label::after {
+    content: '*';
+    color: #e53935;
+    margin-left: 5px;
+    font-size: 14px;
+    font-weight: bold;
+  }
+  
+  .form-group:last-child {
+    margin-bottom: 0;
+  }
+  
+
+  .form {
+    opacity: 0;
+    transform: translateY(20px);
+    animation: fadeInUp 0.6s ease forwards;
+  }
+  
+  @keyframes fadeInUp {
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  

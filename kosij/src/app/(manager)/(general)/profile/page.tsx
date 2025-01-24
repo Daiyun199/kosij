@@ -3,7 +3,7 @@ import ManagerLayout from "@/app/components/ManagerLayout/ManagerLayout";
 import React from "react";
 import styles from "./profile.module.css";
 import Image from "next/image";
-function page() {
+function Page() {
   return (
     <div>
       <ManagerLayout title="Profile">
@@ -60,4 +60,4 @@ function page() {
   );
 }
 
-export default page;
+export default Page;

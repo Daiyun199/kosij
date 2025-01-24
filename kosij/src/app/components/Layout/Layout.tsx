@@ -1,7 +1,7 @@
 "use client";
 
-import { useRouter } from "next/navigation";
-import React, { useState } from "react";
+import { useRouter, usePathname } from "next/navigation";
+import React, { useEffect, useState } from "react";
 import "./Layout.css";
 
 interface MenuItem {
@@ -25,43 +25,65 @@ const CustomLayout: React.FC<LayoutProps> = ({
   children,
 }) => {
   const router = useRouter();
-  const [openMenus, setOpenMenus] = useState<string[]>([]);
+  const pathname = usePathname();
+  const [activePath, setActivePath] = useState<string>("");
+  const [expandedMenus, setExpandedMenus] = useState<{
+    [key: string]: boolean;
+  }>({});
+  useEffect(() => {
+    const savedPath = localStorage.getItem("activePath") || pathname;
+    setActivePath(savedPath);
 
-  const generatePath = (parentPath: string, label: string): string => {
-    return parentPath ? `${parentPath}/${label}` : label;
-  };
-
-  const toggleMenu = (path: string) => {
-    setOpenMenus((prev) =>
-      prev.includes(path)
-        ? prev.filter((item) => item !== path)
-        : [...prev, path]
-    );
-  };
+    const savedExpanded = localStorage.getItem("expandedMenus");
+    if (savedExpanded) {
+      setExpandedMenus(JSON.parse(savedExpanded));
+    }
+  }, [pathname]);
 
   const handleNavigate = (path?: string) => {
     if (path) {
-      router.push(path); // Điều hướng đến đường dẫn
+      setActivePath(path);
+      localStorage.setItem("activePath", path);
+      router.push(path);
     }
+  };
+
+  const toggleMenu = (path: string) => {
+    setExpandedMenus((prev) => {
+      const updated = { ...prev, [path]: !prev[path] };
+      localStorage.setItem("expandedMenus", JSON.stringify(updated));
+      return updated;
+    });
   };
 
   const renderMenu = (items: MenuItem[], parentPath = "") => {
     return items.map((item) => {
-      const path = generatePath(parentPath, item.label);
+      const path = item.path || `${parentPath}/${item.label}`;
       const hasChildren = item.children && item.children.length > 0;
+      const isActive = activePath === path;
+      const isExpanded = expandedMenus[path] || false;
 
       return (
-        <div key={path} className="menu-item">
+        <div key={path} className={`menu-item ${isExpanded ? "expanded" : ""}`}>
           <div
-            className="menu-label"
+            className={`menu-label ${isActive ? "active" : ""}`}
             onClick={() =>
-              hasChildren ? toggleMenu(path) : handleNavigate(item.path)
+              hasChildren ? toggleMenu(path) : handleNavigate(path)
             }
           >
             {item.icon && <i className={item.icon} />}
             <span>{item.label}</span>
+            {hasChildren && (
+              <span className="expand-icon">
+                {isExpanded ? (
+                  <i className="fa-solid fa-chevron-up"></i>
+                ) : (
+                  <i className="fa-solid fa-chevron-down"></i>
+                )}
+              </span>
+            )}
           </div>
-          {hasChildren && openMenus.includes(path) && (
+          {hasChildren && isExpanded && (
             <div className="submenu">{renderMenu(item.children!, path)}</div>
           )}
         </div>

@@ -6,7 +6,7 @@ import { Customer } from "@/app/types/customer";
 
 import React from "react";
 
-function page() {
+function Page() {
   const actionColumn = (record: Customer) => (
     <div style={{ display: "flex", gap: "8px" }}>
       <CustomButton
@@ -81,4 +81,4 @@ function page() {
   );
 }
 
-export default page;
+export default Page;

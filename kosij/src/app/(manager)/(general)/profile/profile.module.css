@@ -106,7 +106,6 @@
   background-color: #4a6dd8;
 }
 
-/* Responsive cho màn hình nhỏ hơn */
 @media (max-width: 1024px) {
   .card {
     flex-direction: column;

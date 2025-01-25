@@ -6,8 +6,8 @@ interface DynamicTableProps<DataType> {
   columns: Array<{
     title: string;
     dataIndex: string;
-    filters?: { text: string; value: string }[]; // Filter options
-    onFilter?: (value: string, record: DataType) => boolean; // Filter function
+    filters?: { text: string; value: string }[];
+    onFilter?: (value: string, record: DataType) => boolean;
   }>;
   data: DataType[];
   actionColumn?: (record: DataType) => React.ReactNode;
@@ -26,11 +26,10 @@ const DynamicTable = <DataType extends KeyedData>({
 }: DynamicTableProps<DataType>) => {
   const [currentPage, setCurrentPage] = useState(1);
   const [filters, setFilters] = useState<{ [key: string]: string | null }>({});
-  const [activeFilter, setActiveFilter] = useState<string | null>(null); // State to toggle filter menu
-  const [searchText, setSearchText] = useState(""); // State for search text
+  const [activeFilter, setActiveFilter] = useState<string | null>(null);
+  const [searchText, setSearchText] = useState("");
   const pageSize = 5;
 
-  // Apply filters and search
   const filteredData = data.filter((record) => {
     const matchesSearch = Object.values(record).some((value) =>
       String(value).toLowerCase().includes(searchText.toLowerCase())
@@ -61,16 +60,16 @@ const DynamicTable = <DataType extends KeyedData>({
 
   const handleFilterChange = (dataIndex: string, value: string | null) => {
     setFilters({ ...filters, [dataIndex]: value });
-    setCurrentPage(1); // Reset to the first page
+    setCurrentPage(1);
   };
 
   const toggleFilterMenu = (dataIndex: string) => {
-    setActiveFilter(activeFilter === dataIndex ? null : dataIndex); // Toggle filter menu
+    setActiveFilter(activeFilter === dataIndex ? null : dataIndex);
   };
 
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchText(e.target.value);
-    setCurrentPage(1); // Reset to the first page
+    setCurrentPage(1);
   };
 
   return (
@@ -96,7 +95,7 @@ const DynamicTable = <DataType extends KeyedData>({
                       <div className="relative">
                         <button
                           className="filter-icon"
-                          onClick={() => toggleFilterMenu(col.dataIndex)} // Toggle on click
+                          onClick={() => toggleFilterMenu(col.dataIndex)}
                           title="Filter"
                         >
                           <i

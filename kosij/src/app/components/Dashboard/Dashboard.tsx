@@ -27,7 +27,7 @@ interface DashboardProps {
     today: string | number;
     comparison: string;
   }>;
-  selectedTime: string; // Receive selectedTime here
+  selectedTime: string;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   chartData: any;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -36,7 +36,7 @@ interface DashboardProps {
 
 const Dashboard: React.FC<DashboardProps> = ({
   metrics,
-  selectedTime, // Get selectedTime from the parent
+  selectedTime,
   chartData,
   chartOptions,
 }) => {
@@ -49,7 +49,7 @@ const Dashboard: React.FC<DashboardProps> = ({
             title={metric.title}
             today={metric.today}
             comparison={metric.comparison}
-            selectedTime={selectedTime} // Pass selectedTime here
+            selectedTime={selectedTime}
           />
         ))}
       </div>

@@ -14,7 +14,7 @@
 }
 
 .table-controls {
-  margin-bottom: 20px; /* Khoảng cách giữa phần tìm kiếm và bảng */
+  margin-bottom: 20px; 
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -111,7 +111,7 @@
 }
 
 .pagination {
-  margin-right: 20px; /* Khoảng cách giữa bảng và pagination */
+  margin-right: 20px; 
   margin-bottom: 20px;
   display: flex;
   justify-content: flex-end;

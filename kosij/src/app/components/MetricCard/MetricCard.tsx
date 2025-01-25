@@ -6,7 +6,7 @@ interface MetricCardProps {
   title: string;
   today: string | number;
   comparison: string;
-  selectedTime: string; // Add selectedTime here
+  selectedTime: string;
   chart?: React.ReactNode;
 }
 
@@ -14,7 +14,7 @@ const MetricCard: React.FC<MetricCardProps> = ({
   title,
   today,
   comparison,
-  selectedTime, // Receive selectedTime prop
+  selectedTime,
   chart,
 }) => {
   let comparisonText = "";
@@ -46,7 +46,6 @@ const MetricCard: React.FC<MetricCardProps> = ({
           }`}
         >
           {comparisonText}{" "}
-          {/* Display the dynamically generated comparison text */}
         </p>
         {chart && <div className="mt-4 w-full">{chart}</div>}
       </CardContent>

@@ -24,7 +24,7 @@ function Page() {
     switch (selectedTime) {
       case "day":
         return {
-          labels: ["Today", "Yesterday"], // Ví dụ so với ngày hôm nay và hôm qua
+          labels: ["Today", "Yesterday"],
           datasets: [
             {
               label: "Revenue",
@@ -95,7 +95,7 @@ function Page() {
           <TimeFilter onChange={handleTimeChange} />
           <Dashboard
             metrics={metrics}
-            selectedTime={selectedTime} // Pass selectedTime here
+            selectedTime={selectedTime}
             chartData={getChartData()}
             chartOptions={chartOptions}
           />

@@ -3,7 +3,12 @@ import React, { useState } from "react";
 import "./Table.css";
 
 interface DynamicTableProps<DataType> {
-  columns: Array<{ title: string; dataIndex: string }>;
+  columns: Array<{
+    title: string;
+    dataIndex: string;
+    filters?: { text: string; value: string }[]; // Filter options
+    onFilter?: (value: string, record: DataType) => boolean; // Filter function
+  }>;
   data: DataType[];
   actionColumn?: (record: DataType) => React.ReactNode;
 }
@@ -20,10 +25,33 @@ const DynamicTable = <DataType extends KeyedData>({
   actionColumn,
 }: DynamicTableProps<DataType>) => {
   const [currentPage, setCurrentPage] = useState(1);
+  const [filters, setFilters] = useState<{ [key: string]: string | null }>({});
+  const [activeFilter, setActiveFilter] = useState<string | null>(null); // State to toggle filter menu
+  const [searchText, setSearchText] = useState(""); // State for search text
   const pageSize = 5;
-  const totalPages = Math.ceil(data.length / pageSize);
+
+  // Apply filters and search
+  const filteredData = data.filter((record) => {
+    const matchesSearch = Object.values(record).some((value) =>
+      String(value).toLowerCase().includes(searchText.toLowerCase())
+    );
+
+    const matchesFilters = Object.keys(filters).every((key) => {
+      if (!filters[key]) return true;
+      const column = columns.find((col) => col.dataIndex === key);
+      const onFilter = column?.onFilter;
+      if (onFilter) {
+        return onFilter(filters[key] as string, record);
+      }
+      return true;
+    });
+
+    return matchesSearch && matchesFilters;
+  });
+
+  const totalPages = Math.ceil(filteredData.length / pageSize);
   const startIndex = (currentPage - 1) * pageSize;
-  const paginatedData = data.slice(startIndex, startIndex + pageSize);
+  const paginatedData = filteredData.slice(startIndex, startIndex + pageSize);
 
   const handlePageChange = (page: number) => {
     if (page >= 1 && page <= totalPages) {
@@ -31,34 +59,114 @@ const DynamicTable = <DataType extends KeyedData>({
     }
   };
 
+  const handleFilterChange = (dataIndex: string, value: string | null) => {
+    setFilters({ ...filters, [dataIndex]: value });
+    setCurrentPage(1); // Reset to the first page
+  };
+
+  const toggleFilterMenu = (dataIndex: string) => {
+    setActiveFilter(activeFilter === dataIndex ? null : dataIndex); // Toggle filter menu
+  };
+
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchText(e.target.value);
+    setCurrentPage(1); // Reset to the first page
+  };
+
   return (
     <div className="dynamic-table">
-      <table className="antd-style-table">
-        <thead>
-          <tr>
-            {columns.map((col) => (
-              <th key={col.dataIndex} className="table-header-cell">
-                {col.title}
-              </th>
-            ))}
-            {actionColumn && <th className="table-header-cell">Action</th>}
-          </tr>
-        </thead>
-        <tbody>
-          {paginatedData.map((record) => (
-            <tr key={record.key}>
+      <div className="table-wrapper">
+        <div className="table-controls flex items-center justify-between mb-4">
+          <input
+            type="text"
+            placeholder="Search..."
+            value={searchText}
+            onChange={handleSearchChange}
+            className="search-input p-2 border border-gray-300 rounded-md shadow-sm"
+          />
+        </div>
+        <table className="antd-style-table">
+          <thead>
+            <tr>
               {columns.map((col) => (
-                <td key={col.dataIndex} className="table-cell">
-                  {record[col.dataIndex]}
-                </td>
+                <th key={col.dataIndex} className="table-header-cell">
+                  <div className="flex items-center justify-between">
+                    <span>{col.title}</span>
+                    {col.filters && (
+                      <div className="relative">
+                        <button
+                          className="filter-icon"
+                          onClick={() => toggleFilterMenu(col.dataIndex)} // Toggle on click
+                          title="Filter"
+                        >
+                          <i
+                            className="fa-solid fa-filter"
+                            style={{ color: "black" }}
+                          ></i>
+                        </button>
+                        <div
+                          className={`filter-menu ${
+                            activeFilter === col.dataIndex ? "show" : ""
+                          }`}
+                        >
+                          <ul>
+                            {col.filters.map((filter) => (
+                              <li key={filter.value}>
+                                <label>
+                                  <input
+                                    type="radio"
+                                    name={col.dataIndex}
+                                    value={filter.value}
+                                    checked={
+                                      filters[col.dataIndex] === filter.value
+                                    }
+                                    onChange={() =>
+                                      handleFilterChange(
+                                        col.dataIndex,
+                                        filter.value
+                                      )
+                                    }
+                                  />
+                                  {filter.text}
+                                </label>
+                              </li>
+                            ))}
+                            <li>
+                              <button
+                                onClick={() =>
+                                  handleFilterChange(col.dataIndex, null)
+                                }
+                                className="clear-btn"
+                              >
+                                Clear
+                              </button>
+                            </li>
+                          </ul>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </th>
               ))}
-              {actionColumn && (
-                <td className="table-cell">{actionColumn(record)}</td>
-              )}
+              {actionColumn && <th className="table-header-cell">Action</th>}
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {paginatedData.map((record) => (
+              <tr key={record.key}>
+                {columns.map((col) => (
+                  <td key={col.dataIndex} className="table-cell">
+                    {record[col.dataIndex]}
+                  </td>
+                ))}
+                {actionColumn && (
+                  <td className="table-cell">{actionColumn(record)}</td>
+                )}
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
 
       <div className="pagination">
         <button

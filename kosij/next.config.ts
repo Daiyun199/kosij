@@ -23,6 +23,14 @@ const nextConfig: NextConfig = {
         source: "/staff-create",
         destination: "/staffCreate",
       },
+      {
+        source: "/tour-pending",
+        destination: "/tourPending",
+      },
+      {
+        source: "/dashboard/finance",
+        destination: "/finance",
+      },
     ];
   },
 };

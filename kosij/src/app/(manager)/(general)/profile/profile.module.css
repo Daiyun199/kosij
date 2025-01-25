@@ -25,12 +25,12 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  flex: 1 1 300px; /* Linh hoạt về kích thước */
+  flex: 1 1 300px;
   gap: 20px;
 }
 
 .infoSection {
-  flex: 2 1 400px; /* Linh hoạt về kích thước */
+  flex: 2 1 400px; 
   display: flex;
   flex-direction: column;
   gap: 20px;

@@ -20,6 +20,7 @@ function Page() {
       </CustomButton>
     </div>
   );
+
   const customerData: Customer[] = [
     {
       key: "1",
@@ -38,6 +39,7 @@ function Page() {
       status: "Inactive",
     },
   ];
+
   const customerColumns = [
     {
       title: "Customer Name",
@@ -58,11 +60,21 @@ function Page() {
       title: "Country",
       dataIndex: "country",
       key: "country",
+      filters: [
+        { text: "USA", value: "USA" },
+        { text: "Canada", value: "Canada" },
+      ],
+      onFilter: (value: string, record: Customer) => record.country === value,
     },
     {
       title: "Status",
       dataIndex: "status",
       key: "status",
+      filters: [
+        { text: "Active", value: "Active" },
+        { text: "Inactive", value: "Inactive" },
+      ],
+      onFilter: (value: string, record: Customer) => record.status === value,
     },
   ];
 

@@ -27,7 +27,7 @@ const ManagerLayout: React.FC<ManagerLayoutProps> = ({ title, children }) => {
             {
               label: "Order",
               icon: "fa-solid fa-box",
-              path: "/dashboard/order",
+              path: "/dashboard/orders",
             },
             {
               label: "Tour",

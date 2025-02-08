@@ -31,6 +31,14 @@ const nextConfig: NextConfig = {
         source: "/dashboard/finance",
         destination: "/finance",
       },
+      {
+        source: "/dashboard/orders",
+        destination: "/order",
+      },
+      {
+        source: "/dashboard/tour",
+        destination: "/tour",
+      },
     ];
   },
 };

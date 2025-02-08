@@ -92,15 +92,15 @@ const DynamicTable = <DataType extends KeyedData>({
                   <div className="flex items-center justify-between">
                     <span>{col.title}</span>
                     {col.filters && (
-                      <div className="relative">
+                      <div className=" relative">
                         <button
                           className="filter-icon"
                           onClick={() => toggleFilterMenu(col.dataIndex)}
                           title="Filter"
                         >
                           <i
-                            className="fa-solid fa-filter"
-                            style={{ color: "black" }}
+                            className="fa-solid fa-filter text-xs"
+                            style={{ color: "#a6a6a68f" }}
                           ></i>
                         </button>
                         <div

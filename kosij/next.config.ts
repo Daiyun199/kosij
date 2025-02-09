@@ -39,6 +39,10 @@ const nextConfig: NextConfig = {
         source: "/dashboard/tour",
         destination: "/tour",
       },
+      {
+        source: "/order-list",
+        destination: "/orderList",
+      },
     ];
   },
 };

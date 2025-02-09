@@ -57,6 +57,7 @@ function Page() {
       assigned: "Jane Smith",
     },
   ];
+
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const actionColumn = (record: any) => (
     <div style={{ display: "flex", gap: "8px" }}>

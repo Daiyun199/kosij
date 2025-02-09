@@ -1,4 +1,4 @@
-"use-cilent";
+"use client";
 import ManagerLayout from "@/app/components/ManagerLayout/ManagerLayout";
 import React from "react";
 import customStyles from "./customerDetail.module.css";

@@ -46,7 +46,6 @@ export default function Home() {
         const uri = path && decodeURIComponent(path.trim()).split("/");
         Cookies.set("token", token);
         const payload = decodeJwt(token);
-        console.log("Decoded JWT payload:", payload);
         switch (payload.role) {
           case Role.manager: {
             if (uri && uri[1] === "manager@kosij.com") {

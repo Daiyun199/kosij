@@ -3,6 +3,7 @@
 import { useRouter, usePathname } from "next/navigation";
 import React, { useEffect, useState } from "react";
 import "./Layout.css";
+import useLogout from "@/lib/domain/User/useLogout";
 
 interface MenuItem {
   label: string;
@@ -30,6 +31,7 @@ const CustomLayout: React.FC<LayoutProps> = ({
   const [expandedMenus, setExpandedMenus] = useState<{
     [key: string]: boolean;
   }>({});
+  const [handleLogout] = useLogout()
   useEffect(() => {
     const savedPath = localStorage.getItem("activePath") || pathname;
     setActivePath(savedPath);
@@ -100,7 +102,7 @@ const CustomLayout: React.FC<LayoutProps> = ({
         </div>
         <nav className="menu">{renderMenu(menuItems)}</nav>
         <div className="sidebar-footer">
-          <button className="sign-out">Sign Out</button>
+          <button className="sign-out" onClick={handleLogout} >Sign Out</button>
         </div>
       </aside>
 

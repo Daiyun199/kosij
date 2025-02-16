@@ -11,7 +11,7 @@ export function middleware(req: NextRequest) {
   const token = req.cookies.get("token")?.value;
 
   if (!token) {
-    return NextResponse.redirect(new URL("/login", req.url));
+    return NextResponse.redirect(new URL("/", req.url));
   }
 
   const userRole = decodeToken(token)?.role || "guest"; // Nếu không có role, gán "guest"

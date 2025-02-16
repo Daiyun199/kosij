@@ -1,14 +1,14 @@
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { AppProps } from "next/app";
-import { useRef } from "react";
-import "@/styles/globals.css";
+"use client";
 
-export default function MyApp({ Component, pageProps }: AppProps) {
+import { ReactNode, useRef } from "react";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+
+export default function QueryProvider({ children }: { children: ReactNode }) {
   const queryClientRef = useRef(new QueryClient());
 
   return (
     <QueryClientProvider client={queryClientRef.current}>
-      <Component {...pageProps} />
+      {children}
     </QueryClientProvider>
   );
 }

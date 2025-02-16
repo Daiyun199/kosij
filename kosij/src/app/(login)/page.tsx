@@ -1,5 +1,4 @@
 "use client";
-import Head from "next/head";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import styles from "./login.module.css";
@@ -22,18 +21,35 @@ export default function Home() {
   const message = appContext?.message;
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const [loading, setLoading] = useState<boolean>(false);
+  const [loading, setLoading] = useState(false);
+  const [cssLoaded, setCssLoaded] = useState(false);
+
   const searchParams = useSearchParams();
-  const error = searchParams.get("error");
-  const path = searchParams.get("path");
+  const error =
+    typeof window !== "undefined" ? searchParams.get("error") : null;
+  const path = typeof window !== "undefined" ? searchParams.get("path") : null;
 
   const mutations = {
     LoginCredentials: useLoginMutation(),
   };
 
+  useEffect(() => {
+    const checkCssLoaded = () => {
+      const links = document.querySelectorAll("link[rel='stylesheet']");
+      for (const link of links) {
+        if (link instanceof HTMLLinkElement && link.sheet) {
+          setCssLoaded(true);
+          return;
+        }
+      }
+      setTimeout(checkCssLoaded, 50); // Kiểm tra lại sau 50ms nếu chưa load xong
+    };
+
+    checkCssLoaded();
+  }, []);
+
   function handleLogin(event: React.FormEvent<HTMLFormElement>) {
-    event.preventDefault(); // Prevent default form submission
+    event.preventDefault();
 
     const formData = new FormData(event.currentTarget);
     const values: FieldType = {
@@ -43,30 +59,30 @@ export default function Home() {
 
     mutations.LoginCredentials.mutate(values, {
       onSuccess: async (token: string) => {
-        const uri = path && decodeURIComponent(path.trim()).split("/");
-        Cookies.set("token", token);
-        const payload = decodeJwt(token);
-        switch (payload.role) {
-          case Role.manager: {
-            if (uri && uri[1] === "manager@kosij.com") {
-              router.push(path!);
-              return;
-            }
-            router.push(manager_uri.sidebar.dashboard);
-            break;
-          }
-          case Role.farmbreeder: {
-            if (uri && uri[1] === "farmbreeder1@kosij.com") {
-              router.push(path!);
-              return;
-            }
-            router.push(consultant_uri.sidebar.dashboard);
-            break;
-          }
-          default: {
-            message.info(
-              "This account has not been assigned a role. Please contact the manager."
-            );
+        if (typeof window !== "undefined") {
+          Cookies.set("token", token);
+          const payload = decodeJwt(token);
+          const uri = path ? decodeURIComponent(path.trim()).split("/") : [];
+
+          switch (payload.role) {
+            case Role.manager:
+              router.push(
+                uri[1] === "manager@kosij.com"
+                  ? path!
+                  : manager_uri.sidebar.dashboard
+              );
+              break;
+            case Role.farmbreeder:
+              router.push(
+                uri[1] === "farmbreeder1@kosij.com"
+                  ? path!
+                  : consultant_uri.sidebar.dashboard
+              );
+              break;
+            default:
+              message?.info(
+                "This account has not been assigned a role. Please contact the manager."
+              );
           }
         }
       },
@@ -77,19 +93,15 @@ export default function Home() {
   }
 
   useEffect(() => {
-    if (!message) return;
+    if (!message || typeof window === "undefined") return;
 
     message.destroy("error");
-    const error = searchParams.get("error");
     if (error === "unauthenticated") {
-      message
-        .open({
-          content:
-            "You are not allowed to access this page. Please login again.",
-          key: "error",
-          type: "error",
-        })
-        .then();
+      message.open({
+        content: "You are not allowed to access this page. Please login again.",
+        key: "error",
+        type: "error",
+      });
     }
 
     return () => {
@@ -97,44 +109,54 @@ export default function Home() {
     };
   }, [message, error]);
 
+  if (!cssLoaded) {
+    return <div>Loading...</div>; // Đợi CSS tải xong
+  }
+
   return (
-    <>
-      <Head>
-        <title>Login Page</title>
-      </Head>
-      <div className={styles.container}>
-        <div className={styles.logo}>
-          <img src="/logo.png" alt="Logo" />
-          <span>KOSIJ</span>
-        </div>
-        <div className={styles.loginBox}>
-          <h2>LOGIN</h2>
-          <form onSubmit={handleLogin}>
-            <input
-              type="email"
-              name="email"
-              placeholder="staff_sales@gmail.com"
-              className={styles.input}
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-            />
-            <input
-              type="password"
-              name="password"
-              placeholder="********"
-              className={styles.input}
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-            />
-            <a href="#" className={styles.forgotPassword}>
-              Forgot your password?
-            </a>
-            <button type="submit" className={styles.button}>
-              Sign In
-            </button>
-          </form>
-        </div>
+    <div className={styles.container}>
+      <div className={styles.logo}>
+        <img src="/logo.png" alt="Logo" />
+        <span>KOSIJ</span>
       </div>
-    </>
+      <div className={styles.loginBox}>
+        <h2>LOGIN</h2>
+        <form onSubmit={handleLogin}>
+          <input
+            type="email"
+            name="email"
+            placeholder="staff_sales@gmail.com"
+            className={styles.input}
+            value={email || ""}
+            onChange={(e) => setEmail(e.target.value)}
+            required
+            autoComplete="email"
+            suppressHydrationWarning
+          />
+          <input
+            type="password"
+            name="password"
+            placeholder="********"
+            className={styles.input}
+            value={password || ""}
+            onChange={(e) => setPassword(e.target.value)}
+            required
+            autoComplete="current-password"
+            suppressHydrationWarning
+          />
+          <div className={styles.forgotPassword}>
+            <a href="#">Forgot your password?</a>
+          </div>
+          <button
+            type="submit"
+            className={styles.button}
+            disabled={loading}
+            suppressHydrationWarning
+          >
+            {loading ? "Signing in..." : "Sign In"}
+          </button>
+        </form>
+      </div>
+    </div>
   );
 }

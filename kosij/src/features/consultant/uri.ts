@@ -1,7 +1,7 @@
 const consultant_uri = {
-    sidebar: {
-        dashboard: "/profile" //có gì bà tự thêm uri vào nha
-    }
-}
+  sidebar: {
+    dashboard: "/profile",
+  },
+};
 
-export default consultant_uri
+export default consultant_uri;

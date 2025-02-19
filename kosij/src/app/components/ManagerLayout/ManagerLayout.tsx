@@ -65,11 +65,6 @@ const ManagerLayout: React.FC<ManagerLayoutProps> = ({ title, children }) => {
           icon: "fa-solid fa-user-tie",
           children: [
             { label: "List", icon: "fa-solid fa-list", path: "/staff-list" },
-            {
-              label: "Create",
-              icon: "fa-solid fa-user-plus",
-              path: "/staff-create",
-            },
           ],
         },
         {
@@ -81,6 +76,11 @@ const ManagerLayout: React.FC<ManagerLayoutProps> = ({ title, children }) => {
           label: "Order",
           icon: "fa-solid fa-shopping-cart",
           path: "/order-list",
+        },
+        {
+          label: "Account",
+          icon: "fa-solid fa-user-plus",
+          path: "/account-create",
         },
       ],
     },

@@ -107,7 +107,7 @@ function Page() {
     </div>
   );
   return (
-    <ManagerLayout title="Delivery StaffStaff">
+    <ManagerLayout title="Delivery Staff">
       <div>
         <DynamicTable
           columns={deliveryColumns}

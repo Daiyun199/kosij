@@ -1,21 +1,28 @@
 import axios from "axios";
+import Cookies from "js-cookie";
 import { clientEnv } from "../../env";
 
 const api = axios.create({
   baseURL: clientEnv.STATIC_PROD_BACKEND_URL,
-  timeout: 10000, // 10 seconds
-  validateStatus: (status) => status >= 200 && status < 300, // allow only 2xx, 3xx, 4xx codes,
+  timeout: 10000, // 10 giây
+  validateStatus: (status) => status >= 200 && status < 300,
   headers: {
     "Content-Type": "application/json",
   },
 });
 
+// 🛠️ Interceptor để thêm token vào request headers
 api.interceptors.request.use(
   (config) => {
+    const token = Cookies.get("token"); // Lấy token từ cookies
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+
     console.info(
-      `[DEV MODE]: Request to ${config.method?.toUpperCase()} \"${
+      `[DEV MODE]: Request to ${config.method?.toUpperCase()} "${
         config.url
-      }\": `,
+      }": `,
       config
     );
     return config;
@@ -23,30 +30,23 @@ api.interceptors.request.use(
   (error) => {
     console.info("[DEV MODE]: Request error: ", JSON.stringify(error, null, 2));
     return Promise.reject(error);
-  },
-  {
-    runWhen: () => clientEnv.NODE_ENV === "development",
-    synchronous: false,
   }
 );
 
+// 🛠️ Interceptor để log response
 api.interceptors.response.use(
-  (config) => {
+  (response) => {
     console.info(
-      `[DEV MODE]: Response from ${config.config.method?.toUpperCase()} \"${
-        config.config.url
-      }\" (${config.statusText}): `,
-      config
+      `[DEV MODE]: Response from ${response.config.method?.toUpperCase()} "${
+        response.config.url
+      }" (${response.status}): `,
+      response
     );
-    return config;
+    return response;
   },
   (error) => {
-    console.info("[DEV MODE]: Response error: ", error);
+    console.error("[DEV MODE]: Response error: ", error);
     return Promise.reject(error);
-  },
-  {
-    runWhen: () => clientEnv.NODE_ENV === "development",
-    synchronous: false,
   }
 );
 

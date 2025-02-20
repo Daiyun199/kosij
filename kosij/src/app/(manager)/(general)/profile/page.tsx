@@ -1,9 +1,35 @@
-"use-cilent";
+"use client";
 import ManagerLayout from "@/app/components/ManagerLayout/ManagerLayout";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import styles from "./profile.module.css";
 import Image from "next/image";
+import api from "@/config/axios.config";
+
+interface UserProfile {
+  fullName: string | null;
+  phoneNumber: string;
+  email: string;
+  role: string;
+  sex: string;
+  urlAvatar: string | null;
+}
+
 function Page() {
+  const [user, setUser] = useState<UserProfile | null>(null);
+
+  useEffect(() => {
+    const fetchUser = async () => {
+      try {
+        const response = await api.get("/accounts/current-user");
+        setUser(response.data.value); // ✅ Lấy dữ liệu từ `value`
+      } catch (error) {
+        console.error("Error fetching user profile:", error);
+      }
+    };
+
+    fetchUser();
+  }, []);
+
   return (
     <div>
       <ManagerLayout title="Profile">
@@ -12,46 +38,38 @@ function Page() {
             <div className={styles.avatarSection}>
               <div className={styles.avatar}>
                 <Image
-                  src="https://static.wikia.nocookie.net/hoducks/images/1/14/Game_Chapter_31_%28Full_1%29.png/revision/latest?cb=20240128195103"
+                  src={user?.urlAvatar || "/default-avatar.png"}
                   alt="Avatar"
-                  width={300}
-                  height={300}
+                  width={150}
+                  height={150}
+                  className={styles.avatarImage}
                 />
               </div>
               <button className={styles.uploadButton}>Upload Image</button>
             </div>
             <div className={styles.infoSection}>
               <h2 className={styles.title}>Manager Information</h2>
-              <form className={styles.form}>
-                <input
-                  type="text"
-                  placeholder="Full Name"
-                  className={styles.input}
-                />
-                <input
-                  type="text"
-                  placeholder="Phone Number"
-                  className={styles.input}
-                />
-                <input
-                  type="text"
-                  placeholder="Address"
-                  className={styles.input}
-                />
-                <input
-                  type="text"
-                  placeholder="Citizen identification card"
-                  className={styles.input}
-                />
-                <input
-                  type="email"
-                  placeholder="Email"
-                  className={styles.input}
-                />
-                <button type="submit" className={styles.updateButton}>
-                  Update
-                </button>
-              </form>
+              {user ? (
+                <div className={styles.info}>
+                  <p>
+                    <strong>Full Name:</strong> {user.fullName || "N/A"}
+                  </p>
+                  <p>
+                    <strong>Email:</strong> {user.email}
+                  </p>
+                  <p>
+                    <strong>Phone Number:</strong> {user.phoneNumber}
+                  </p>
+                  <p>
+                    <strong>Role:</strong> {user.role}
+                  </p>
+                  <p>
+                    <strong>Sex:</strong> {user.sex}
+                  </p>
+                </div>
+              ) : (
+                <p>Loading...</p>
+              )}
             </div>
           </div>
         </div>

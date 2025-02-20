@@ -15,10 +15,7 @@ const nextConfig: NextConfig = {
         source: "/tour-list",
         destination: "/tourList",
       },
-      {
-        source: "/staff-list",
-        destination: "/staffList",
-      },
+
       {
         source: "/account-create",
         destination: "/accountCreate",
@@ -46,6 +43,10 @@ const nextConfig: NextConfig = {
       {
         source: "/tour-detail",
         destination: "/tourDetail",
+      },
+      {
+        source: "/delivery-staff-list",
+        destination: "/DList",
       },
     ];
   },

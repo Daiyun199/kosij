@@ -28,7 +28,7 @@ export default function RootLayout({
     <html lang="en">
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
         <QueryProvider>
-          <AntdApp> {/* ✅ Wrap your app with Ant Design's App */}
+          <AntdApp>
             {children}
           </AntdApp>
         </QueryProvider>

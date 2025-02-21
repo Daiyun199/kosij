@@ -1,6 +1,6 @@
 const manager_uri = {
     sidebar: {
-        dashboard: "/profile"
+        dashboard: "/profile" //có gì bà tự thêm uri vào nha
     }
 }
 

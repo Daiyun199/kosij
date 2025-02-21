@@ -9,7 +9,7 @@ export type Request = {
 }
 export type Response = string // jwt token
 
-LoginCredentials.URL = "/authentication/login/email"
+LoginCredentials.URL = "/authentication/login"
 export default async function LoginCredentials(req: Request): Promise<Response> {
    return api
       .post<Response>(LoginCredentials.URL, req, {

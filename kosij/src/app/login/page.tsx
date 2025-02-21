@@ -7,9 +7,9 @@ import useLoginMutation from "@/features/common/mutations/Login.mutation";
 import Cookies from "js-cookie";
 import { decodeJwt } from "@/lib/domain/User/decodeJwt.util";
 import { Role } from "@/lib/domain/User/role.enum";
-import consultant_uri from "@/features/consultant/uri";
 import { App } from "antd";
 import manager_uri from "@/features/manager/uri";
+import farmbreeder_uri from "@/features/farmbreeder/uri";
 
 type FieldType = {
   email: string;
@@ -46,6 +46,7 @@ export default function Home() {
         const uri = path && decodeURIComponent(path.trim()).split("/");
         Cookies.set("token", token);
         const payload = decodeJwt(token);
+        console.log("Decoded JWT payload:", payload);
         switch (payload.role) {
           case Role.manager: {
             if (uri && uri[1] === "manager@kosij.com") {
@@ -60,7 +61,7 @@ export default function Home() {
               router.push(path!);
               return;
             }
-            router.push(consultant_uri.sidebar.dashboard);
+            router.push(farmbreeder_uri.sidebar.dashboard);
             break;
           }
           default: {

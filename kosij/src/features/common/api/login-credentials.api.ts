@@ -1,13 +1,13 @@
-import api from "@/config/axios.config"
-import { parseApiResponse } from "@/lib/utils/parseApiResponse.util"
-import { NotFoundError } from "@/lib/error/not-found.error"
-import { UnknownError } from "@/lib/error/unknown.error"
+import api from "@/config/axios.config";
+import { parseApiResponse } from "@/lib/utils/parseApiResponse.util";
+import { NotFoundError } from "@/lib/error/not-found.error";
+import { UnknownError } from "@/lib/error/unknown.error";
 
 export type Request = {
-   email: string
-   password: string
-}
-export type Response = string // jwt token
+  email: string;
+  password: string;
+};
+export type Response = string; // jwt token
 
 LoginCredentials.URL = "/authentication/login"
 export default async function LoginCredentials(req: Request): Promise<Response> {

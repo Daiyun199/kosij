@@ -5,17 +5,25 @@ import "./staffCreate.css";
 
 interface FormValues {
   email: string;
-  role: string;
+  fullName: string;
+  sex: string;
   password: string;
   confirmPassword: string;
+  phoneNumber: string;
+  certificateUrl: string;
+  role: string;
 }
 
 function Page() {
   const [formValues, setFormValues] = useState<FormValues>({
     email: "",
-    role: "",
+    fullName: "",
+    sex: "",
     password: "",
     confirmPassword: "",
+    phoneNumber: "",
+    certificateUrl: "",
+    role: "",
   });
 
   const [errors, setErrors] = useState<Partial<FormValues>>({});
@@ -35,6 +43,18 @@ function Page() {
       newErrors.email = "Please enter a valid email";
     }
 
+    if (!formValues.fullName) {
+      newErrors.fullName = "Full Name is required";
+    }
+
+    if (!formValues.sex) {
+      newErrors.sex = "Sex is required";
+    }
+
+    if (!formValues.phoneNumber) {
+      newErrors.phoneNumber = "Phone Number is required";
+    }
+
     if (!formValues.role) {
       newErrors.role = "Role is required";
     }
@@ -50,7 +70,6 @@ function Page() {
     }
 
     setErrors(newErrors);
-
     return Object.keys(newErrors).length === 0;
   };
 
@@ -62,10 +81,22 @@ function Page() {
   };
 
   return (
-    <div>
+    <div className="form-container">
       <ManagerLayout title="New Staff">
-        <h1>Create New Staff</h1>
+        <h1 className="form-title">Register New Member</h1>
         <form className="form" onSubmit={handleSubmit}>
+          <div className="form-group">
+            <label>Full Name</label>
+            <input
+              type="text"
+              name="fullName"
+              value={formValues.fullName}
+              onChange={handleChange}
+            />
+            {errors.fullName && (
+              <span className="error">{errors.fullName}</span>
+            )}
+          </div>
           <div className="form-group">
             <label>Email</label>
             <input
@@ -75,6 +106,27 @@ function Page() {
               onChange={handleChange}
             />
             {errors.email && <span className="error">{errors.email}</span>}
+          </div>
+          <div className="form-group">
+            <label>Sex</label>
+            <select name="sex" value={formValues.sex} onChange={handleChange}>
+              <option value="">Select</option>
+              <option value="Male">Male</option>
+              <option value="Female">Female</option>
+            </select>
+            {errors.sex && <span className="error">{errors.sex}</span>}
+          </div>
+          <div className="form-group">
+            <label>Phone Number</label>
+            <input
+              type="text"
+              name="phoneNumber"
+              value={formValues.phoneNumber}
+              onChange={handleChange}
+            />
+            {errors.phoneNumber && (
+              <span className="error">{errors.phoneNumber}</span>
+            )}
           </div>
           <div className="form-group">
             <label>Role</label>

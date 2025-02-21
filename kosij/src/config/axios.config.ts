@@ -1,47 +1,53 @@
-import axios from "axios"
-import { clientEnv } from "../../env"
-
+import axios from "axios";
+import Cookies from "js-cookie";
+import { clientEnv } from "../../env";
 
 const api = axios.create({
-   baseURL: clientEnv.STATIC_PROD_BACKEND_URL,
-   timeout: 10000, // 10 seconds
-   validateStatus: (status) => status >= 200 && status < 300, // allow only 2xx, 3xx, 4xx codes,
-   headers: {
-      "Content-Type": "application/json",
-   },
-})
+  baseURL: clientEnv.STATIC_PROD_BACKEND_URL,
+  timeout: 10000, // 10 giây
+  validateStatus: (status) => status >= 200 && status < 300,
+  headers: {
+    "Content-Type": "application/json",
+  },
+});
 
+// 🛠️ Interceptor để thêm token vào request headers
 api.interceptors.request.use(
-   (config) => {
-      console.info(`[DEV MODE]: Request to ${config.method?.toUpperCase()} \"${config.url}\": `, config)
-      return config
-   },
-   (error) => {
-      console.info("[DEV MODE]: Request error: ", JSON.stringify(error, null, 2))
-      return Promise.reject(error)
-   },
-   {
-      runWhen: () => clientEnv.NODE_ENV === "development",
-      synchronous: false,
-   },
-)
+  (config) => {
+    const token = Cookies.get("token"); // Lấy token từ cookies
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
 
+    console.info(
+      `[DEV MODE]: Request to ${config.method?.toUpperCase()} "${
+        config.url
+      }": `,
+      config
+    );
+    return config;
+  },
+  (error) => {
+    console.info("[DEV MODE]: Request error: ", JSON.stringify(error, null, 2));
+    return Promise.reject(error);
+  }
+);
+
+// 🛠️ Interceptor để log response
 api.interceptors.response.use(
-   (config) => {
-      console.info(
-         `[DEV MODE]: Response from ${config.config.method?.toUpperCase()} \"${config.config.url}\" (${config.statusText}): `,
-         config,
-      )
-      return config
-   },
-   (error) => {
-      console.info("[DEV MODE]: Response error: ", error)
-      return Promise.reject(error)
-   },
-   {
-      runWhen: () => clientEnv.NODE_ENV === "development",
-      synchronous: false,
-   },
-)
+  (response) => {
+    console.info(
+      `[DEV MODE]: Response from ${response.config.method?.toUpperCase()} "${
+        response.config.url
+      }" (${response.status}): `,
+      response
+    );
+    return response;
+  },
+  (error) => {
+    console.error("[DEV MODE]: Response error: ", error);
+    return Promise.reject(error);
+  }
+);
 
-export default api
+export default api;

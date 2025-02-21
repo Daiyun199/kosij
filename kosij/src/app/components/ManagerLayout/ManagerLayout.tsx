@@ -48,6 +48,47 @@ const ManagerLayout: React.FC<ManagerLayoutProps> = ({ title, children }) => {
       icon: "fa-solid fa-cogs",
       children: [
         {
+          label: "Account",
+          icon: "fa-solid fa-user",
+          children: [
+            {
+              label: "Customer",
+              icon: "fa-solid fa-users",
+              path: "/customer-list",
+            },
+            {
+              label: "Sale Staff",
+              icon: "fa-solid fa-headphones",
+              path: "/sale-staff-list",
+            },
+            {
+              label: "Delivery Staff",
+              icon: "fa-solid fa-truck-fast",
+              path: "/delivery-staff-list",
+            },
+            {
+              label: "Fram Breeder",
+              icon: "fa-solid fa-fish-fins",
+              path: "/farm-breeder-list",
+            },
+            {
+              label: "Consultant Staff",
+              icon: "fa-solid fa-user-tie",
+              path: "/consultant-staff-list",
+            },
+            {
+              label: "Register",
+              icon: "fa-solid fa-user-plus",
+              path: "/account-create",
+            },
+          ],
+        },
+        {
+          label: "Order",
+          icon: "fa-solid fa-shopping-cart",
+          path: "/order-list",
+        },
+        {
           label: "Tour",
           icon: "fa-solid fa-map",
           children: [
@@ -59,28 +100,6 @@ const ManagerLayout: React.FC<ManagerLayoutProps> = ({ title, children }) => {
             },
             { label: "Cancel", icon: "fa-solid fa-ban", path: "/tour-cancel" },
           ],
-        },
-        {
-          label: "Staff",
-          icon: "fa-solid fa-user-tie",
-          children: [
-            { label: "List", icon: "fa-solid fa-list", path: "/staff-list" },
-            {
-              label: "Create",
-              icon: "fa-solid fa-user-plus",
-              path: "/staff-create",
-            },
-          ],
-        },
-        {
-          label: "Customer",
-          icon: "fa-solid fa-users",
-          path: "/customer-list",
-        },
-        {
-          label: "Order",
-          icon: "fa-solid fa-shopping-cart",
-          path: "/order-list",
         },
       ],
     },

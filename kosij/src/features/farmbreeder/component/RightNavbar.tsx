@@ -164,7 +164,7 @@ function RightNavbar({ children }: PropsWithChildren) {
                 key: "tracking",
                 name: "Trips Tracking",
                 icon: <ProductOutlined />,
-                path: "farmbreeder/request",
+                path: "farmbreeder/triptracking",
               },
               {
                 key: "order",

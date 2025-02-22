@@ -1,6 +1,6 @@
 const farmbreeder_uri = {
     sidebar: {
-        dashboard: "/farmbreeder"
+        dashboard: "/farmbreeder/dashboard"
     }
 }
 

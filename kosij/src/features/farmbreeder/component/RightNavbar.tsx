@@ -13,7 +13,6 @@ import {
   WalletOutlined,
 } from "@ant-design/icons";
 import Cookies from "js-cookie";
-import Link from "next/link";
 import { ProLayout } from "@ant-design/pro-layout";
 import { PropsWithChildren } from "react";
 import { usePathname, useRouter } from "next/navigation";
@@ -22,6 +21,8 @@ function RightNavbar({ children }: PropsWithChildren) {
   const pathname = usePathname();
   const router = useRouter();
 
+  const farmId = pathname.split("/")[2]
+  console.log("Rendering RightNavbar", pathname, farmId);
   return (
     <ProLayout
       className="custom-prolayout"
@@ -29,7 +30,7 @@ function RightNavbar({ children }: PropsWithChildren) {
       contentWidth="Fixed"
       contentStyle={{
         width: "auto",
-        fontSize: "18px"
+        fontSize: "18px",
       }}
       location={{
         pathname,
@@ -45,7 +46,7 @@ function RightNavbar({ children }: PropsWithChildren) {
           colorMenuItemDivider: "#fff",
           colorTextMenuSecondary: "#ffffff",
           colorTextMenuItemHover: "#fff",
-          colorTextSubMenuSelected: "#fff"
+          colorTextSubMenuSelected: "#fff",
         },
       }}
       bgLayoutImgList={[
@@ -96,6 +97,9 @@ function RightNavbar({ children }: PropsWithChildren) {
                     key: "settings",
                     icon: <SettingOutlined />,
                     label: "Profile",
+                    onClick: () => {
+                      router.push("/farmbreeder/profile")
+                    }
                   },
                 ],
               }}
@@ -176,7 +180,7 @@ function RightNavbar({ children }: PropsWithChildren) {
                 key: "variety",
                 name: "Variety",
                 icon: <FileTextOutlined />,
-                path: "farmbreeder/task",
+                path: farmId ? `/farmbreeder/${farmId}/variety` : "/farmbreeder/variety",
               },
             ],
           },
@@ -186,8 +190,19 @@ function RightNavbar({ children }: PropsWithChildren) {
         console.log("Hi error");
       }}
       menuItemRender={(item, dom) => (
-        <Link href={item.path ?? "/farmbreeder/dashboard"}>{dom}</Link>
+        <div
+          onClick={() => {
+            console.log("Navigating to:", item.path);
+            if (item.path) {
+              router.push(item.path);
+            }
+          }}
+          style={{ cursor: "pointer" }}
+        >
+          {dom}
+        </div>
       )}
+      
     >
       {children}
     </ProLayout>

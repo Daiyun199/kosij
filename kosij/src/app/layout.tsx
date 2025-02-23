@@ -3,7 +3,8 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import QueryProvider from "./QueryProvider";
 import { App as AntdApp } from "antd"; // Import Ant Design's App
-
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
@@ -26,11 +27,12 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+      <body
+        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+      >
         <QueryProvider>
-          <AntdApp> {/* ✅ Wrap your app with Ant Design's App */}
-            {children}
-          </AntdApp>
+          <ToastContainer />
+          <AntdApp>{children}</AntdApp>
         </QueryProvider>
       </body>
     </html>

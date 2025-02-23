@@ -5,6 +5,7 @@
   min-height: 100vh;
   background: linear-gradient(to right, #f8f9fa, #e3e6ea);
   padding: 20px;
+  
 }
 
 .card {
@@ -19,6 +20,7 @@
   max-width: 1000px;
   gap: 40px;
   flex-wrap: wrap;
+  position: relative; 
 }
 
 .avatarSection {
@@ -168,4 +170,15 @@
     font-size: 14px;
     padding: 10px;
   }
+}
+.editButton {
+  position: absolute;
+  bottom: 20px;
+  right: 20px;
+}
+
+.modalContent {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
 }

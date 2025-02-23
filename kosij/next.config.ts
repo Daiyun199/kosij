@@ -48,6 +48,10 @@ const nextConfig: NextConfig = {
         source: "/delivery-staff-list",
         destination: "/DList",
       },
+      {
+        source: "/",
+        destination: "/login",
+      },
     ];
   },
 };

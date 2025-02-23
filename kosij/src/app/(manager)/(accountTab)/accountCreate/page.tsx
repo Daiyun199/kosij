@@ -1,7 +1,10 @@
 "use client";
 import ManagerLayout from "@/app/components/ManagerLayout/ManagerLayout";
+
 import React, { useState } from "react";
 import "./staffCreate.css";
+import api from "@/config/axios.config";
+import { toast } from "react-toastify";
 
 interface FormValues {
   email: string;
@@ -10,7 +13,7 @@ interface FormValues {
   password: string;
   confirmPassword: string;
   phoneNumber: string;
-  certificateUrl: string;
+  area: string;
   role: string;
 }
 
@@ -22,11 +25,12 @@ function Page() {
     password: "",
     confirmPassword: "",
     phoneNumber: "",
-    certificateUrl: "",
+    area: "",
     role: "",
   });
 
   const [errors, setErrors] = useState<Partial<FormValues>>({});
+  const [loading, setLoading] = useState(false);
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
@@ -55,6 +59,10 @@ function Page() {
       newErrors.phoneNumber = "Phone Number is required";
     }
 
+    if (!formValues.area) {
+      newErrors.area = "Area is required";
+    }
+
     if (!formValues.role) {
       newErrors.role = "Role is required";
     }
@@ -73,10 +81,41 @@ function Page() {
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (validateForm()) {
-      console.log("Form submitted successfully!", formValues);
+    if (!validateForm()) return;
+
+    setLoading(true);
+
+    const requestData = {
+      email: formValues.email,
+      fullName: formValues.fullName,
+      sex: formValues.sex,
+      password: formValues.password,
+      confirmPassword: formValues.confirmPassword,
+      phoneNumber: formValues.phoneNumber,
+      area: formValues.area,
+      role: formValues.role,
+    };
+
+    try {
+      await api.post("/manager/register/staff", requestData);
+      toast.success("Register Successfull");
+      setFormValues({
+        email: "",
+        fullName: "",
+        sex: "",
+        password: "",
+        confirmPassword: "",
+        phoneNumber: "",
+        area: "",
+        role: "",
+      });
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } catch (error: any) {
+      toast.error("Error: " + (error.response?.data?.message || error.message));
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -84,6 +123,7 @@ function Page() {
     <div className="form-container">
       <ManagerLayout title="New Staff">
         <h1 className="form-title">Register New Member</h1>
+
         <form className="form" onSubmit={handleSubmit}>
           <div className="form-group">
             <label>Full Name</label>
@@ -129,12 +169,23 @@ function Page() {
             )}
           </div>
           <div className="form-group">
+            <label>Area</label>
+            <input
+              type="text"
+              name="area"
+              value={formValues.area}
+              onChange={handleChange}
+            />
+            {errors.area && <span className="error">{errors.area}</span>}
+          </div>
+          <div className="form-group">
             <label>Role</label>
             <select name="role" value={formValues.role} onChange={handleChange}>
               <option value="">Select a role</option>
-              <option value="Admin">Admin</option>
-              <option value="Staff">Staff</option>
-              <option value="Reader">Reader</option>
+              <option value="SALESSTAFF">Sales Staff</option>
+              <option value="CONSULTINGSTAFF">Consulting Staff</option>
+              <option value="DELIVERYSTAFF">Delivery Staff</option>
+              <option value="FARMBREEDER">Farm Breeder</option>
             </select>
             {errors.role && <span className="error">{errors.role}</span>}
           </div>
@@ -162,8 +213,8 @@ function Page() {
               <span className="error">{errors.confirmPassword}</span>
             )}
           </div>
-          <button className="staff-button" type="submit">
-            Create
+          <button className="staff-button" type="submit" disabled={loading}>
+            {loading ? "Creating..." : "Create"}
           </button>
         </form>
       </ManagerLayout>

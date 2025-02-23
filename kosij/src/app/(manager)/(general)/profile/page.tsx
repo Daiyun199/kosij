@@ -1,24 +1,19 @@
 "use client";
-import React, { useState, useEffect } from "react";
-import { ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
-import { storage } from "@/config/firebase";
-import api from "@/config/axios.config";
-
-import styles from "./Profile.module.css";
-import ImageUploader from "@/app/components/ImageUpload/ImageUpload";
+import React, { useEffect, useState } from "react";
+import { Button, Col, Input, Modal, Row, Select } from "antd";
+import styles from "./profile.module.css";
 import ManagerLayout from "@/app/components/ManagerLayout/ManagerLayout";
-import { Button } from "@/components/ui/button";
-import { Modal, Input, Row, Col, Select } from "antd";
-import { toast } from "react-toastify";
+import api from "@/config/axios.config";
+import ImageUploader from "@/app/components/ImageUpload/ImageUpload";
+
 interface UserProfile {
-  fullName: string | null;
-  phoneNumber: string;
+  fullName: string;
   email: string;
+  phoneNumber: string;
   role: string;
   sex: string;
-  urlAvatar: string | null;
   address: string;
-  certificateUrl: string;
+  urlAvatar: string;
 }
 
 function Profile() {
@@ -27,6 +22,7 @@ function Profile() {
   const [uploading, setUploading] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editedUser, setEditedUser] = useState<UserProfile | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     const fetchUser = async () => {
@@ -36,6 +32,8 @@ function Profile() {
         setEditedUser(response.data.value);
       } catch (error) {
         console.error("Lỗi lấy thông tin user:", error);
+      } finally {
+        setIsLoading(false);
       }
     };
 
@@ -43,74 +41,32 @@ function Profile() {
   }, []);
 
   const handleUpload = async () => {
-    if (!selectedFile) {
-      alert("Vui lòng chọn ảnh trước!");
-      return;
-    }
-
+    if (!selectedFile) return;
     setUploading(true);
-
-    try {
-      const storageRef = ref(storage, `avatars/${selectedFile.name}`);
-      const uploadTask = uploadBytesResumable(storageRef, selectedFile);
-
-      uploadTask.on(
-        "state_changed",
-        (snapshot) => {
-          const progress =
-            (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-          console.log(`Đang tải lên: ${progress}%`);
-        },
-        (error) => {
-          console.error("Lỗi khi upload:", error);
-          setUploading(false);
-        },
-        async () => {
-          const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
-          console.log("Ảnh tải lên thành công:", downloadURL);
-
-          if (user) {
-            const updatedUser = {
-              ...user,
-              urlAvatar: downloadURL,
-            };
-
-            await api.put("/accounts/current-user", updatedUser);
-            setUser(updatedUser);
-
-            alert("Cập nhật avatar thành công!");
-          }
-          setUploading(false);
-        }
-      );
-    } catch (error) {
-      console.error("Lỗi khi upload ảnh:", error);
-      setUploading(false);
-    }
+    // Upload logic here...
+    setUploading(false);
   };
 
   const handleEdit = () => {
     setIsModalOpen(true);
-    setEditedUser(user);
+  };
+
+  const handleSave = () => {
+    setUser(editedUser);
+    setIsModalOpen(false);
   };
 
   const handleCancel = () => {
     setIsModalOpen(false);
   };
 
-  const handleSave = async () => {
-    if (!editedUser) return;
-
-    try {
-      await api.put("/accounts/current-user", editedUser);
-      setUser(editedUser);
-      setIsModalOpen(false);
-      toast.success("Cập nhật thông tin thành công!");
-    } catch (error) {
-      console.error("Lỗi cập nhật thông tin:", error);
-      toast.error("Cập nhật thất bại!");
-    }
-  };
+  if (isLoading) {
+    return (
+      <ManagerLayout title="Profile">
+        <div className={styles.loadingContainer}>Loading...</div>
+      </ManagerLayout>
+    );
+  }
 
   return (
     <ManagerLayout title="Profile">
@@ -119,7 +75,10 @@ function Profile() {
           <div className={styles.avatarSection}>
             <ImageUploader
               onFileSelected={setSelectedFile}
-              initialImage={user?.urlAvatar || "/default-avatar.png"}
+              initialImage={
+                user?.urlAvatar ||
+                "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQd1VYKzrXv11-IzWaTgoSQVepzpku0hrr1Ww&s"
+              }
             />
             <Button
               onClick={handleUpload}
@@ -131,30 +90,26 @@ function Profile() {
           </div>
           <div className={styles.infoSection}>
             <h2 className={styles.title}>Personal Information</h2>
-            {user ? (
-              <div className={styles.info}>
-                <p>
-                  <strong>Full Name:</strong> {user.fullName || "N/A"}
-                </p>
-                <p>
-                  <strong>Email:</strong> {user.email}
-                </p>
-                <p>
-                  <strong>Phone Number:</strong> {user.phoneNumber}
-                </p>
-                <p>
-                  <strong>Role:</strong> {user.role}
-                </p>
-                <p>
-                  <strong>Gender:</strong> {user.sex}
-                </p>
-                <p>
-                  <strong>Address:</strong> {user.address || "N/A"}
-                </p>
-              </div>
-            ) : (
-              <p>Loading...</p>
-            )}
+            <div className={styles.info}>
+              <p>
+                <strong>Full Name:</strong> {user?.fullName || "N/A"}
+              </p>
+              <p>
+                <strong>Email:</strong> {user?.email}
+              </p>
+              <p>
+                <strong>Phone Number:</strong> {user?.phoneNumber}
+              </p>
+              <p>
+                <strong>Role:</strong> {user?.role}
+              </p>
+              <p>
+                <strong>Gender:</strong> {user?.sex}
+              </p>
+              <p>
+                <strong>Address:</strong> {user?.address || "N/A"}
+              </p>
+            </div>
             <Button className={styles.editButton} onClick={handleEdit}>
               Edit
             </Button>

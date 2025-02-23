@@ -175,10 +175,21 @@
   position: absolute;
   bottom: 20px;
   right: 20px;
+  background-color: black !important;
+  color: white !important;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background 0.3s;
 }
 
 .modalContent {
   display: flex;
   flex-direction: column;
   gap: 10px;
+}
+
+.editButton:hover {
+  background-color: #333 !important;
 }

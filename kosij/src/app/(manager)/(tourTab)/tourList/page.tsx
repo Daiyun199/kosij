@@ -1,137 +1,124 @@
 "use client";
-import CustomButton from "@/app/components/Button/Button";
+import { Table, Button, Spin } from "antd";
 import ManagerLayout from "@/app/components/ManagerLayout/ManagerLayout";
-import DynamicTable from "@/app/components/Table/Table";
-import React from "react";
+import React, { useEffect, useState } from "react";
+
+import type { ColumnsType } from "antd/es/table";
+import api from "@/config/axios.config";
+
+interface Tour {
+  key: string;
+  tourName: string;
+  standardPrice: number;
+  visaFee: number;
+  tourStatus: string;
+  totalFarmVisit: number;
+}
 
 function Page() {
-  const tourData = [
-    {
-      key: "1",
-      tourID: "1",
-      tourName: "City Tour",
-      status: "Active",
-      type: "Sightseeing",
-      createDate: "2024-01-10",
-      amountTrip: 5,
-      assigned: "John Doe",
-    },
-    {
-      key: "2",
-      tourID: "2",
-      tourName: "Mountain Adventure",
-      status: "Inactive",
-      type: "Adventure",
-      createDate: "2024-01-15",
-      amountTrip: 3,
-      assigned: "Jane Smith",
-    },
-    {
-      key: "33",
-      tourID: "2",
-      tourName: "Mountain Adventure",
-      status: "Inactive",
-      type: "Adventure",
-      createDate: "2024-01-15",
-      amountTrip: 3,
-      assigned: "Jane Smith",
-    },
-    {
-      key: "44",
-      tourID: "2",
-      tourName: "Mountain Adventure",
-      status: "Inactive",
-      type: "Adventure",
-      createDate: "2024-01-15",
-      amountTrip: 3,
-      assigned: "Jane Smith",
-    },
-    {
-      key: "5",
-      tourID: "2",
-      tourName: "Mountain Adventure",
-      status: "Inactive",
-      type: "Adventure",
-      createDate: "2024-01-15",
-      amountTrip: 3,
-      assigned: "Jane Smith",
-    },
-  ];
+  const [tourData, setTourData] = useState<Tour[]>([]);
+  const [loading, setLoading] = useState(true); // State kiểm soát loading
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const actionColumn = (record: any) => (
-    <div style={{ display: "flex", gap: "8px" }}>
-      <CustomButton
-        type="primary"
-        onClick={() => console.log("Detail:", record)}
-      >
-        Detail
-      </CustomButton>
-      <CustomButton
-        type="default"
-        onClick={() => console.log("Add Trip:", record)}
-      >
-        Add Trip
-      </CustomButton>
-      <CustomButton
-        type="danger"
-        onClick={() => console.log("Delete:", record)}
-      >
-        Delete
-      </CustomButton>
-    </div>
-  );
+  useEffect(() => {
+    const fetchTours = async () => {
+      try {
+        const response = await api.get("/tours");
+        setTourData(
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          response.data.value.map((tour: any) => ({
+            key: tour.id,
+            tourName: tour.tourName,
+            standardPrice: tour.standardPrice,
+            visaFee: tour.visaFee,
+            tourStatus: tour.tourStatus,
+            totalFarmVisit: tour.totalFarmVisit,
+          }))
+        );
+      } catch (error) {
+        console.error("Error fetching tours:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
 
-  const tourColumns = [
+    fetchTours();
+  }, []);
+
+  const tourColumns: ColumnsType<Tour> = [
     {
-      title: "Tour ID",
-      dataIndex: "tourID",
-      key: "tourID",
-    },
-    {
-      title: "Tour Name",
+      title: "Name",
       dataIndex: "tourName",
       key: "tourName",
+      sorter: (a, b) => a.tourName.localeCompare(b.tourName),
     },
     {
-      title: "Status",
-      dataIndex: "status",
-      key: "status",
+      title: "Standard Price",
+      dataIndex: "standardPrice",
+      key: "standardPrice",
+      sorter: (a, b) => a.standardPrice - b.standardPrice,
     },
     {
-      title: "Type",
-      dataIndex: "type",
-      key: "type",
+      title: "Visa Fee",
+      dataIndex: "visaFee",
+      key: "visaFee",
+      sorter: (a, b) => a.visaFee - b.visaFee,
     },
     {
-      title: "Create Date",
-      dataIndex: "createDate",
-      key: "createDate",
+      title: "Tour Status",
+      dataIndex: "tourStatus",
+      key: "tourStatus",
+      filters: [
+        { text: "Active", value: "Active" },
+        { text: "Inactive", value: "Inactive" },
+      ],
+      onFilter: (value, record) => record.tourStatus === value,
     },
     {
-      title: "Amount Trip",
-      dataIndex: "amountTrip",
-      key: "amountTrip",
+      title: "Total Farm Visit",
+      dataIndex: "totalFarmVisit",
+      key: "totalFarmVisit",
+      sorter: (a, b) => a.totalFarmVisit - b.totalFarmVisit,
     },
     {
-      title: "Assigned",
-      dataIndex: "assigned",
-      key: "assigned",
+      title: "Actions",
+      key: "actions",
+      render: (_, record) => (
+        <div style={{ display: "flex", gap: "8px" }}>
+          <Button type="primary" onClick={() => console.log("Detail:", record)}>
+            Detail
+          </Button>
+          <Button
+            type="default"
+            onClick={() => console.log("Add Trip:", record)}
+          >
+            Add Trip
+          </Button>
+          <Button
+            type="primary"
+            danger
+            onClick={() => console.log("Delete:", record)}
+          >
+            Delete
+          </Button>
+        </div>
+      ),
     },
   ];
 
   return (
-    <div>
-      <ManagerLayout title="Tour List">
-        <div>
-          <DynamicTable
-            columns={tourColumns}
-            data={tourData}
-            actionColumn={actionColumn}
-          />
+    <ManagerLayout title="Tour List">
+      {loading ? (
+        <div className="flex justify-center items-center min-h-screen">
+          <Spin size="large" />
         </div>
-      </ManagerLayout>
-    </div>
+      ) : (
+        <Table
+          columns={tourColumns}
+          dataSource={tourData}
+          pagination={{ pageSize: 5 }}
+        />
+      )}
+    </ManagerLayout>
   );
 }
 

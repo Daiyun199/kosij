@@ -12,7 +12,6 @@ interface TourData {
   tourCode: string;
   duration: string;
   type: string;
-  hotelService: string;
   price: { adult: string; children1_11: string; children12_plus: string };
   departurePoints: string;
   destinationPoints: string;
@@ -39,7 +38,6 @@ const TourDetail = ({ data }: { data: TourData }) => {
     const [start, end] = dates.map((date: any) =>
       dayjs(date).format("YYYY-MM-DD")
     );
-
     const filtered = data.tripList.filter(
       (tripDate) => tripDate >= start && tripDate <= end
     );
@@ -58,26 +56,25 @@ const TourDetail = ({ data }: { data: TourData }) => {
           <h2 className="text-xl font-semibold">{data.title}</h2>
           <Tag color="green">Completed</Tag>
         </div>
-        <p className="text-gray-500">Tour: {data.tourCode}</p>
+        <p className="text-gray-500">Tour Code: {data.tourCode}</p>
         <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mt-4">
           <Card title="Duration">{data.duration}</Card>
           <Card title="Type">{data.type}</Card>
-          <Card title="Hotel Service">{data.hotelService}</Card>
           <Card title="Price">
             <p>Adult: {data.price.adult}</p>
             <p>Children (1-11 Years): {data.price.children1_11}</p>
             <p>Children (12+ Years): {data.price.children12_plus}</p>
           </Card>
-          <Card title="Departure points">{data.departurePoints}</Card>
-          <Card title="Destination points">{data.destinationPoints}</Card>
+          <Card title="Departure Points">{data.departurePoints}</Card>
+          <Card title="Destination Points">{data.destinationPoints}</Card>
         </div>
       </Card>
 
       <div className="mt-4">
         <Collapse accordion>
           {data.itinerary.map((item, index) => (
-            <Panel header={`Ngày ${index + 1}: ${item}`} key={index}>
-              <p>Chi tiết lịch trình cho ngày {index + 1}</p>
+            <Panel header={`Day ${index + 1}: ${item}`} key={index}>
+              <p>Itinerary details for day {index + 1}</p>
             </Panel>
           ))}
         </Collapse>
@@ -112,7 +109,7 @@ const TourDetail = ({ data }: { data: TourData }) => {
       </Card>
 
       <Card className="mt-4 border border-gray-200 shadow-sm">
-        <h3 className="font-semibold">TRIP LIST</h3>
+        <h3 className="font-semibold">Trip List</h3>
         <div className="mb-4">
           <RangePicker
             onChange={handleDateFilter}

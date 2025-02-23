@@ -6,9 +6,9 @@ import useLoginMutation from "@/features/common/mutations/Login.mutation";
 import Cookies from "js-cookie";
 import { decodeJwt } from "@/lib/domain/User/decodeJwt.util";
 import { Role } from "@/lib/domain/User/role.enum";
-import consultant_uri from "@/features/consultant/uri";
 import { App } from "antd";
 import manager_uri from "@/features/manager/uri";
+import farmbreeder_uri from "@/features/farmbreeder/uri";
 
 type FieldType = {
   email: string;
@@ -59,30 +59,31 @@ export default function Home() {
 
     mutations.LoginCredentials.mutate(values, {
       onSuccess: async (token: string) => {
-        if (typeof window !== "undefined") {
-          Cookies.set("token", token);
-          const payload = decodeJwt(token);
-          const uri = path ? decodeURIComponent(path.trim()).split("/") : [];
-
-          switch (payload.role) {
-            case Role.manager:
-              router.push(
-                uri[1] === "manager@kosij.com"
-                  ? path!
-                  : manager_uri.sidebar.dashboard
-              );
-              break;
-            case Role.farmbreeder:
-              router.push(
-                uri[1] === "farmbreeder1@kosij.com"
-                  ? path!
-                  : consultant_uri.sidebar.dashboard
-              );
-              break;
-            default:
-              message?.info(
-                "This account has not been assigned a role. Please contact the manager."
-              );
+        const uri = path && decodeURIComponent(path.trim()).split("/");
+        Cookies.set("token", token);
+        const payload = decodeJwt(token);
+        console.log("Decoded JWT payload:", payload);
+        switch (payload.role) {
+          case Role.manager: {
+            if (uri && uri[1] === "manager@kosij.com") {
+              router.push(path!);
+              return;
+            }
+            router.push(manager_uri.sidebar.dashboard);
+            break;
+          }
+          case Role.farmbreeder: {
+            if (uri && uri[1] === "farmbreeder1@kosij.com") {
+              router.push(path!);
+              return;
+            }
+            router.push(farmbreeder_uri.sidebar.dashboard);
+            break;
+          }
+          default: {
+            message.info(
+              "This account has not been assigned a role. Please contact the manager."
+            );
           }
         }
       },

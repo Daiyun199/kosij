@@ -142,13 +142,13 @@ function RightNavbar({ children }: PropsWithChildren) {
               },
               {
                 key: "reviews",
-                path: "farmbreeder/dashboard",
+                path: "farmbreeder/ratings",
                 name: "Ratings & Reviews",
                 icon: <InboxOutlined />,
               },
               {
                 key: "wallet",
-                path: "farmbreeder/dashboard",
+                path: "farmbreeder/wallet",
                 name: "Wallet",
                 icon: <WalletOutlined />,
               },
@@ -174,7 +174,7 @@ function RightNavbar({ children }: PropsWithChildren) {
                 key: "order",
                 name: "Order",
                 icon: <ShopOutlined />,
-                path: "farmbreeder/task",
+                path: "farmbreeder/order",
               },
               {
                 key: "variety",

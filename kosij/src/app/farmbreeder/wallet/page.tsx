@@ -1,10 +1,23 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
-import { EllipsisOutlined, PlusOutlined } from "@ant-design/icons";
-import type { ActionType, ProColumns } from "@ant-design/pro-components";
-import { PageContainer, ProTable, TableDropdown } from "@ant-design/pro-components";
-import { Button, Dropdown, Space, Tag } from "antd";
-import { useRef } from "react";
+import ClickableArea from "@/app/components/ClickableArea";
+import { PageContainer } from "@ant-design/pro-layout";
+import { Button, Dropdown, Space, Statistic, Tag } from "antd";
+import { cn } from "@/lib/utils/cn.util";
+import {
+  EllipsisOutlined,
+  LogoutOutlined,
+  PlusOutlined,
+} from "@ant-design/icons";
+import {
+  ActionType,
+  ProColumns,
+  ProTable,
+  TableDropdown,
+} from "@ant-design/pro-components";
+import { useRef, useState } from "react";
+import WithdrawalModal from "@/features/farmbreeder/component/Withdrawal.modal";
 
 type GithubIssueItem = {
   url: string;
@@ -26,13 +39,13 @@ type GithubIssueItem = {
 
 const columns: ProColumns<GithubIssueItem>[] = [
   {
-    title: "ID",
+    title: "Transaction ID",
     dataIndex: "index",
     valueType: "indexBorder",
-    width: 58,
   },
   {
-    title: "Trip Name",
+    title: "Type",
+    hideInSearch: true,
     dataIndex: "title",
     copyable: true,
     ellipsis: true,
@@ -47,8 +60,9 @@ const columns: ProColumns<GithubIssueItem>[] = [
   },
   {
     disable: true,
-    title: "Pick-up Time",
+    title: "Time",
     dataIndex: "labels",
+    hideInSearch: true,
     search: false,
     renderFormItem: (_, { defaultRender }) => {
       return defaultRender(_);
@@ -65,16 +79,20 @@ const columns: ProColumns<GithubIssueItem>[] = [
   },
   {
     disable: true,
-    title: "Number of Visitors",
+    title: "Transactor",
     dataIndex: "state",
     filters: true,
+    hideInSearch: true,
+
     onFilter: true,
     ellipsis: true,
   },
   {
-    title: "Status",
+    title: "Amount",
     key: "status",
     dataIndex: "status",
+    hideInSearch: true,
+
     valueType: "select",
     valueEnum: {
       open: {
@@ -96,8 +114,10 @@ const columns: ProColumns<GithubIssueItem>[] = [
     },
   },
   {
-    title: "Type",
+    title: "Status",
     dataIndex: "type",
+    hideInSearch: true,
+
     valueType: "select",
     valueEnum: {
       open: {
@@ -109,9 +129,21 @@ const columns: ProColumns<GithubIssueItem>[] = [
         status: "Customized",
       },
     },
+    renderFormItem: (_, { defaultRender }) => {
+        return defaultRender(_);
+      },
+      render: (_, record) => (
+        <Space>
+          {record.labels.map(({ name, color }) => (
+            <Tag color={color} key={name}>
+              {name}
+            </Tag>
+          ))}
+        </Space>
+      ),
   },
   {
-    title: "Details",
+    title: "Actions",
     valueType: "option",
     key: "option",
     render: (text, record, _, action) => [
@@ -208,9 +240,18 @@ const fakeData: GithubIssueItem[] = [
 
 function Page() {
   const actionRef = useRef<ActionType>();
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
+  const handleOpen = () => setIsModalOpen(true);
+  const handleClose = () => setIsModalOpen(false);
+  const handleSubmit = (values: any) => {
+    console.log("Form Submitted:", values);
+    setIsModalOpen(false);
+  };
+
   return (
     <PageContainer
-      title="Trip Tracking List"
+      title="Your Wallet"
       extra={
         <Space>
           <Button
@@ -232,6 +273,28 @@ function Page() {
         },
       }}
     >
+      <section className={"mt-3 grid grid-cols-2 gap-3 px-layout pb-layout"}>
+        <ClickableArea className={cn("block h-40 shadow-md p-4")}>
+          <div className="flex items-start justify-between">
+            <Statistic
+              title={
+                <span className="text-lg font-normal">Current Balance</span>
+              }
+              value="75,000,000 VND"
+              valueStyle={{ fontSize: "1.5rem", fontWeight: "bold" }}
+            />
+            Last Updated: 2 mins ago
+          </div>
+          <Button
+            className="mt-5 w-40"
+            icon={<LogoutOutlined />}
+            style={{ backgroundColor: "#2563EB", color: "#fff" }}
+            onClick={handleOpen}
+          >
+            Withdraw
+          </Button>
+        </ClickableArea>
+      </section>
       <section className="mt-5">
         <ProTable<GithubIssueItem>
           columns={columns}
@@ -252,9 +315,7 @@ function Page() {
             },
           }}
           rowKey="id"
-          search={{
-            labelWidth: "auto",
-          }}
+          search={false}
           options={{
             setting: {
               listsHeight: 400,
@@ -276,7 +337,7 @@ function Page() {
             onChange: (page) => console.log(page),
           }}
           dateFormatter="string"
-          headerTitle="Advanced Table"
+          headerTitle="Recent Transactions"
           toolBarRender={() => [
             <Button
               key="button"
@@ -305,6 +366,8 @@ function Page() {
           ]}
         />
       </section>
+      <WithdrawalModal visible={isModalOpen} onCancel={handleClose} onSubmit={handleSubmit} />
+
     </PageContainer>
   );
 }

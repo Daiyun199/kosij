@@ -1,12 +1,12 @@
 "use client";
 
 import {
+  ProColumns,
   ProTable,
 } from "@ant-design/pro-components";
 import { PageContainer } from "@ant-design/pro-layout";
 import { Button, Space, Tag } from "antd";
 import { EditOutlined, EyeOutlined } from "@ant-design/icons";
-import { ReactElement, JSXElementConstructor, ReactNode, AwaitedReactNode, ReactPortal } from "react";
 
 const statusColors = {
   Unpacked: "default",
@@ -16,11 +16,26 @@ const statusColors = {
   Canceled: "red",
 };
 
-const columns = [
+type Order = {
+  id: string;
+  tripName: string;
+  customerName: string;
+  orderDate: string;
+  deliveryCompany: string;
+  deliveryCustomer: string;
+  status: keyof typeof statusColors;
+  total: number;
+  paid: number;
+  remaining: number;
+};
+
+
+const columns: ProColumns<Order>[] = [
   {
     title: "ID",
     dataIndex: "id",
     key: "id",
+    width: 98,
   },
   {
     title: "Trip Name",
@@ -51,32 +66,31 @@ const columns = [
     title: "Status",
     dataIndex: "status",
     key: "status",
-    render: (status: string | number | bigint | boolean | ReactElement<unknown, string | JSXElementConstructor<unknown>> | Iterable<ReactNode> | Promise<AwaitedReactNode> | null | undefined) => <Tag color={statusColors[status]}>{status}</Tag>,
+    render: (_, record: Order) => <Tag color={statusColors[record.status]}>{record.status}</Tag>,
   },
   {
     title: "Total",
     dataIndex: "total",
     key: "total",
     align: "right",
-    render: (value: { toLocaleString: () => unknown; }) => `${value.toLocaleString()} VND`,
+    render: (_, record: Order) => `${record.total.toLocaleString()} VND`,
   },
   {
     title: "Paid",
     dataIndex: "paid",
     key: "paid",
     align: "right",
-    render: (value: { toLocaleString: () => string | number | bigint | boolean | ReactElement<unknown, string | JSXElementConstructor<unknown>> | Iterable<ReactNode> | ReactPortal | Promise<AwaitedReactNode> | null | undefined; }) => (
-      <span style={{ color: "green" }}>{value.toLocaleString()} VND</span>
-    ),
-  },
+    render: (_, record: Order) => (
+      <span style={{ color: "green" }}>{record.paid.toLocaleString()} VND</span>
+    ),  },
   {
     title: "Remaining",
     dataIndex: "remaining",
     key: "remaining",
     align: "right",
-    render: (value: number) => (
-      <span style={{ color: value === 0 ? "black" : "red" }}>
-        {value.toLocaleString()} VND
+    render: (_, record: Order) => (
+      <span style={{ color: record.remaining === 0 ? "black" : "red" }}>
+        {record.remaining.toLocaleString()} VND
       </span>
     ),
   },
@@ -92,7 +106,7 @@ const columns = [
   },
 ];
 
-const data = [
+const data: Order[] = [
   {
     id: "ORD-12345",
     tripName: "Paris Spring Tour",
@@ -105,7 +119,66 @@ const data = [
     paid: 56800000,
     remaining: 14200000,
   },
-  // Add other rows following the same structure...
+  {
+    id: "ORD-12345",
+    tripName: "Paris Spring Tour",
+    customerName: "John Doe",
+    orderDate: "Jan 15, 2025",
+    deliveryCompany: "Feb 01, 2025",
+    deliveryCustomer: "Feb 15, 2025",
+    status: "Packed",
+    total: 71000000,
+    paid: 56800000,
+    remaining: 14200000,
+  },
+  {
+    id: "ORD-12345",
+    tripName: "Paris Spring Tour",
+    customerName: "John Doe",
+    orderDate: "Jan 15, 2025",
+    deliveryCompany: "Feb 01, 2025",
+    deliveryCustomer: "Feb 15, 2025",
+    status: "Shipping",
+    total: 71000000,
+    paid: 56800000,
+    remaining: 14200000,
+  },
+  {
+    id: "ORD-12345",
+    tripName: "Paris Spring Tour",
+    customerName: "John Doe",
+    orderDate: "Jan 15, 2025",
+    deliveryCompany: "Feb 01, 2025",
+    deliveryCustomer: "Feb 15, 2025",
+    status: "Shipping",
+    total: 71000000,
+    paid: 56800000,
+    remaining: 14200000,
+  },
+  {
+    id: "ORD-12345",
+    tripName: "Paris Spring Tour",
+    customerName: "John Doe",
+    orderDate: "Jan 15, 2025",
+    deliveryCompany: "Feb 01, 2025",
+    deliveryCustomer: "Feb 15, 2025",
+    status: "Completed",
+    total: 71000000,
+    paid: 56800000,
+    remaining: 14200000,
+  },
+  {
+    id: "ORD-12345",
+    tripName: "Paris Spring Tour",
+    customerName: "John Doe",
+    orderDate: "Jan 15, 2025",
+    deliveryCompany: "Feb 01, 2025",
+    deliveryCustomer: "Feb 15, 2025",
+    status: "Canceled",
+    total: 71000000,
+    paid: 56800000,
+    remaining: 14200000,
+  },
 ];
 
 function Page() {
@@ -134,8 +207,8 @@ function Page() {
       }}
     >
       <section className="mt-5">
-        <ProTable
-          columns={columns}
+        <ProTable<Order>
+          columns={columns as ProColumns<Order>[]}
           dataSource={data}
           rowKey="id"
           search={false}

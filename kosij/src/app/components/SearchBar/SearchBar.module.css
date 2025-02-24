@@ -1,0 +1,25 @@
+.searchBar {
+    width: 20%;
+    padding: 12px 16px;
+    font-size: 16px;
+    color: #555;
+    background: url('/search.jpg') no-repeat center center;
+    background-size: cover;
+    border: 1px solid #ddd;
+    border-radius: 16px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    outline: none;
+    transition: all 0.3s ease;
+  }
+  
+  .searchBar::placeholder {
+    color: #aaa;
+    font-size: 16px;
+    font-style: italic;
+  }
+  
+  .searchBar:focus {
+    border-color: #007bff;
+    box-shadow: 0 4px 12px rgba(0, 123, 255, 0.3);
+  }
+  

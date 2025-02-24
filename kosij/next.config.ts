@@ -21,11 +21,6 @@ const nextConfig: NextConfig = {
   async rewrites() {
     return [
       {
-        source: "/manager/customer-list",
-        destination: "/manager/customerList",
-      },
-
-      {
         source: "/manager/account-create",
         destination: "/manager/accountCreate",
       },
@@ -35,7 +30,6 @@ const nextConfig: NextConfig = {
       { source: "/manager/dashboard/tour", destination: "/manager/tour" },
       { source: "/manager/order-list", destination: "/manager/orderList" },
       { source: "/manager/tour-detail", destination: "/manager/tourDetail" },
-      { source: "/manager/delivery-staff-list", destination: "/manager/DList" },
       { source: "/", destination: "/login" },
     ];
   },

@@ -4,17 +4,16 @@ import { clientEnv } from "../../env";
 
 const api = axios.create({
   baseURL: clientEnv.STATIC_PROD_BACKEND_URL,
-  timeout: 10000, // 10 giây
+  timeout: 10000,
   validateStatus: (status) => status >= 200 && status < 300,
   headers: {
     "Content-Type": "application/json",
   },
 });
 
-// 🛠️ Interceptor để thêm token vào request headers
 api.interceptors.request.use(
   (config) => {
-    const token = Cookies.get("token"); // Lấy token từ cookies
+    const token = Cookies.get("token");
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
@@ -33,7 +32,6 @@ api.interceptors.request.use(
   }
 );
 
-// 🛠️ Interceptor để log response
 api.interceptors.response.use(
   (response) => {
     console.info(

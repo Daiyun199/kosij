@@ -1,7 +1,7 @@
 const manager_uri = {
-    sidebar: {
-        dashboard: "/profile" //có gì bà tự thêm uri vào nha
-    }
-}
+  sidebar: {
+    dashboard: "/manager/profile", //có gì bà tự thêm uri vào nha.
+  },
+};
 
-export default manager_uri
+export default manager_uri;

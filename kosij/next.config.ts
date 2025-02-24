@@ -20,16 +20,22 @@ const nextConfig: NextConfig = {
   },
   async rewrites() {
     return [
-      { source: "/customer-list", destination: "/customerList" },
-      { source: "/tour-list", destination: "/tourList" },
-      { source: "/account-create", destination: "/accountCreate" },
-      { source: "/tour-pending", destination: "/tourPending" },
-      { source: "/dashboard/finance", destination: "/finance" },
-      { source: "/dashboard/orders", destination: "/order" },
-      { source: "/dashboard/tour", destination: "/tour" },
-      { source: "/order-list", destination: "/orderList" },
-      { source: "/tour-detail", destination: "/tourDetail" },
-      { source: "/delivery-staff-list", destination: "/DList" },
+      {
+        source: "/manager/customer-list",
+        destination: "/manager/customerList",
+      },
+      { source: "/manager/tour-list", destination: "/manager/tourList" },
+      {
+        source: "/manager/account-create",
+        destination: "/manager/accountCreate",
+      },
+      { source: "/manager/tour-pending", destination: "/manager/tourPending" },
+      { source: "/manager/dashboard/finance", destination: "/manager/finance" },
+      { source: "/manager/dashboard/orders", destination: "/manager/order" },
+      { source: "/manager/dashboard/tour", destination: "/manager/tour" },
+      { source: "/manager/order-list", destination: "/manager/orderList" },
+      { source: "/manager/tour-detail", destination: "/manager/tourDetail" },
+      { source: "/manager/delivery-staff-list", destination: "/manager/DList" },
       { source: "/", destination: "/login" },
     ];
   },

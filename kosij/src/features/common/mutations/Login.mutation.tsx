@@ -1,16 +1,24 @@
 import { CustomMutationHookProps } from "@/lib/types/CustomMutationHookProps";
-import LoginCredentials, { type Request, type Response } from "@/features/common/api/login-credentials.api"
+import LoginCredentials, {
+  type Request,
+  type Response,
+} from "@/features/common/api/login-credentials.api";
 import useCustomMutation from "@/lib/hooks/useCustomMutation";
 
-type Props = CustomMutationHookProps<Response, unknown, Request, unknown>
+type Props = CustomMutationHookProps<Response, unknown, Request, unknown>;
+
 export default function useLoginMutation(props?: Props) {
-    return useCustomMutation({
-        options: props?? null,
-        mutationFn: LoginCredentials,
-        mutationKey: ["common", "login"],
-        messages: {
-            success: "Đăng nhập thành công!",
-            error: "Đăng nhập thất bại"
-        } 
-    })
+  return useCustomMutation({
+    options: props ?? null,
+    mutationFn: LoginCredentials,
+    mutationKey: ["common", "login"],
+    messages: {
+      success: "Login successful!",
+      error: (error) => {
+        const errMessage =
+          error instanceof Error ? error.message : "Unknown error";
+        return `${errMessage}`;
+      },
+    },
+  });
 }

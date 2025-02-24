@@ -13,33 +13,37 @@ const ManagerLayout: React.FC<ManagerLayoutProps> = ({ title, children }) => {
       label: "General",
       icon: "fa-solid fa-house",
       children: [
-        { label: "Profile", icon: "fa-solid fa-user", path: "/profile" },
+        {
+          label: "Profile",
+          icon: "fa-solid fa-user",
+          path: "/manager/profile",
+        },
         {
           label: "Dashboard",
           icon: "fa-solid fa-chart-pie",
-          path: "/dashboard",
+          path: "/manager/dashboard",
           children: [
             {
               label: "Finance",
               icon: "fa-solid fa-money-bill-wave",
-              path: "/dashboard/finance",
+              path: "/manager/dashboard/finance",
             },
             {
               label: "Order",
               icon: "fa-solid fa-box",
-              path: "/dashboard/orders",
+              path: "/manager/dashboard/orders",
             },
             {
               label: "Tour",
               icon: "fa-solid fa-umbrella-beach",
-              path: "/dashboard/tour",
+              path: "/manager/dashboard/tour",
             },
           ],
         },
         {
           label: "Notifications",
           icon: "fa-solid fa-bell",
-          path: "/notification",
+          path: "/manager/notification",
         },
       ],
     },
@@ -54,51 +58,59 @@ const ManagerLayout: React.FC<ManagerLayoutProps> = ({ title, children }) => {
             {
               label: "Customer",
               icon: "fa-solid fa-users",
-              path: "/customer-list",
+              path: "/manager/customer-list",
             },
             {
               label: "Sale Staff",
               icon: "fa-solid fa-headphones",
-              path: "/sale-staff-list",
+              path: "/manager/sale-staff-list",
             },
             {
               label: "Delivery Staff",
               icon: "fa-solid fa-truck-fast",
-              path: "/delivery-staff-list",
+              path: "/manager/delivery-staff-list",
             },
             {
               label: "Fram Breeder",
               icon: "fa-solid fa-fish-fins",
-              path: "/farm-breeder-list",
+              path: "/manager/farm-breeder-list",
             },
             {
               label: "Consultant Staff",
               icon: "fa-solid fa-user-tie",
-              path: "/consultant-staff-list",
+              path: "/manager/consultant-staff-list",
             },
             {
               label: "Register",
               icon: "fa-solid fa-user-plus",
-              path: "/account-create",
+              path: "/manager/account-create",
             },
           ],
         },
         {
           label: "Order",
           icon: "fa-solid fa-shopping-cart",
-          path: "/order-list",
+          path: "/manager/order-list",
         },
         {
           label: "Tour",
           icon: "fa-solid fa-map",
           children: [
-            { label: "List", icon: "fa-solid fa-list", path: "/tour-list" },
+            {
+              label: "List",
+              icon: "fa-solid fa-list",
+              path: "/manager/tour-list",
+            },
             {
               label: "Pending",
               icon: "fa-solid fa-hourglass",
-              path: "/tour-pending",
+              path: "/manager/tour-pending",
             },
-            { label: "Cancel", icon: "fa-solid fa-ban", path: "/tour-cancel" },
+            {
+              label: "Cancel",
+              icon: "fa-solid fa-ban",
+              path: "/manager/tour-cancel",
+            },
           ],
         },
       ],

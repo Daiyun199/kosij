@@ -42,7 +42,7 @@ export default function Home() {
           return;
         }
       }
-      setTimeout(checkCssLoaded, 50); // Kiểm tra lại sau 50ms nếu chưa load xong
+      setTimeout(checkCssLoaded, 50);
     };
 
     checkCssLoaded();
@@ -58,11 +58,17 @@ export default function Home() {
     };
 
     mutations.LoginCredentials.mutate(values, {
-      onSuccess: async (token: string) => {
+      onSuccess: async (token: string | null) => {
+        if (!token) {
+          message.error("Login failed: Invalid token received from server.");
+          return;
+        }
+
         const uri = path && decodeURIComponent(path.trim()).split("/");
         Cookies.set("token", token);
         const payload = decodeJwt(token);
         console.log("Decoded JWT payload:", payload);
+
         switch (payload.role) {
           case Role.manager: {
             if (uri && uri[1] === "manager@kosij.com") {
@@ -111,7 +117,7 @@ export default function Home() {
   }, [message, error]);
 
   if (!cssLoaded) {
-    return <div>Loading...</div>; // Đợi CSS tải xong
+    return <div>Loading...</div>;
   }
 
   return (

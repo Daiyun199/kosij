@@ -3,27 +3,10 @@ import React, { useState } from "react";
 import { Card, Collapse, Tag, DatePicker } from "antd";
 import { CalendarOutlined, EyeOutlined } from "@ant-design/icons";
 import dayjs from "dayjs";
+import { TourData } from "@/model/TourData";
 
 const { Panel } = Collapse;
 const { RangePicker } = DatePicker;
-
-interface TourData {
-  title: string;
-  tourCode: string;
-  duration: string;
-  type: string;
-  price: { adult: string; children1_11: string; children12_plus: string };
-  departurePoints: string;
-  destinationPoints: string;
-  policy: string[];
-  itinerary: string[];
-  tripList: string[];
-  imageUrl: string;
-  tourPriceIncludes: string[];
-  tourPriceNotIncludes: string[];
-  cancelPolicy: string;
-  depositPolicy: string;
-}
 
 const TourDetail = ({ data }: { data: TourData }) => {
   const [filteredTrips, setFilteredTrips] = useState(data.tripList);
@@ -54,7 +37,9 @@ const TourDetail = ({ data }: { data: TourData }) => {
         />
         <div className="flex justify-between items-center">
           <h2 className="text-xl font-semibold">{data.title}</h2>
-          <Tag color="green">Completed</Tag>
+          <Tag color={data.tourStatus === "Active" ? "green" : "red"}>
+            {data.tourStatus}
+          </Tag>
         </div>
         <p className="text-gray-500">Tour Code: {data.tourCode}</p>
         <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mt-4">
@@ -62,8 +47,8 @@ const TourDetail = ({ data }: { data: TourData }) => {
           <Card title="Type">{data.type}</Card>
           <Card title="Price">
             <p>Adult: {data.price.adult}</p>
-            <p>Children (1-11 Years): {data.price.children1_11}</p>
-            <p>Children (12+ Years): {data.price.children12_plus}</p>
+            <p>Children (1 - 11 Years): {data.price.children1_11}</p>
+            <p>Children (Under 2 Years): {data.price.children12_plus}</p>
           </Card>
           <Card title="Departure Points">{data.departurePoints}</Card>
           <Card title="Destination Points">{data.destinationPoints}</Card>
@@ -73,8 +58,27 @@ const TourDetail = ({ data }: { data: TourData }) => {
       <div className="mt-4">
         <Collapse accordion>
           {data.itinerary.map((item, index) => (
-            <Panel header={`Day ${index + 1}: ${item}`} key={index}>
-              <p>Itinerary details for day {index + 1}</p>
+            <Panel
+              header={`Day ${item.day}: ${item.itineraryName}`}
+              key={index}
+            >
+              <ul className="list-disc pl-5">
+                {item.itineraryDetails.map((detail, i) => (
+                  <li key={i}>
+                    <p>
+                      <strong>Time:</strong> {detail.time}
+                    </p>
+                    <p>
+                      <strong>Description:</strong> {detail.description}
+                    </p>
+                    {detail.farmId && (
+                      <p>
+                        <strong>Farm ID:</strong> {detail.farmId}
+                      </p>
+                    )}
+                  </li>
+                ))}
+              </ul>
             </Panel>
           ))}
         </Collapse>
@@ -100,12 +104,12 @@ const TourDetail = ({ data }: { data: TourData }) => {
 
       <Card className="mt-4 border border-gray-200 shadow-sm">
         <h3 className="font-semibold">Cancel Policy</h3>
-        <p>{data.cancelPolicy}</p>
+        <div dangerouslySetInnerHTML={{ __html: data.cancelPolicy }} />
       </Card>
 
       <Card className="mt-4 border border-gray-200 shadow-sm">
         <h3 className="font-semibold">Deposit Policy</h3>
-        <p>{data.depositPolicy}</p>
+        <div dangerouslySetInnerHTML={{ __html: data.depositPolicy }} />
       </Card>
 
       <Card className="mt-4 border border-gray-200 shadow-sm">

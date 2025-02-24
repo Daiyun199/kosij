@@ -67,15 +67,15 @@ function Page() {
       newErrors.role = "Role is required";
     }
 
-    if (!formValues.password) {
-      newErrors.password = "Password is required";
-    } else if (formValues.password.length < 6) {
-      newErrors.password = "Password must be at least 6 characters";
-    }
+    // if (!formValues.password) {
+    //   newErrors.password = "Password is required";
+    // } else if (formValues.password.length < 6) {
+    //   newErrors.password = "Password must be at least 6 characters";
+    // }
 
-    if (formValues.confirmPassword !== formValues.password) {
-      newErrors.confirmPassword = "Passwords do not match";
-    }
+    // if (formValues.confirmPassword !== formValues.password) {
+    //   newErrors.confirmPassword = "Passwords do not match";
+    // }
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -91,8 +91,8 @@ function Page() {
       email: formValues.email,
       fullName: formValues.fullName,
       sex: formValues.sex,
-      password: formValues.password,
-      confirmPassword: formValues.confirmPassword,
+      password: "ABCDEF@1",
+      confirmPassword: "ABCDEF@1",
       phoneNumber: formValues.phoneNumber,
       area: formValues.area,
       role: formValues.role,
@@ -113,7 +113,7 @@ function Page() {
       });
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
-      toast.error("Error: " + (error.response?.data?.message || error.message));
+      toast.error("Error: " + (error.response?.data?.error || error.message));
     } finally {
       setLoading(false);
     }
@@ -189,7 +189,7 @@ function Page() {
             </select>
             {errors.role && <span className="error">{errors.role}</span>}
           </div>
-          <div className="form-group">
+          {/* <div className="form-group">
             <label>Password</label>
             <input
               type="password"
@@ -200,8 +200,8 @@ function Page() {
             {errors.password && (
               <span className="error">{errors.password}</span>
             )}
-          </div>
-          <div className="form-group">
+          </div> */}
+          {/* <div className="form-group">
             <label>Confirm Password</label>
             <input
               type="password"
@@ -212,7 +212,7 @@ function Page() {
             {errors.confirmPassword && (
               <span className="error">{errors.confirmPassword}</span>
             )}
-          </div>
+          </div> */}
           <button className="staff-button" type="submit" disabled={loading}>
             {loading ? "Creating..." : "Create"}
           </button>

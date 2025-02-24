@@ -1,8 +1,8 @@
 "use client";
 import { Table, Button, Spin } from "antd";
+import { useRouter } from "next/navigation"; // Import useRouter
 import ManagerLayout from "@/app/components/ManagerLayout/ManagerLayout";
 import React, { useEffect, useState } from "react";
-
 import type { ColumnsType } from "antd/es/table";
 import api from "@/config/axios.config";
 
@@ -12,12 +12,14 @@ interface Tour {
   standardPrice: number;
   visaFee: number;
   tourStatus: string;
+  numberOfTrips: number;
   totalFarmVisit: number;
 }
 
 function Page() {
   const [tourData, setTourData] = useState<Tour[]>([]);
-  const [loading, setLoading] = useState(true); // State kiểm soát loading
+  const [loading, setLoading] = useState(true);
+  const router = useRouter(); // Khai báo useRouter
 
   useEffect(() => {
     const fetchTours = async () => {
@@ -32,6 +34,7 @@ function Page() {
             visaFee: tour.visaFee,
             tourStatus: tour.tourStatus,
             totalFarmVisit: tour.totalFarmVisit,
+            numberOfTrips: tour.numberOfTrips,
           }))
         );
       } catch (error) {
@@ -80,11 +83,20 @@ function Page() {
       sorter: (a, b) => a.totalFarmVisit - b.totalFarmVisit,
     },
     {
+      title: "Total Trips",
+      dataIndex: "numberOfTrips",
+      key: "numberOfTrips",
+      sorter: (a, b) => a.numberOfTrips - b.numberOfTrips,
+    },
+    {
       title: "Actions",
       key: "actions",
       render: (_, record) => (
         <div style={{ display: "flex", gap: "8px" }}>
-          <Button type="primary" onClick={() => console.log("Detail:", record)}>
+          <Button
+            type="primary"
+            onClick={() => router.push(`/manager/tours/${record.key}`)}
+          >
             Detail
           </Button>
           <Button

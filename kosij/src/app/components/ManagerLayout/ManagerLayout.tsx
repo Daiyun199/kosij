@@ -99,7 +99,7 @@ const ManagerLayout: React.FC<ManagerLayoutProps> = ({ title, children }) => {
             {
               label: "List",
               icon: "fa-solid fa-list",
-              path: "/manager/tour-list",
+              path: "/manager/tours",
             },
             {
               label: "Pending",

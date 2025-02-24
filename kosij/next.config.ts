@@ -24,7 +24,7 @@ const nextConfig: NextConfig = {
         source: "/manager/customer-list",
         destination: "/manager/customerList",
       },
-      { source: "/manager/tour-list", destination: "/manager/tourList" },
+
       {
         source: "/manager/account-create",
         destination: "/manager/accountCreate",

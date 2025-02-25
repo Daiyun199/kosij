@@ -180,7 +180,7 @@ function RightNavbar({ children }: PropsWithChildren) {
                 key: "variety",
                 name: "Variety",
                 icon: <FileTextOutlined />,
-                path: farmId ? `/farmbreeder/${farmId}/variety` : "/farmbreeder/variety",
+                path: "farmbreeder/variety",
               },
             ],
           },

@@ -8,17 +8,13 @@ import useCustomMutation from "@/lib/hooks/useCustomMutation";
 type Props = CustomMutationHookProps<Response, unknown, Request, unknown>;
 
 export default function useLoginMutation(props?: Props) {
-  return useCustomMutation({
-    options: props ?? null,
-    mutationFn: LoginCredentials,
-    mutationKey: ["common", "login"],
-    messages: {
-      success: "Login successful!",
-      error: (error) => {
-        const errMessage =
-          error instanceof Error ? error.message : "Unknown error";
-        return `${errMessage}`;
-      },
-    },
-  });
+    return useCustomMutation({
+        options: props?? null,
+        mutationFn: LoginCredentials,
+        mutationKey: ["common", "login"],
+        messages: {
+            success: "Sign in successfull!",
+            error: "Sign in failed"
+        } 
+    })
 }

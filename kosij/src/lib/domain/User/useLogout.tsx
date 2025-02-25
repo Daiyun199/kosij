@@ -16,7 +16,7 @@ export default function useLogout() {
          localStorage.removeItem("staff-task")
          localStorage.removeItem("scanned-cache-headstaff")
          Cookies.remove("token")
-         message.success("Đăng xuất thành công")
+         message.success("Sign out successfull!")
          queryClient.clear()
          router.push("/")
       }

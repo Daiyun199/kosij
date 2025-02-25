@@ -7,12 +7,21 @@ import { ProCard } from "@ant-design/pro-components";
 import farmbreeder_queries from "@/features/farmbreeder/queries";
 import { VarietyDto } from "@/lib/domain/Variety/Variety.dto";
 
-function Page({ params }: { params: { id: string } }) {
+function Page() {
   const {
     data: api_variety,
     isLoading,
     isError,
-  } = farmbreeder_queries.variety.all({ id: params.id });
+  } = farmbreeder_queries.variety.all();
+
+  console.log("API Response in Page.tsx:", api_variety);
+  // useEffect(() => {
+  //   if (api_variety?.data.length === 0) {
+  //     console.log("No content received, refetching...");
+  //     refetch();
+  //   }
+  // }, [api_variety]);
+
   return (
     <PageContainer
       title="Dashboard"
@@ -40,9 +49,43 @@ function Page({ params }: { params: { id: string } }) {
       <section className="mt-5">
         {isLoading && <p>Loading varieties...</p>}
         {isError && <p>Error loading varieties.</p>}
-        {api_variety && (
+
+        {api_variety?.data && api_variety.data.length > 0 ? (
           <Space direction="vertical" size="large">
-            {api_variety.map((variety: VarietyDto) => (
+            {api_variety.data.map((variety: VarietyDto) => (
+              <ProCard
+                key={variety.id}
+                bordered
+                style={{ width: 400 }}
+                title={variety.varietyName}
+                extra={
+                  <>
+                    <EditOutlined style={{ marginRight: 8 }} />
+                    <MinusCircleOutlined />
+                  </>
+                }
+              >
+                <img
+                  src={variety.imageUrl[0] || "/placeholder.png"}
+                  alt={variety.varietyName}
+                  style={{ width: 120, height: "auto", borderRadius: 10 }}
+                />
+                <p style={{ marginLeft: 16 }}>{variety.description}</p>
+              </ProCard>
+            ))}
+          </Space>
+        ) : (
+          <p>No varieties available</p>
+        )}
+      </section>
+
+      {/*  
+      <section className="mt-5">
+        {isLoading && <p>Loading varieties...</p>}
+        {isError && <p>Error loading varieties.</p>}
+        {api_variety?.data ? (
+          <Space direction="vertical" size="large">
+            {api_variety.data.map((variety) => (
               <ProCard
                 key={variety.id}
                 bordered
@@ -65,8 +108,10 @@ function Page({ params }: { params: { id: string } }) {
               </ProCard>
             ))}
           </Space>
+        ) : (
+          <p>No varieties found.</p>
         )}
-      </section>
+      </section> */}
     </PageContainer>
   );
 }

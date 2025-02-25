@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 import React, { useState } from "react";
 import { Card, Collapse, Tag, DatePicker } from "antd";
@@ -57,27 +58,95 @@ const TourDetail = ({ data }: { data: TourData }) => {
 
       <div className="mt-4">
         <Collapse accordion>
-          {data.itinerary.map((item, index) => (
+          {data.itinerary.map((item: any, index) => (
             <Panel
               header={`Day ${item.day}: ${item.itineraryName}`}
               key={index}
             >
               <ul className="list-disc pl-5">
-                {item.itineraryDetails.map((detail, i) => (
-                  <li key={i}>
-                    <p>
-                      <strong>Time:</strong> {detail.time}
-                    </p>
-                    <p>
-                      <strong>Description:</strong> {detail.description}
-                    </p>
-                    {detail.farmId && (
+                {item.itineraryDetails.map(
+                  (
+                    detail: {
+                      name:
+                        | string
+                        | number
+                        | bigint
+                        | boolean
+                        | React.ReactElement<
+                            any,
+                            string | React.JSXElementConstructor<any>
+                          >
+                        | React.ReactPortal
+                        | Promise<React.AwaitedReactNode>
+                        | Iterable<React.ReactNode>
+                        | null
+                        | undefined;
+                      time:
+                        | string
+                        | number
+                        | bigint
+                        | boolean
+                        | React.ReactElement<
+                            any,
+                            string | React.JSXElementConstructor<any>
+                          >
+                        | Iterable<React.ReactNode>
+                        | React.ReactPortal
+                        | Promise<React.AwaitedReactNode>
+                        | null
+                        | undefined;
+                      description:
+                        | string
+                        | number
+                        | bigint
+                        | boolean
+                        | React.ReactElement<
+                            any,
+                            string | React.JSXElementConstructor<any>
+                          >
+                        | Iterable<React.ReactNode>
+                        | React.ReactPortal
+                        | Promise<React.AwaitedReactNode>
+                        | null
+                        | undefined;
+                      farmId:
+                        | string
+                        | number
+                        | bigint
+                        | boolean
+                        | React.ReactElement<
+                            any,
+                            string | React.JSXElementConstructor<any>
+                          >
+                        | Iterable<React.ReactNode>
+                        | React.ReactPortal
+                        | Promise<React.AwaitedReactNode>
+                        | null
+                        | undefined;
+                    },
+                    i: React.Key | null | undefined
+                  ) => (
+                    <li key={i}>
                       <p>
-                        <strong>Farm ID:</strong> {detail.farmId}
+                        <strong>Time:</strong> {detail.time}
                       </p>
-                    )}
-                  </li>
-                ))}
+                      <p>
+                        <strong>Description:</strong> {detail.description}
+                      </p>
+                      {detail.farmId && detail.name && (
+                        <p>
+                          <strong>Farm:</strong>{" "}
+                          <a
+                            href={`/manager/farms/${detail.farmId}`}
+                            className="text-blue-500 hover:underline"
+                          >
+                            {detail.name}
+                          </a>
+                        </p>
+                      )}
+                    </li>
+                  )
+                )}
               </ul>
             </Panel>
           ))}

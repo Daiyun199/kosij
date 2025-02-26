@@ -1,20 +1,63 @@
 "use client";
 import ManagerLayout from "@/app/components/ManagerLayout/ManagerLayout";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
-export default function CreateTourStep1({ onNext }: { onNext: () => void }) {
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const [tourName, setTourName] = useState("The Koi Odyssey || 3D2N");
-  const [day, setDay] = useState(3);
-  const [night, setNight] = useState(2);
-  const [hotelService, setHotelService] = useState("3 stars");
-  const [availableSlot, setAvailableSlot] = useState(3);
-  const [departure, setDeparture] = useState(
-    "Tan Son Nhat International Airport (Ho Chi Minh City)"
+interface Step1Props {
+  onNext: () => void;
+  data: {
+    tourName?: string;
+    night?: number;
+    day?: number;
+    departure?: string;
+    destination?: string;
+    registrationDaysBefore?: number;
+    registrationConditions?: string;
+  };
+  updateData: (data: object) => void;
+}
+
+export default function CreateTourStep1({
+  onNext,
+  data,
+  updateData,
+}: Step1Props) {
+  const [tourName, setTourName] = useState(data.tourName || "");
+  const [night, setNight] = useState(data.night || 0);
+  const [day, setDay] = useState((data.night || 0) + 1);
+  const [departure, setDeparture] = useState(data.departure || "");
+  const [destination, setDestination] = useState(data.destination || "");
+  const [registrationDaysBefore, setRegistrationDaysBefore] = useState(
+    data.registrationDaysBefore || 0
   );
-  const [destination, setDestination] = useState(
-    "Narita International Airport (Tokyo)"
+  const [registrationConditions, setRegistrationConditions] = useState(
+    data.registrationConditions || ""
   );
+
+  // Cập nhật day khi night thay đổi
+  useEffect(() => {
+    setDay(night + 1);
+  }, [night]);
+
+  // Cập nhật dữ liệu vào state chung
+  useEffect(() => {
+    updateData({
+      tourName,
+      night,
+      day, // Gửi giá trị day mới
+      departure,
+      destination,
+      registrationDaysBefore,
+      registrationConditions,
+    });
+  }, [
+    tourName,
+    night,
+    day,
+    departure,
+    destination,
+    registrationDaysBefore,
+    registrationConditions,
+  ]);
 
   return (
     <ManagerLayout title="Tour Create">
@@ -28,48 +71,31 @@ export default function CreateTourStep1({ onNext }: { onNext: () => void }) {
           <input
             type="text"
             value={tourName}
+            onChange={(e) => setTourName(e.target.value)}
             className="w-full p-2 border rounded"
           />
         </div>
 
-        <div className="grid grid-cols-3 gap-4 mb-4">
-          <div>
-            <label className="block text-sm font-medium">Day:</label>
-            <input
-              type="number"
-              value={day}
-              onChange={(e) => setDay(Number(e.target.value))}
-              className="w-full p-2 border rounded"
-            />
-          </div>
+        <div className="grid grid-cols-2 gap-4 mb-4">
           <div>
             <label className="block text-sm font-medium">Night:</label>
             <input
               type="number"
               value={night}
-              onChange={(e) => setNight(Number(e.target.value))}
+              min={0}
+              onChange={(e) => setNight(Math.max(0, Number(e.target.value)))}
               className="w-full p-2 border rounded"
             />
           </div>
           <div>
-            <label className="block text-sm font-medium">Hotel service:</label>
+            <label className="block text-sm font-medium">Day (Auto):</label>
             <input
-              type="text"
-              value={hotelService}
-              onChange={(e) => setHotelService(e.target.value)}
-              className="w-full p-2 border rounded"
+              type="number"
+              value={day}
+              readOnly
+              className="w-full p-2 border rounded bg-gray-100 cursor-not-allowed"
             />
           </div>
-        </div>
-
-        <div className="mb-4">
-          <label className="block text-sm font-medium">Available Slot:</label>
-          <input
-            type="number"
-            value={availableSlot}
-            onChange={(e) => setAvailableSlot(Number(e.target.value))}
-            className="w-full p-2 border rounded"
-          />
         </div>
 
         <div className="mb-4">
@@ -92,6 +118,33 @@ export default function CreateTourStep1({ onNext }: { onNext: () => void }) {
             onChange={(e) => setDestination(e.target.value)}
             className="w-full p-2 border rounded"
           />
+        </div>
+
+        <div className="grid grid-cols-2 gap-4 mb-4">
+          <div>
+            <label className="block text-sm font-medium">
+              Registration Days Before:
+            </label>
+            <input
+              type="number"
+              value={registrationDaysBefore}
+              onChange={(e) =>
+                setRegistrationDaysBefore(Number(e.target.value))
+              }
+              className="w-full p-2 border rounded"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium">
+              Registration Conditions:
+            </label>
+            <input
+              type="text"
+              value={registrationConditions}
+              onChange={(e) => setRegistrationConditions(e.target.value)}
+              className="w-full p-2 border rounded"
+            />
+          </div>
         </div>
 
         <div className="flex justify-end">

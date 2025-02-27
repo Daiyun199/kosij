@@ -4,6 +4,8 @@ import { Activity } from "@/model/Activity";
 import { Day } from "@/model/Day";
 import { useState, useEffect } from "react";
 import { FiArrowLeft, FiPlus, FiTrash } from "react-icons/fi";
+import { Select } from "antd";
+import api from "@/config/axios.config";
 
 interface CreateTourStep2Props {
   onBack: () => void;
@@ -12,13 +14,21 @@ interface CreateTourStep2Props {
   updateData: (data: Day[]) => void;
 }
 
+interface Farm {
+  id: number;
+  farmName: string;
+  location: string;
+}
+
 export default function CreateTourStep2({
   onBack,
   onNext,
   data,
   updateData,
 }: CreateTourStep2Props) {
-  const [days, setDays] = useState<Day[]>(data);
+  const [days, setDays] = useState<Day[]>(Array.isArray(data) ? data : []);
+
+  const [farms, setFarms] = useState<Farm[]>([]);
 
   useEffect(() => {
     updateData(days);
@@ -27,6 +37,16 @@ export default function CreateTourStep2({
   useEffect(() => {
     setDays(data);
   }, [data]);
+  useEffect(() => {
+    api
+      .get("/farms/active")
+      .then((response) => {
+        if (response.data.value) {
+          setFarms(response.data.value);
+        }
+      })
+      .catch((error) => console.error("Error fetching farms:", error));
+  }, []);
 
   const handleUpdateDayTitle = (dayIndex: number, value: string) => {
     const updatedDays = [...days];
@@ -38,10 +58,10 @@ export default function CreateTourStep2({
     dayIndex: number,
     activityIndex: number,
     field: keyof Activity,
-    value: string | string[]
+    value: string
   ) => {
     const updatedDays = [...days];
-    updatedDays[dayIndex].activities[activityIndex][field] = value as never;
+    updatedDays[dayIndex].activities[activityIndex][field] = value;
     setDays(updatedDays);
   };
 
@@ -60,35 +80,15 @@ export default function CreateTourStep2({
     updatedDays[dayIndex].activities.push({
       time: "",
       description: "",
-      locations: [],
+      locations: "",
     });
     setDays(updatedDays);
   };
+
   const handleDeleteActivity = (dayIndex: number, activityIndex: number) => {
     if (window.confirm("Are you sure you want to delete this activity?")) {
       const updatedDays = [...days];
       updatedDays[dayIndex].activities.splice(activityIndex, 1);
-      setDays(updatedDays);
-    }
-  };
-
-  const handleAddLocation = (dayIndex: number, activityIndex: number) => {
-    const updatedDays = [...days];
-    updatedDays[dayIndex].activities[activityIndex].locations.push("");
-    setDays(updatedDays);
-  };
-
-  const handleDeleteLocation = (
-    dayIndex: number,
-    activityIndex: number,
-    locationIndex: number
-  ) => {
-    if (window.confirm("Are you sure you want to delete this location?")) {
-      const updatedDays = [...days];
-      updatedDays[dayIndex].activities[activityIndex].locations.splice(
-        locationIndex,
-        1
-      );
       setDays(updatedDays);
     }
   };
@@ -103,7 +103,7 @@ export default function CreateTourStep2({
         {days.map((day, dayIndex) => (
           <div
             key={dayIndex}
-            className="border p-4 rounded-lg bg-gray-50 mb-6 relative "
+            className="border p-4 rounded-lg bg-gray-50 mb-6 relative"
           >
             <input
               type="text"
@@ -134,7 +134,7 @@ export default function CreateTourStep2({
                     Time:
                   </label>
                   <input
-                    type="text"
+                    type="time"
                     value={activity.time}
                     onChange={(e) =>
                       handleUpdateActivity(
@@ -167,47 +167,28 @@ export default function CreateTourStep2({
                   />
                 </div>
 
-                {activity.locations.map((location, locationIndex) => (
-                  <div key={locationIndex} className="mb-3 relative">
-                    <label className="block text-sm font-medium text-gray-700">
-                      Location {locationIndex + 1}:
-                    </label>
-                    <input
-                      type="text"
-                      value={location}
-                      onChange={(e) => {
-                        const updatedLocations = [...activity.locations];
-                        updatedLocations[locationIndex] = e.target.value;
-                        handleUpdateActivity(
-                          dayIndex,
-                          activityIndex,
-                          "locations",
-                          updatedLocations
-                        );
-                      }}
-                      className="w-full p-2 border rounded"
-                    />
-                    <button
-                      onClick={() =>
-                        handleDeleteLocation(
-                          dayIndex,
-                          activityIndex,
-                          locationIndex
-                        )
-                      }
-                      className="absolute top-0 right-0 text-red-500"
-                    >
-                      <FiTrash size={16} />
-                    </button>
-                  </div>
-                ))}
-
-                <button
-                  onClick={() => handleAddLocation(dayIndex, activityIndex)}
-                  className="bg-blue-500 text-white px-4 py-2 rounded mt-2 shadow hover:bg-blue-600 flex items-center gap-2"
-                >
-                  <FiPlus /> Add Location
-                </button>
+                <div className="mb-3">
+                  <label className="block text-sm font-medium text-gray-700">
+                    Location:
+                  </label>
+                  <Select
+                    value={activity.locations}
+                    onChange={(value) =>
+                      handleUpdateActivity(
+                        dayIndex,
+                        activityIndex,
+                        "locations",
+                        value
+                      )
+                    }
+                    className="w-full"
+                    placeholder="Select a farm"
+                    options={farms.map((farm) => ({
+                      label: farm.farmName,
+                      value: farm.id,
+                    }))}
+                  />
+                </div>
               </div>
             ))}
 

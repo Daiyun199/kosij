@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 import { useState, useEffect } from "react";
@@ -5,26 +6,34 @@ import ManagerLayout from "@/app/components/ManagerLayout/ManagerLayout";
 import { FiArrowLeft } from "react-icons/fi";
 import api from "@/config/axios.config";
 import { Day } from "@/model/Day";
+import { toast } from "react-toastify";
 
+import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
+import { storage } from "@/config/firebase";
 interface CreateTourStep4Props {
   onBack: () => void;
+  setStep: (step: number) => void;
   tourData: {
     step1: Record<string, any>;
     step2: Day[];
     step3: {
       includes: string;
       notIncludes: string;
+      price: [];
     };
     step4: Record<string, any>;
   };
   formData: Record<string, any>;
   setFormData: (data: any) => void;
+  resetForm: () => void;
 }
 
 const CreateTourStep4: React.FC<CreateTourStep4Props> = ({
   onBack,
   formData,
   setFormData,
+  setStep,
+  resetForm,
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   tourData,
 }) => {
@@ -63,39 +72,124 @@ const CreateTourStep4: React.FC<CreateTourStep4Props> = ({
             description: policy.description,
           }));
           setPolicies(fetchedPolicies);
-          setFormData({ ...formData, policies: fetchedPolicies });
+          setFormData((prev: any) => ({ ...prev, policies: fetchedPolicies })); // Giữ lại các dữ liệu khác
         }
       })
       .catch((error) => {
         console.error("Error fetching policies:", error);
       });
   }, []);
+  const convertTimeToHourMinute = (timeString: string) => {
+    const [hour, minute] = timeString.split(":").map(Number);
+    return { hour, minute };
+  };
+  const base64ToFile = (base64String: string, fileName: string) => {
+    const arr = base64String.split(",");
+    const mime = arr[0].match(/:(.*?);/)?.[1] || "image/jpeg";
+    const bstr = atob(arr[1]);
+    let n = bstr.length;
+    const u8arr = new Uint8Array(n);
+    while (n--) {
+      u8arr[n] = bstr.charCodeAt(n);
+    }
+    return new File([u8arr], fileName, { type: mime });
+  };
   const handleCreateTour = async () => {
     try {
+      let imageUrl = "";
+
+      if (
+        typeof tourData.step1.img === "string" &&
+        tourData.step1.img.startsWith("data:image")
+      ) {
+        tourData.step1.img = base64ToFile(
+          tourData.step1.img,
+          `tour-image-${Date.now()}.jpg`
+        );
+      }
+
+      if (tourData.step1.img instanceof File) {
+        const imageRef = ref(
+          storage,
+          `tours/${Date.now()}-${tourData.step1.img.name}`
+        );
+        await uploadBytes(imageRef, tourData.step1.img);
+        imageUrl = await getDownloadURL(imageRef);
+      } else {
+        console.error("Invalid image file:", tourData.step1.img);
+      }
       const requestBody = {
-        tourName: formData.tourName || "",
-        imageUrl: formData.imageUrl || "",
-        nights: formData.nights || 0,
-        standardPrice: formData.standardPrice || 0,
-        visaFee: formData.visaFee || 0,
-        departurePoint: formData.departurePoint || "",
-        destinationPoint: formData.destinationPoint || "",
-        tourDetailsRequests: formData.tourDetailsRequests || [],
-        tourPriceInclude: formData.tourPriceInclude || "",
-        tourPriceNotInclude: formData.tourPriceNotInclude || "",
-        registrationDaysBefore: formData.registrationDaysBefore || 0,
-        registrationConditions: formData.registrationConditions || "",
-        tourPriceRequests: formData.tourPriceRequests || [],
-        tourPaymentRequests: formData.tourPaymentRequests || [],
+        imageUrl: imageUrl || "", // Lấy URL ảnh từ Firebase
+        tourName: tourData.step1.tourName || "",
+        nights: tourData.step1.night || 0,
+        standardPrice: tourData.step1.standardPrice || 0,
+        visaFee: tourData.step1.visaFee || 0,
+        departurePoint: tourData.step1.departure || "",
+        destinationPoint: tourData.step1.destination || "",
+        tourDetailsRequests: tourData.step2.map((day, index) => ({
+          day: index + 1,
+          itineraryName: day.title,
+          itineraryDetails: day.activities.map((activity) => ({
+            time: convertTimeToHourMinute(activity.time),
+            description: activity.description,
+            farmId: activity.locations || null,
+          })),
+        })),
+        tourPriceInclude: tourData.step3.includes || "",
+        tourPriceNotInclude: tourData.step3.notIncludes || "",
+        registrationDaysBefore: tourData.step1.registrationDaysBefore || 0,
+        registrationConditions: tourData.step1.registrationConditions || "",
+        tourPriceRequests:
+          tourData.step3.price?.map(
+            (price: {
+              start: any;
+              end: any;
+              description: any;
+              rate: number;
+            }) => ({
+              ageFrom: price.start,
+              ageTo: price.end,
+              description: price.description,
+              penaltyRate: price.rate / 100,
+            })
+          ) || [],
+        tourPaymentRequests:
+          formData.deposits?.map(
+            (deposit: {
+              start: any;
+              end: any;
+              description: any;
+              rate: number;
+            }) => ({
+              dayFrom: deposit.start,
+              dayTo: deposit.end,
+              description: deposit.description,
+              penaltyRate: deposit.rate / 100,
+            })
+          ) || [],
+        tourCancellationRequests:
+          formData.policies?.map(
+            (policy: {
+              start: any;
+              end: any;
+              description: any;
+              rate: number;
+            }) => ({
+              dayFrom: policy.start,
+              dayTo: policy.end,
+              description: policy.description,
+              penaltyRate: policy.rate / 100,
+            })
+          ) || [],
       };
 
-      const response = await api.post("/tours", requestBody);
+      const response = await api.post("/tour", requestBody);
 
-      alert("Tour created successfully!");
-      console.log("Response:", response.data);
+      toast.success("Tour created successfully!");
+      resetForm();
+      setStep(1);
     } catch (error) {
-      console.error("Error creating tour:", error);
-      alert("Failed to create tour. Please try again.");
+      toast.error("Failed to create tour. Please try again.");
     }
   };
 
@@ -112,12 +206,11 @@ const CreateTourStep4: React.FC<CreateTourStep4Props> = ({
             description: deposit.description,
           }));
           setDeposits(fetchedDeposit);
-
-          setFormData({ ...formData, policies: fetchedDeposit });
+          setFormData((prev: any) => ({ ...prev, deposits: fetchedDeposit }));
         }
       })
       .catch((error) => {
-        console.error("Error fetching policies:", error);
+        console.error("Error fetching deposits:", error);
       });
   }, []);
 

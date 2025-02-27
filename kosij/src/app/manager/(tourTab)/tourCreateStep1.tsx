@@ -1,7 +1,9 @@
 "use client";
 import ManagerLayout from "@/app/components/ManagerLayout/ManagerLayout";
+import { Button, Upload } from "antd";
 import { useState, useEffect } from "react";
-
+import { UploadOutlined } from "@ant-design/icons";
+import Image from "next/image";
 interface Step1Props {
   onNext: () => void;
   data: {
@@ -12,6 +14,9 @@ interface Step1Props {
     destination?: string;
     registrationDaysBefore?: number;
     registrationConditions?: string;
+    standardPrice?: number;
+    visaFee?: number;
+    img?: File | null;
   };
   updateData: (data: object) => void;
 }
@@ -32,22 +37,25 @@ export default function CreateTourStep1({
   const [registrationConditions, setRegistrationConditions] = useState(
     data.registrationConditions || ""
   );
-
-  // Cập nhật day khi night thay đổi
+  const [standardPrice, setStandardPrice] = useState(data.standardPrice || 0);
+  const [visaFee, setVisaFee] = useState(data.visaFee || 0);
+  const [img, setImg] = useState<File | null>(data.img || null);
   useEffect(() => {
     setDay(night + 1);
   }, [night]);
 
-  // Cập nhật dữ liệu vào state chung
   useEffect(() => {
     updateData({
       tourName,
       night,
-      day, // Gửi giá trị day mới
+      day,
       departure,
       destination,
       registrationDaysBefore,
       registrationConditions,
+      standardPrice,
+      visaFee,
+      img,
     });
   }, [
     tourName,
@@ -57,7 +65,15 @@ export default function CreateTourStep1({
     destination,
     registrationDaysBefore,
     registrationConditions,
+    standardPrice,
+    visaFee,
+    img,
   ]);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const handleUpload = (file: File) => {
+    setImg(file);
+    return false;
+  };
 
   return (
     <ManagerLayout title="Tour Create">
@@ -127,6 +143,7 @@ export default function CreateTourStep1({
             </label>
             <input
               type="number"
+              min={0}
               value={registrationDaysBefore}
               onChange={(e) =>
                 setRegistrationDaysBefore(Number(e.target.value))
@@ -147,6 +164,53 @@ export default function CreateTourStep1({
           </div>
         </div>
 
+        <div className="grid grid-cols-2 gap-4 mb-4">
+          <div>
+            <label className="block text-sm font-medium">
+              Standard Price ($):
+            </label>
+            <input
+              type="number"
+              value={standardPrice}
+              min={0}
+              onChange={(e) =>
+                setStandardPrice(Math.max(0, Number(e.target.value)))
+              }
+              className="w-full p-2 border rounded"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium">Visa Fee ($):</label>
+            <input
+              type="number"
+              value={visaFee}
+              min={0}
+              onChange={(e) => setVisaFee(Math.max(0, Number(e.target.value)))}
+              className="w-full p-2 border rounded"
+            />
+          </div>
+        </div>
+        <div className="mb-4">
+          <label className="block text-sm font-medium">
+            Upload Tour Image:
+          </label>
+          <Upload
+            beforeUpload={handleUpload}
+            showUploadList={false}
+            accept="image/*"
+          >
+            <Button icon={<UploadOutlined />}>Click to Upload</Button>
+          </Upload>
+          {img && (
+            <Image
+              src={URL.createObjectURL(img)}
+              alt="Tour"
+              width={300}
+              height={200}
+              className="mt-2 rounded-lg"
+            />
+          )}
+        </div>
         <div className="flex justify-end">
           <button
             onClick={onNext}

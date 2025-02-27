@@ -78,7 +78,6 @@ const CreateTourStep3: React.FC<CreateTourStep3Props> = ({
           Tour Information Form
         </h2>
 
-        {/* Cancel Price */}
         <div className="border rounded-lg p-4 mb-6">
           <h3 className="text-lg font-semibold mb-4">Cancel Price</h3>
           {price.map((item) => (
@@ -137,7 +136,6 @@ const CreateTourStep3: React.FC<CreateTourStep3Props> = ({
           </button>
         </div>
 
-        {/* Tour Price Includes */}
         <div className="border rounded-lg p-4 mb-6">
           <h3 className="text-lg font-semibold mb-4">Tour Price Includes</h3>
           <textarea
@@ -148,7 +146,6 @@ const CreateTourStep3: React.FC<CreateTourStep3Props> = ({
           />
         </div>
 
-        {/* Tour Price Not Includes */}
         <div className="border rounded-lg p-4 mb-6">
           <h3 className="text-lg font-semibold mb-4">
             Tour Price Not Includes
@@ -161,7 +158,6 @@ const CreateTourStep3: React.FC<CreateTourStep3Props> = ({
           />
         </div>
 
-        {/* Buttons */}
         <div className="flex justify-between mt-6">
           <button
             onClick={onBack}

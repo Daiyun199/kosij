@@ -13,17 +13,35 @@ export default function CreateTour() {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     step1: {} as Record<string, any>,
     step2: [] as Day[],
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     step3: {
       includes: "",
       notIncludes: "",
+      price: [] as [],
     },
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    step4: {} as Record<string, any>, // Rỗng
+    step4: {} as Record<string, any>,
   });
-
-  const updateStepData = (stepKey: keyof typeof tourData, data: object) => {
-    setTourData((prev) => ({ ...prev, [stepKey]: data }));
+  const resetForm = () => {
+    setTourData({
+      step1: {},
+      step2: [],
+      step3: {
+        includes: "",
+        notIncludes: "",
+        price: [],
+      },
+      step4: {},
+    });
+    setStep(1);
+  };
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const updateStepData = (stepKey: keyof typeof tourData, data: any) => {
+    setTourData((prev) => ({
+      ...prev,
+      [stepKey]: Array.isArray(prev[stepKey])
+        ? data
+        : { ...prev[stepKey], ...data },
+    }));
   };
 
   return (
@@ -56,8 +74,9 @@ export default function CreateTour() {
           onBack={() => setStep(3)}
           tourData={tourData}
           formData={tourData.step4}
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          setFormData={(data: any) => updateStepData("step4", data)}
+          setFormData={(data) => updateStepData("step4", data)}
+          setStep={setStep}
+          resetForm={resetForm}
         />
       )}
     </div>

@@ -15,7 +15,6 @@ const CreateTourStep3: React.FC<CreateTourStep3Props> = ({
 
   const [price, setPrice] = useState(data.price || []);
 
-  // Cập nhật dữ liệu khi thay đổi
   useEffect(() => {
     updateData({
       includes,
@@ -24,7 +23,6 @@ const CreateTourStep3: React.FC<CreateTourStep3Props> = ({
     });
   }, [includes, notIncludes, price]);
 
-  // Hàm xử lý thay đổi giá
   const handlePriceChange = (id: number, field: string, value: string) => {
     setPrice((prevPrice) =>
       prevPrice.map((item) =>
@@ -33,7 +31,6 @@ const CreateTourStep3: React.FC<CreateTourStep3Props> = ({
     );
   };
 
-  // Thêm giá mới
   const addPrice = () => {
     setPrice([
       ...price,
@@ -66,7 +63,6 @@ const CreateTourStep3: React.FC<CreateTourStep3Props> = ({
       });
   }, []);
 
-  // Xóa một giá
   const removePrice = (id: number) => {
     setPrice(price.filter((item) => item.id !== id));
   };

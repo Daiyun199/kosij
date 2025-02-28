@@ -21,8 +21,14 @@ function Page() {
     setLoading(true);
     try {
       const response = await api.get("/manager/users/ConsultingStaff");
-      setStaffData(response.data.value);
-      setFilteredData(response.data.value);
+      const transformedData = response.data.value.map(
+        (staff: ConsultingStaff) => ({
+          ...staff,
+          status: staff.status ? "Active" : "Inactive",
+        })
+      );
+      setStaffData(transformedData);
+      setFilteredData(transformedData);
     } catch (error) {
       message.error("Failed to fetch consulting staff");
     } finally {

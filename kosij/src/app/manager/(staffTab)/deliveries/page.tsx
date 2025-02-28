@@ -27,14 +27,21 @@ function Page() {
     setLoading(true);
     try {
       const response = await api.get("/manager/users/DeliveryStaff");
-      setStaffData(response.data.value);
-      setFilteredData(response.data.value);
+      const transformedData = response.data.value.map(
+        (staff: DeliveryStaff) => ({
+          ...staff,
+          status: staff.status ? "Active" : "Inactive",
+        })
+      );
+      setStaffData(transformedData);
+      setFilteredData(transformedData);
     } catch (error) {
       message.error("Failed to fetch delivery staff");
     } finally {
       setLoading(false);
     }
   };
+
   const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     setSearchValue(value);
@@ -85,8 +92,10 @@ function Page() {
         { text: "Active", value: "Active" },
         { text: "Inactive", value: "Inactive" },
       ],
+      render: (status: boolean) => (status ? "Active" : "Inactive"),
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      onFilter: (value: any, record: DeliveryStaff) => record.status === value,
+      onFilter: (value: any, record: DeliveryStaff) =>
+        (record.status ? "Active" : "Inactive") === value,
     },
     {
       title: "Actions",

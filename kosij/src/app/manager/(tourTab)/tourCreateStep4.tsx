@@ -72,7 +72,7 @@ const CreateTourStep4: React.FC<CreateTourStep4Props> = ({
             description: policy.description,
           }));
           setPolicies(fetchedPolicies);
-          setFormData((prev: any) => ({ ...prev, policies: fetchedPolicies })); // Giữ lại các dữ liệu khác
+          setFormData((prev: any) => ({ ...prev, policies: fetchedPolicies }));
         }
       })
       .catch((error) => {
@@ -119,7 +119,7 @@ const CreateTourStep4: React.FC<CreateTourStep4Props> = ({
         console.error("Invalid image file:", tourData.step1.img);
       }
       const requestBody = {
-        imageUrl: imageUrl || "", // Lấy URL ảnh từ Firebase
+        imageUrl: imageUrl || "",
         tourName: tourData.step1.tourName || "",
         nights: tourData.step1.night || 0,
         standardPrice: tourData.step1.standardPrice || 0,

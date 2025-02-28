@@ -93,14 +93,7 @@ function Page() {
       render: (record: SalesStaff) => (
         <div style={{ display: "flex", gap: "8px" }}>
           <Button type="primary" onClick={() => console.log("Detail:", record)}>
-            Detail
-          </Button>
-          <Button
-            type="primary"
-            danger
-            onClick={() => console.log("Delete:", record.accountId)}
-          >
-            Delete
+            Assign
           </Button>
         </div>
       ),

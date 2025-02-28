@@ -101,7 +101,9 @@ function Page() {
           </Button>
           <Button
             type="default"
-            onClick={() => console.log("Add Trip:", record)}
+            onClick={() =>
+              router.push(`/manager/trip/register?tourId=${record.key}`)
+            }
           >
             Add Trip
           </Button>

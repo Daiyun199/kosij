@@ -27,12 +27,12 @@ export default function CreateTourStep1({
   updateData,
 }: Step1Props) {
   const [tourName, setTourName] = useState(data.tourName || "");
-  const [night, setNight] = useState(data.night || 0);
+  const [night, setNight] = useState(data.night || 1);
   const [day, setDay] = useState((data.night || 0) + 1);
   const [departure, setDeparture] = useState(data.departure || "");
   const [destination, setDestination] = useState(data.destination || "");
   const [registrationDaysBefore, setRegistrationDaysBefore] = useState(
-    data.registrationDaysBefore || 0
+    data.registrationDaysBefore || 1
   );
   const [registrationConditions, setRegistrationConditions] = useState(
     data.registrationConditions || ""
@@ -98,7 +98,7 @@ export default function CreateTourStep1({
             <input
               type="number"
               value={night}
-              min={0}
+              min={1}
               onChange={(e) => setNight(Math.max(0, Number(e.target.value)))}
               className="w-full p-2 border rounded"
             />
@@ -143,7 +143,7 @@ export default function CreateTourStep1({
             </label>
             <input
               type="number"
-              min={0}
+              min={1}
               value={registrationDaysBefore}
               onChange={(e) =>
                 setRegistrationDaysBefore(Number(e.target.value))

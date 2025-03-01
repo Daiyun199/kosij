@@ -1,30 +1,50 @@
 "use client";
 
 import { PageContainer } from "@ant-design/pro-layout";
-import { Button, Space } from "antd";
-import { EditOutlined, MinusCircleOutlined } from "@ant-design/icons";
+import { Button, Image, message, Space } from "antd";
+import { EditOutlined, MinusCircleOutlined, PlusCircleOutlined } from "@ant-design/icons";
 import { ProCard } from "@ant-design/pro-components";
-import farmbreeder_queries from "@/features/farmbreeder/queries";
 import { VarietyDto } from "@/lib/domain/Variety/Variety.dto";
+import { useEffect, useState } from "react";
+import api from "@/config/axios.config";
+import UpdateVarietyModal from "@/features/farmbreeder/component/UpdateVariety.modal";
 
 function Page() {
-  const {
-    data: api_variety,
-    isLoading,
-    isError,
-  } = farmbreeder_queries.variety.all();
+  const [varieties, setVarieties] = useState<VarietyDto[]>([]);
+  const [loading, setLoading] = useState<boolean>(false);
+  const [error, setError] = useState<boolean>(false);
 
-  console.log("API Response in Page.tsx:", api_variety);
-  // useEffect(() => {
-  //   if (api_variety?.data.length === 0) {
-  //     console.log("No content received, refetching...");
-  //     refetch();
-  //   }
-  // }, [api_variety]);
+  const fetchVarietyList = async () => {
+    setLoading(true);
+    setError(false);
+    try {
+      const response = await api.get("/farm-variety/varieties/current-farm");
+      setVarieties(response.data.value || []);
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    } catch (error) {
+      message.error("Failed to load varieties!");
+      setError(true);
+    } finally {
+      setLoading(false);
+    }
+  };
 
+  useEffect(() => {
+    fetchVarietyList();
+  }, []);
+
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
+  const handleOpen = () => setIsModalOpen(true);
+  const handleClose = () => setIsModalOpen(false);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const handleSubmit = (values: any) => {
+    console.log("Form Submitted:", values);
+    setIsModalOpen(false);
+  };
   return (
     <PageContainer
-      title="Dashboard"
+      title="Varieties"
       extra={
         <Space>
           <Button
@@ -47,71 +67,49 @@ function Page() {
       }}
     >
       <section className="mt-5">
-        {isLoading && <p>Loading varieties...</p>}
-        {isError && <p>Error loading varieties.</p>}
-
-        {api_variety?.data && api_variety.data.length > 0 ? (
-          <Space direction="vertical" size="large">
-            {api_variety.data.map((variety: VarietyDto) => (
-              <ProCard
-                key={variety.id}
-                bordered
-                style={{ width: 400 }}
-                title={variety.varietyName}
-                extra={
-                  <>
-                    <EditOutlined style={{ marginRight: 8 }} />
-                    <MinusCircleOutlined />
-                  </>
-                }
-              >
-                <img
-                  src={variety.imageUrl[0] || "/placeholder.png"}
-                  alt={variety.varietyName}
-                  style={{ width: 120, height: "auto", borderRadius: 10 }}
-                />
-                <p style={{ marginLeft: 16 }}>{variety.description}</p>
-              </ProCard>
-            ))}
-          </Space>
-        ) : (
-          <p>No varieties available</p>
-        )}
+        <Button style={{ backgroundColor: "#149D52", color: "#fff", height: "40px", fontWeight: "normal" }} icon={<PlusCircleOutlined />}>Add Variety</Button>
       </section>
+      <section className="mt-5 grid grid-cols-2 gap-10 px-layout pb-layout">
+        {loading && <p>Loading varieties...</p>}
+        {error && <p>Error loading varieties.</p>}
 
-      {/*  
-      <section className="mt-5">
-        {isLoading && <p>Loading varieties...</p>}
-        {isError && <p>Error loading varieties.</p>}
-        {api_variety?.data ? (
-          <Space direction="vertical" size="large">
-            {api_variety.data.map((variety) => (
+        {!loading && !error && varieties.length > 0
+          ? varieties.map((variety, index) => (
               <ProCard
-                key={variety.id}
+                className="relative h-96 w-full shadow-md p-4 flex flex-col justify-center"
+                key={variety.id || `variety-${index}`}
                 bordered
-                style={{ width: 400 }}
                 title={variety.varietyName}
-                extra={
-                  <>
-                    <EditOutlined style={{ marginRight: 8 }} />
-                    <MinusCircleOutlined />
-                  </>
-                }
-                direction="row"
               >
-                <img
-                  src={variety.imageUrl[0] || "/placeholder.png"}
-                  alt={variety.varietyName}
-                  style={{ width: 120, height: "auto", borderRadius: 10 }}
-                />
-                <p style={{ marginLeft: 16 }}>{variety.description}</p>
+                <div className="absolute top-3 right-3 flex gap-2">
+                  <EditOutlined className="text-gray-600 hover:text-gray-800 cursor-pointer" onClick={handleOpen} />
+                  <MinusCircleOutlined className="text-gray-600 hover:text-gray-800 cursor-pointer" />
+                </div>
+
+                <div className="flex gap-4 w-full mt-6">
+                  <div className="flex-shrink-0">
+                    <Image
+                      src={
+                        Array.isArray(variety.imageUrl)
+                          ? variety.imageUrl[0] || "/placeholder.png"
+                          : variety.imageUrl || "/placeholder.png"
+                      }
+                      alt={variety.varietyName}
+                      width={144}
+                      height={224}
+                      style={{ objectFit: "cover", borderRadius: "8px" }}
+                    />
+                  </div>
+
+                  <div className="flex-1">
+                    <p className="text-gray-600">{variety.description}</p>
+                  </div>
+                </div>
               </ProCard>
-            ))}
-          </Space>
-        ) : (
-          <p>No varieties found.</p>
-        )}
-      </section> */}
+            ))
+          : !loading && !error && <p>No varieties available</p>}
+      </section>
+      <UpdateVarietyModal visible={isModalOpen} onCancel={handleClose} onSubmit={handleSubmit}/>
     </PageContainer>
   );
 }

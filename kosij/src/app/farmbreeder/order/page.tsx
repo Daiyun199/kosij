@@ -53,11 +53,6 @@ const columns: ProColumns<Order>[] = [
     key: "orderDate",
   },
   {
-    title: "Delivery to Company (Expected)",
-    dataIndex: "deliveryCompany",
-    key: "deliveryCompany",
-  },
-  {
     title: "Delivery to Customer (Expected)",
     dataIndex: "deliveryCustomer",
     key: "deliveryCustomer",

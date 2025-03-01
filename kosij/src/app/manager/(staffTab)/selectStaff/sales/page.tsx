@@ -5,36 +5,35 @@ import React, { useEffect, useState } from "react";
 import { Table, Button, message } from "antd";
 import ManagerLayout from "@/app/components/ManagerLayout/ManagerLayout";
 import api from "@/config/axios.config";
-import { ConsultingStaff } from "@/model/ConsultantStaff";
+import { SalesStaff } from "@/model/SalesStaff";
 import SearchBar from "@/app/components/SearchBar/SearchBar";
 
 function Page() {
-  const [staffData, setStaffData] = useState<ConsultingStaff[]>([]);
+  const [staffData, setStaffData] = useState<SalesStaff[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
   const [searchValue, setSearchValue] = useState<string>("");
-  const [filteredData, setFilteredData] = useState<ConsultingStaff[]>([]);
+  const [filteredData, setFilteredData] = useState<SalesStaff[]>([]);
   useEffect(() => {
-    fetchConsultingStaff();
+    fetchSalesStaff();
   }, []);
 
-  const fetchConsultingStaff = async () => {
+  const fetchSalesStaff = async () => {
     setLoading(true);
     try {
-      const response = await api.get("/manager/users/ConsultingStaff");
-      const transformedData = response.data.value.map(
-        (staff: ConsultingStaff) => ({
-          ...staff,
-          status: staff.status ? "Active" : "Inactive",
-        })
-      );
+      const response = await api.get("/manager/users/SalesStaff");
+      const transformedData = response.data.value.map((staff: SalesStaff) => ({
+        ...staff,
+        status: staff.status ? "Active" : "Inactive",
+      }));
       setStaffData(transformedData);
       setFilteredData(transformedData);
     } catch (error) {
-      message.error("Failed to fetch consulting staff");
+      message.error("Failed to fetch sales staff");
     } finally {
       setLoading(false);
     }
   };
+
   const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     setSearchValue(value);
@@ -68,14 +67,14 @@ function Page() {
       key: "area",
     },
     {
-      title: "Ongoing Trips",
-      dataIndex: "ongoingTrip",
-      key: "ongoingTrip",
+      title: "Ongoing Requests",
+      dataIndex: "ongoingRequest",
+      key: "ongoingRequest",
     },
     {
-      title: "Completed Trips",
-      dataIndex: "completedTrip",
-      key: "completedTrip",
+      title: "Completed Requests",
+      dataIndex: "completedRequest",
+      key: "completedRequest",
     },
     {
       title: "Status",
@@ -86,23 +85,15 @@ function Page() {
         { text: "Inactive", value: "Inactive" },
       ],
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      onFilter: (value: any, record: ConsultingStaff) =>
-        record.status === String(value),
+      onFilter: (value: any, record: SalesStaff) => record.status === value,
     },
     {
       title: "Actions",
       key: "actions",
-      render: (record: ConsultingStaff) => (
+      render: (record: SalesStaff) => (
         <div style={{ display: "flex", gap: "8px" }}>
           <Button type="primary" onClick={() => console.log("Detail:", record)}>
-            Detail
-          </Button>
-          <Button
-            type="primary"
-            danger
-            onClick={() => console.log("Delete:", record.accountId)}
-          >
-            Delete
+            Assign
           </Button>
         </div>
       ),
@@ -110,7 +101,7 @@ function Page() {
   ];
 
   return (
-    <ManagerLayout title="Consulting Staff List">
+    <ManagerLayout title="Sales Staff List">
       <div style={{ marginBottom: "8px" }}>
         <SearchBar value={searchValue} onChange={handleSearch} />
       </div>

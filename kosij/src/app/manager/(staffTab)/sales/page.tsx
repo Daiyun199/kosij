@@ -21,15 +21,19 @@ function Page() {
     setLoading(true);
     try {
       const response = await api.get("/manager/users/SalesStaff");
-      setStaffData(response.data.value);
-      setFilteredData(response.data.value);
+      const transformedData = response.data.value.map((staff: SalesStaff) => ({
+        ...staff,
+        status: staff.status ? "Active" : "Inactive",
+      }));
+      setStaffData(transformedData);
+      setFilteredData(transformedData);
     } catch (error) {
       message.error("Failed to fetch sales staff");
     } finally {
       setLoading(false);
     }
   };
-  // Hàm xử lý tìm kiếm
+
   const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     setSearchValue(value);

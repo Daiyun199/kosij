@@ -73,7 +73,7 @@ const ManagerLayout: React.FC<ManagerLayoutProps> = ({ title, children }) => {
             {
               label: "Fram Breeder",
               icon: "fa-solid fa-fish-fins",
-              path: "/manager/farm-breeder-list",
+              path: "/manager/farms",
             },
             {
               label: "Consultant Staff",
@@ -102,14 +102,9 @@ const ManagerLayout: React.FC<ManagerLayoutProps> = ({ title, children }) => {
               path: "/manager/tours",
             },
             {
-              label: "Pending",
-              icon: "fa-solid fa-hourglass",
-              path: "/manager/tour-pending",
-            },
-            {
-              label: "Cancel",
-              icon: "fa-solid fa-ban",
-              path: "/manager/tour-cancel",
+              label: "Design",
+              icon: "fa-solid fa-route",
+              path: "/manager/tours/create",
             },
           ],
         },

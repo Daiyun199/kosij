@@ -1,30 +1,71 @@
-"use client";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import ManagerLayout from "@/app/components/ManagerLayout/ManagerLayout";
-
-interface CreateTourStep3Props {
-  onBack: () => void;
-  onNext: () => void;
-}
+import { CreateTourStep3Props } from "@/model/CreateTourStep3Props";
+import { FiArrowLeft } from "react-icons/fi";
+import api from "@/config/axios.config";
 
 const CreateTourStep3: React.FC<CreateTourStep3Props> = ({
   onBack,
   onNext,
+  data,
+  updateData,
 }) => {
-  const [adultPrice, setAdultPrice] = useState("5.000.000 VND");
-  const [infantRate, setInfantRate] = useState("50%");
-  const [childRate, setChildRate] = useState("90%");
-  const [includes, setIncludes] = useState(
-    `- Round-trip airfare for the HCM-HAN City - Japan route (Budget Air)
-- Standard 3-4 star hotel accommodation/twin room
-- Meals listed in the program
-- Travel insurance 300.000/person.`
-  );
-  const [notIncludes, setNotIncludes] = useState(
-    `- Single room fee for guests requesting single room.
-- Other services not mentioned in the program
-- Tips fee for the tour guide (150.000 VND/day/guest x 3 days).`
-  );
+  const [includes, setIncludes] = useState(data.includes ?? "");
+  const [notIncludes, setNotIncludes] = useState(data.notIncludes ?? "");
+
+  const [price, setPrice] = useState(data.price || []);
+
+  useEffect(() => {
+    updateData({
+      includes,
+      notIncludes,
+      price: price ?? [],
+    });
+  }, [includes, notIncludes, price]);
+
+  const handlePriceChange = (id: number, field: string, value: string) => {
+    setPrice((prevPrice) =>
+      prevPrice.map((item) =>
+        item.id === id ? { ...item, [field]: value } : item
+      )
+    );
+  };
+
+  const addPrice = () => {
+    setPrice([
+      ...price,
+      { id: Date.now(), start: "", end: "", rate: "", description: "" },
+    ]);
+  };
+  useEffect(() => {
+    api
+      .get("/config-templates/TourPrice")
+      .then((response) => {
+        if (response.data?.value) {
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          const fetchedPrices = response.data.value.map((price: any) => ({
+            id: price.id,
+            start: price.rangeStart.toString(),
+            end: price.rangeEnd.toString(),
+            rate: (price.rate * 100).toString(),
+            description: price.description,
+          }));
+          setPrice(fetchedPrices);
+          updateData({
+            includes,
+            notIncludes,
+            price: fetchedPrices,
+          });
+        }
+      })
+      .catch((error) => {
+        console.error("Error fetching policies:", error);
+      });
+  }, []);
+
+  const removePrice = (id: number) => {
+    setPrice(price.filter((item) => item.id !== id));
+  };
 
   return (
     <ManagerLayout title="Create Tour">
@@ -33,45 +74,64 @@ const CreateTourStep3: React.FC<CreateTourStep3Props> = ({
           Tour Information Form
         </h2>
 
-        {/* Price Configuration */}
         <div className="border rounded-lg p-4 mb-6">
-          <h3 className="text-lg font-semibold mb-4">Price Configuration</h3>
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-medium">Adult</label>
-              <input
-                type="text"
-                className="w-full p-2 border rounded"
-                value={adultPrice}
-                onChange={(e) => setAdultPrice(e.target.value)}
-              />
+          <h3 className="text-lg font-semibold mb-4">Cancel Price</h3>
+          {price.map((item) => (
+            <div key={item.id} className="relative border p-4 mb-4 rounded">
+              <button
+                onClick={() => removePrice(item.id)}
+                className="absolute top-0 right-0 text-gray-500 hover:text-red-500 text-sm"
+              >
+                ✖
+              </button>
+              <div className="grid grid-cols-3 gap-4">
+                <input
+                  type="text"
+                  className="w-full p-2 border rounded"
+                  placeholder="Starting Point"
+                  value={item.start}
+                  onChange={(e) =>
+                    handlePriceChange(item.id, "start", e.target.value)
+                  }
+                />
+                <input
+                  type="text"
+                  className="w-full p-2 border rounded"
+                  placeholder="End Point"
+                  value={item.end}
+                  onChange={(e) =>
+                    handlePriceChange(item.id, "end", e.target.value)
+                  }
+                />
+                <input
+                  type="text"
+                  className="w-full p-2 border rounded"
+                  placeholder="Penalty Rate (%)"
+                  value={item.rate}
+                  onChange={(e) =>
+                    handlePriceChange(item.id, "rate", e.target.value)
+                  }
+                />
+              </div>
+              <textarea
+                className="w-full p-2 border rounded mt-4"
+                placeholder="Description"
+                rows={2}
+                value={item.description}
+                onChange={(e) =>
+                  handlePriceChange(item.id, "description", e.target.value)
+                }
+              ></textarea>
             </div>
-            <div>
-              <label className="block text-sm font-medium">
-                Infant pricing rate (Under 2 Ages)
-              </label>
-              <input
-                type="text"
-                className="w-full p-2 border rounded"
-                value={infantRate}
-                onChange={(e) => setInfantRate(e.target.value)}
-              />
-            </div>
-            <div className="col-span-2">
-              <label className="block text-sm font-medium">
-                Child pricing rate (2-11 Ages)
-              </label>
-              <input
-                type="text"
-                className="w-full p-2 border rounded"
-                value={childRate}
-                onChange={(e) => setChildRate(e.target.value)}
-              />
-            </div>
-          </div>
+          ))}
+          <button
+            onClick={addPrice}
+            className="mt-4 px-4 py-2 bg-gray-300 rounded"
+          >
+            + New Price
+          </button>
         </div>
 
-        {/* Tour Price Includes */}
         <div className="border rounded-lg p-4 mb-6">
           <h3 className="text-lg font-semibold mb-4">Tour Price Includes</h3>
           <textarea
@@ -82,7 +142,6 @@ const CreateTourStep3: React.FC<CreateTourStep3Props> = ({
           />
         </div>
 
-        {/* Tour Price Not Includes */}
         <div className="border rounded-lg p-4 mb-6">
           <h3 className="text-lg font-semibold mb-4">
             Tour Price Not Includes
@@ -95,13 +154,13 @@ const CreateTourStep3: React.FC<CreateTourStep3Props> = ({
           />
         </div>
 
-        {/* Buttons */}
         <div className="flex justify-between mt-6">
           <button
             onClick={onBack}
-            className="bg-gray-500 text-white px-6 py-2 rounded"
+            className="bg-gray-500 text-white px-4 py-2 rounded shadow hover:bg-gray-600 flex items-center gap-2"
           >
-            ⬅ Back
+            <FiArrowLeft size={20} />
+            Back
           </button>
           <button
             onClick={onNext}

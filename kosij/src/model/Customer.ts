@@ -5,5 +5,6 @@ export interface Customer {
   sex: string;
   address: string;
   phoneNumber: string;
+  status: string;
   dateOfJoining: string;
 }

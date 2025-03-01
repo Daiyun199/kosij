@@ -5,6 +5,9 @@ import styles from "./profile.module.css";
 import ManagerLayout from "@/app/components/ManagerLayout/ManagerLayout";
 import api from "@/config/axios.config";
 import ImageUploader from "@/app/components/ImageUpload/ImageUpload";
+import { getDownloadURL, ref, uploadBytesResumable } from "firebase/storage";
+import { storage } from "@/config/firebase";
+import { toast } from "react-toastify";
 
 interface UserProfile {
   fullName: string;
@@ -41,19 +44,69 @@ function Profile() {
   }, []);
 
   const handleUpload = async () => {
-    if (!selectedFile) return;
+    if (!selectedFile) {
+      toast.warning("Please select an image first!");
+      return;
+    }
+
     setUploading(true);
-    // Upload logic here...
-    setUploading(false);
+
+    try {
+      const storageRef = ref(storage, `avatars/${selectedFile.name}`);
+      const uploadTask = uploadBytesResumable(storageRef, selectedFile);
+
+      uploadTask.on(
+        "state_changed",
+        (snapshot) => {
+          const progress =
+            (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+          console.log(`Uploading: ${progress}%`);
+        },
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        (error: any) => {
+          console.error("Error uploading:", error);
+          setUploading(false);
+        },
+        async () => {
+          const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
+          console.log("Image uploaded successfully:", downloadURL);
+
+          if (user) {
+            const updatedUser = {
+              ...user,
+              urlAvatar: downloadURL,
+            };
+
+            await api.put("/accounts/current-user", updatedUser);
+            setUser(updatedUser);
+
+            toast.success("Avatar updated successfully!");
+          }
+          setUploading(false);
+        }
+      );
+    } catch (error) {
+      console.error("Error uploading image:", error);
+      setUploading(false);
+    }
   };
 
   const handleEdit = () => {
     setIsModalOpen(true);
   };
 
-  const handleSave = () => {
-    setUser(editedUser);
-    setIsModalOpen(false);
+  const handleSave = async () => {
+    if (!editedUser) return;
+
+    try {
+      await api.put("/accounts/current-user", editedUser);
+      setUser(editedUser);
+      setIsModalOpen(false);
+      toast.success("Cập nhật thông tin thành công!");
+    } catch (error) {
+      console.error("Lỗi cập nhật thông tin:", error);
+      toast.error("Cập nhật thất bại!");
+    }
   };
 
   const handleCancel = () => {

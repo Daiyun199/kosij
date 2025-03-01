@@ -1,62 +1,55 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 "use client";
 import dayjs from "dayjs";
 import React, { useEffect, useState } from "react";
-import { Table, Button, message, DatePicker } from "antd";
+import { useRouter } from "next/navigation";
+import { Table, Button, message } from "antd";
 import ManagerLayout from "@/app/components/ManagerLayout/ManagerLayout";
 import api from "@/config/axios.config";
-import { Customer } from "@/model/Customer";
+import { FarmBreeder } from "@/model/FarmBreeder";
 import SearchBar from "@/app/components/SearchBar/SearchBar";
 import isBetween from "dayjs/plugin/isBetween";
 
 dayjs.extend(isBetween);
 
 function Page() {
-  const [customerData, setCustomerData] = useState<Customer[]>([]);
+  const router = useRouter();
+  const [farmBreederData, setFarmBreederData] = useState<FarmBreeder[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
-  const [dateRange, setDateRange] = useState<
-    [dayjs.Dayjs | null, dayjs.Dayjs | null]
-  >([null, null]);
   const [searchValue, setSearchValue] = useState<string>("");
 
   useEffect(() => {
-    fetchCustomers();
+    fetchFarmBreeder();
   }, []);
 
-  const fetchCustomers = async () => {
+  const fetchFarmBreeder = async () => {
     setLoading(true);
     try {
-      const response = await api.get("/manager/users/Customer");
-      const transformedData = response.data.value.map((customer: Customer) => ({
-        ...customer,
-        status: customer.status ? "Active" : "Inactive",
-      }));
-
-      setCustomerData(transformedData);
+      const response = await api.get("/manager/users/FarmBreeder");
+      const transformedData = response.data.value.map(
+        (breeder: FarmBreeder) => ({
+          ...breeder,
+          status: breeder.status ? "Active" : "Inactive",
+        })
+      );
+      setFarmBreederData(transformedData);
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (error) {
-      message.error("Failed to fetch customers");
+      message.error("Failed to fetch farm breeders");
     } finally {
       setLoading(false);
     }
   };
 
-  const filteredData = customerData.filter((customer) => {
-    const recordDate = dayjs(customer.dateOfJoining);
-    const isInDateRange =
-      !dateRange[0] ||
-      !dateRange[1] ||
-      recordDate.isBetween(dateRange[0], dateRange[1], null, "[]");
-
-    const isInSearch =
+  const filteredData = farmBreederData.filter((customer) => {
+    return (
       customer.fullName.toLowerCase().includes(searchValue.toLowerCase()) ||
       customer.email.toLowerCase().includes(searchValue.toLowerCase()) ||
-      customer.address.toLowerCase().includes(searchValue.toLowerCase()) ||
-      customer.phoneNumber.includes(searchValue);
-
-    return isInDateRange && isInSearch;
+      customer.location.toLowerCase().includes(searchValue.toLowerCase()) ||
+      customer.phoneNumber.includes(searchValue)
+    );
   });
 
-  const customerColumns = [
+  const farmBreederColumns = [
     {
       title: "Full Name",
       dataIndex: "fullName",
@@ -68,21 +61,9 @@ function Page() {
       key: "email",
     },
     {
-      title: "Sex",
-      dataIndex: "sex",
-      key: "sex",
-      filters: [
-        { text: "Male", value: "Male" },
-        { text: "Female", value: "Female" },
-        { text: "Unknown", value: "Unknown" },
-      ],
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      onFilter: (value: any, record: Customer) => record.sex === value,
-    },
-    {
-      title: "Address",
-      dataIndex: "address",
-      key: "address",
+      title: "Farm Email",
+      dataIndex: "farmEmail",
+      key: "farmEmail",
     },
     {
       title: "Phone Number",
@@ -90,10 +71,9 @@ function Page() {
       key: "phoneNumber",
     },
     {
-      title: "Date of Joining",
-      dataIndex: "dateOfJoining",
-      key: "dateOfJoining",
-      render: (text: string) => dayjs(text).format("DD/MM/YYYY"),
+      title: "Farm Phone Number",
+      dataIndex: "farmPhoneNumber",
+      key: "farmPhoneNumber",
     },
     {
       title: "Status",
@@ -105,15 +85,18 @@ function Page() {
       ],
       render: (status: boolean) => (status ? "Active" : "Inactive"),
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      onFilter: (value: any, record: Customer) =>
+      onFilter: (value: any, record: FarmBreeder) =>
         (record.status ? "Active" : "Inactive") === value,
     },
     {
       title: "Actions",
       key: "actions",
-      render: (record: Customer) => (
+      render: (record: FarmBreeder) => (
         <div style={{ display: "flex", gap: "8px" }}>
-          <Button type="primary" onClick={() => console.log("Detail:", record)}>
+          <Button
+            type="primary"
+            onClick={() => router.push(`/manager/farms/${record.farmId}`)}
+          >
             Detail
           </Button>
           <Button
@@ -129,21 +112,16 @@ function Page() {
   ];
 
   return (
-    <ManagerLayout title="Customer List">
+    <ManagerLayout title="Farm Breeder List">
       <div style={{ display: "flex", gap: "16px", marginBottom: "16px" }}>
         <SearchBar
           value={searchValue}
           onChange={(e) => setSearchValue(e.target.value)}
         />
-        <DatePicker.RangePicker
-          onChange={(dates) =>
-            setDateRange(dates as [dayjs.Dayjs | null, dayjs.Dayjs | null])
-          }
-        />
       </div>
 
       <Table
-        columns={customerColumns}
+        columns={farmBreederColumns}
         dataSource={filteredData}
         rowKey="accountId"
         loading={loading}

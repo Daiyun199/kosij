@@ -60,7 +60,7 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({
             padding: "8px",
           }}
         >
-          <Camera color="white" size={26} />
+          <Camera color="white" size={10} />
         </div>
       </div>
 

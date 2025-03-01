@@ -4,7 +4,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import ManagerLayout from "@/app/components/ManagerLayout/ManagerLayout";
 import { MapPinned, ShoppingCart } from "lucide-react";
 
@@ -24,7 +24,8 @@ const staffOptions = [
 export default function SelectStaff() {
   const [selected, setSelected] = useState<string | null>(null);
   const router = useRouter();
-
+  const searchParams = useSearchParams();
+  const tripId = searchParams.get("tripId");
   return (
     <ManagerLayout title="Select Staff">
       <div className="flex justify-center items-center min-h-screen bg-gray-100">
@@ -66,9 +67,16 @@ export default function SelectStaff() {
                   : "bg-gray-300 cursor-not-allowed"
               )}
               disabled={!selected}
-              onClick={() =>
-                selected && router.push(`/next-step?staff=${selected}`)
-              }
+              onClick={() => {
+                if (!tripId) return;
+
+                const url =
+                  selected === "sale"
+                    ? `/manager/selectStaff/sales?tripId=${tripId}`
+                    : `/manager/selectStaff/consultants?tripId=${tripId}`;
+
+                router.push(url);
+              }}
             >
               🚀 Continue
             </Button>

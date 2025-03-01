@@ -53,8 +53,10 @@ function Page() {
 
           tripList:
             data.tripsList?.map(
-              // eslint-disable-next-line @typescript-eslint/no-explicit-any
-              (trip: { departureDate: any }) => trip.departureDate
+              (trip: { id: string; departureDate: string }) => ({
+                id: trip.id,
+                departureDate: trip.departureDate,
+              })
             ) || [],
 
           tourPriceIncludes: data.tourPriceInclude?.split(", ") || [],

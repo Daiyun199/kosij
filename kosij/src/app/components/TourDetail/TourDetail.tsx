@@ -5,25 +5,26 @@ import { Card, Collapse, Tag, DatePicker } from "antd";
 import { CalendarOutlined, EyeOutlined } from "@ant-design/icons";
 import dayjs from "dayjs";
 import { TourData } from "@/model/TourData";
-
+import { useRouter } from "next/navigation"; // Import useRouter
 const { Panel } = Collapse;
 const { RangePicker } = DatePicker;
 
 const TourDetail = ({ data }: { data: TourData }) => {
   const [filteredTrips, setFilteredTrips] = useState(data.tripList);
 
+  const router = useRouter();
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const handleDateFilter = (dates: any) => {
     if (!dates || dates.length !== 2) {
       setFilteredTrips(data.tripList);
       return;
     }
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const [start, end] = dates.map((date: any) =>
       dayjs(date).format("YYYY-MM-DD")
     );
+
     const filtered = data.tripList.filter(
-      (tripDate) => tripDate >= start && tripDate <= end
+      (trip) => trip.departureDate >= start && trip.departureDate <= end
     );
     setFilteredTrips(filtered);
   };
@@ -192,15 +193,18 @@ const TourDetail = ({ data }: { data: TourData }) => {
         </div>
         <ul className="mt-2">
           {filteredTrips.length > 0 ? (
-            filteredTrips.map((date, index) => (
+            filteredTrips.map((trip, index) => (
               <li
                 key={index}
                 className="flex justify-between items-center p-2 border-b"
               >
                 <span>
-                  <CalendarOutlined /> Departure Date: {date}
+                  <CalendarOutlined /> Departure Date: {trip.departureDate}
                 </span>
-                <EyeOutlined className="cursor-pointer" />
+                <EyeOutlined
+                  className="cursor-pointer text-blue-500"
+                  onClick={() => router.push(`/manager/trip/${trip.id}`)}
+                />
               </li>
             ))
           ) : (
@@ -209,6 +213,7 @@ const TourDetail = ({ data }: { data: TourData }) => {
             </p>
           )}
         </ul>
+        ;
       </Card>
     </div>
   );

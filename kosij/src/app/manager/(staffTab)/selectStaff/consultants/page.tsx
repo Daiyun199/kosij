@@ -5,50 +5,39 @@ import React, { useEffect, useState } from "react";
 import { Table, Button, message } from "antd";
 import ManagerLayout from "@/app/components/ManagerLayout/ManagerLayout";
 import api from "@/config/axios.config";
-import { SalesStaff } from "@/model/SalesStaff";
+import { ConsultingStaff } from "@/model/ConsultantStaff";
 import SearchBar from "@/app/components/SearchBar/SearchBar";
 import { useRouter, useSearchParams } from "next/navigation";
 import { toast } from "react-toastify";
-
 function Page() {
-  const [staffData, setStaffData] = useState<SalesStaff[]>([]);
+  const [staffData, setStaffData] = useState<ConsultingStaff[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
   const [searchValue, setSearchValue] = useState<string>("");
-  const [filteredData, setFilteredData] = useState<SalesStaff[]>([]);
+  const [filteredData, setFilteredData] = useState<ConsultingStaff[]>([]);
   const router = useRouter();
   const searchParams = useSearchParams();
   const tripId = searchParams.get("tripId");
   useEffect(() => {
-    fetchSalesStaff();
+    fetchConsultingStaff();
   }, []);
 
-  const fetchSalesStaff = async () => {
+  const fetchConsultingStaff = async () => {
     setLoading(true);
     try {
-      const response = await api.get("/manager/users/SalesStaff");
-      const transformedData = response.data.value.map((staff: SalesStaff) => ({
-        ...staff,
-        status: staff.status ? "Active" : "Inactive",
-      }));
+      const response = await api.get("/manager/users/ConsultingStaff");
+      const transformedData = response.data.value.map(
+        (staff: ConsultingStaff) => ({
+          ...staff,
+          status: staff.status ? "Active" : "Inactive",
+        })
+      );
       setStaffData(transformedData);
       setFilteredData(transformedData);
     } catch (error) {
-      message.error("Failed to fetch sales staff");
+      message.error("Failed to fetch consulting staff");
     } finally {
       setLoading(false);
     }
-  };
-
-  const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value;
-    setSearchValue(value);
-    const filtered = staffData.filter(
-      (staff) =>
-        staff.fullName.toLowerCase().includes(value.toLowerCase()) ||
-        staff.email.toLowerCase().includes(value.toLowerCase()) ||
-        staff.area.toLowerCase().includes(value.toLowerCase())
-    );
-    setFilteredData(filtered);
   };
   const handleAssignStaff = async (staffId: string) => {
     if (!tripId) {
@@ -74,7 +63,17 @@ function Page() {
       toast.error(errorMessage);
     }
   };
-
+  const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setSearchValue(value);
+    const filtered = staffData.filter(
+      (staff) =>
+        staff.fullName.toLowerCase().includes(value.toLowerCase()) ||
+        staff.email.toLowerCase().includes(value.toLowerCase()) ||
+        staff.area.toLowerCase().includes(value.toLowerCase())
+    );
+    setFilteredData(filtered);
+  };
   const staffColumns = [
     {
       title: "Account ID",
@@ -97,14 +96,14 @@ function Page() {
       key: "area",
     },
     {
-      title: "Ongoing Requests",
-      dataIndex: "ongoingRequest",
-      key: "ongoingRequest",
+      title: "Ongoing Trips",
+      dataIndex: "ongoingTrip",
+      key: "ongoingTrip",
     },
     {
-      title: "Completed Requests",
-      dataIndex: "completedRequest",
-      key: "completedRequest",
+      title: "Completed Trips",
+      dataIndex: "completedTrip",
+      key: "completedTrip",
     },
     {
       title: "Status",
@@ -115,16 +114,17 @@ function Page() {
         { text: "Inactive", value: "Inactive" },
       ],
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      onFilter: (value: any, record: SalesStaff) => record.status === value,
+      onFilter: (value: any, record: ConsultingStaff) =>
+        record.status === String(value),
     },
     {
       title: "Actions",
       key: "actions",
-      render: (record: SalesStaff) => (
+      render: (record: ConsultingStaff) => (
         <div style={{ display: "flex", gap: "8px" }}>
           <Button
             type="primary"
-            onClick={() => handleAssignStaff(record.salesStaffId)}
+            onClick={() => handleAssignStaff(record.consultingStaffId)}
           >
             Assign
           </Button>
@@ -134,7 +134,7 @@ function Page() {
   ];
 
   return (
-    <ManagerLayout title="Sales Staff List">
+    <ManagerLayout title="Consulting Staff List">
       <div style={{ marginBottom: "8px" }}>
         <SearchBar value={searchValue} onChange={handleSearch} />
       </div>

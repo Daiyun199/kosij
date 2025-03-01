@@ -6,4 +6,5 @@ export interface ConsultingStaff {
   ongoingTrip: number;
   completedTrip: number;
   status: string;
+  consultingStaffId: string;
 }

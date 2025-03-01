@@ -6,4 +6,5 @@ export interface SalesStaff {
   ongoingRequest: number;
   completedRequest: number;
   status: string;
+  salesStaffId: string;
 }

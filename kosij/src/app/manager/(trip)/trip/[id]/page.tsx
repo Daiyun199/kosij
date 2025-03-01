@@ -1,0 +1,133 @@
+"use client";
+import ManagerLayout from "@/app/components/ManagerLayout/ManagerLayout";
+import TripDetail from "@/app/components/TripDetail/TripDetail";
+import api from "@/config/axios.config";
+import { TripData } from "@/model/TripData";
+import { Button } from "antd";
+import { useParams, useRouter } from "next/navigation";
+
+import React, { useEffect, useState } from "react";
+
+function Page() {
+  const params = useParams() as { id: string };
+  const router = useRouter();
+  const id = params.id;
+
+  const [tripData, setTripData] = useState<TripData | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    if (!id) return;
+
+    const fetchTripData = async () => {
+      try {
+        const response = await api.get(`/trip/${id}`);
+        const data = response.data.value;
+
+        if (!data) throw new Error("No data returned from API");
+
+        setTripData({
+          consultingStaffName: data.consultingStaffName,
+          salesStaffName: data.salesStaffName,
+          tripType: data.tripType,
+          departureDate: data.departureDate,
+          returnDate: data.returnDate,
+          maxGroupSize: data.maxGroupSize,
+          minGroupSize: data.minGroupSize,
+          availableSlot: data.availableSlot,
+          daysRemaining: data.daysRemaining,
+          pricingRate: data.pricingRate,
+          visaFee: data.tourResponse.visaFee,
+          registrationDaysBefore: data.tourResponse.registrationDaysBefore,
+          registrationConditions: data.tourResponse.registrationConditions,
+          averageRating: data.tourResponse.averageRating,
+          tourStatus: data.tourResponse.tourStatus,
+          tripStatus: data.tripStatus,
+          price: {
+            adult:
+              data.tripPrice.find(
+                (p: { ageGroup: string }) => p.ageGroup === "Adult"
+              )?.price || "0",
+            children1_11:
+              data.tripPrice.find(
+                (p: { ageGroup: string }) => p.ageGroup === "Child"
+              )?.price || "0",
+            children12_plus:
+              data.tripPrice.find(
+                (p: { ageGroup: string }) => p.ageGroup === "Infant"
+              )?.price || "0",
+          },
+          tour: {
+            title: data.tourResponse.tourName,
+            imageUrl: data.tourResponse.imageUrl,
+            departurePoint: data.tourResponse.departurePoint,
+            destinationPoint: data.tourResponse.destinationPoint,
+            duration: `${data.tourResponse.days} Days ${data.tourResponse.nights} Nights`,
+            tourPriceIncludes: data.tourResponse.tourPriceInclude
+              ? data.tourResponse.tourPriceInclude.split(", ")
+              : [],
+            tourPriceNotIncludes: data.tourResponse.tourPriceNotInclude
+              ? data.tourResponse.tourPriceNotInclude.split(", ")
+              : [],
+            cancelPolicy: data.tourResponse.cancellationPolicy.map(
+              (p: { description: string }) => p.description
+            ),
+            depositPolicy: data.tourResponse.paymentPolicy.map(
+              (p: { description: string }) => p.description
+            ),
+            itinerary:
+              data.tourResponse.tourDetails?.map(
+                (detail: {
+                  day: number;
+                  itineraryName: string;
+                  itineraryDetails: {
+                    time: string;
+                    description: string;
+                    farmId: number | null;
+                    name: string | null;
+                  }[];
+                }) => ({
+                  day: detail.day,
+                  itineraryName: detail.itineraryName,
+                  itineraryDetails: detail.itineraryDetails.map(
+                    (itinerary) => ({
+                      time: itinerary.time,
+                      description: itinerary.description,
+                      farmId: itinerary.farmId,
+                      name: itinerary.name,
+                    })
+                  ),
+                })
+              ) || [],
+          },
+        });
+      } catch (error) {
+        console.error("Lỗi tải dữ liệu trip:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchTripData();
+  }, [id]);
+  const handleSelectStaff = () => {
+    router.push(`/manager/selectStaff?tripId=${id}`);
+  };
+  if (loading) return <p>Loading...</p>;
+  if (!tripData) return <p>Trip not found</p>;
+
+  return (
+    <ManagerLayout title="Trip Detail">
+      <div className="p-6 max-w-5xl mx-auto">
+        <TripDetail data={tripData} />
+        <div className="p-6 max-w-5xl mx-auto flex justify-end">
+          <Button type="primary" size="large" onClick={handleSelectStaff}>
+            Assign
+          </Button>
+        </div>
+      </div>
+    </ManagerLayout>
+  );
+}
+
+export default Page;

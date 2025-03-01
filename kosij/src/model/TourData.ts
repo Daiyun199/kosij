@@ -8,7 +8,7 @@ export interface TourData {
   tourStatus: string;
   destinationPoints: string;
   itinerary: string[];
-  tripList: string[];
+  tripList: { id: string; departureDate: string }[];
   imageUrl: string;
   tourPriceIncludes: string[];
   tourPriceNotIncludes: string[];

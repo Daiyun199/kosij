@@ -1,5 +1,6 @@
 "use client";
 import ManagerLayout from "@/app/components/ManagerLayout/ManagerLayout";
+import SaleStaffLayout from "@/app/components/SaleStaffLayout/SaleStaffLayout";
 import TripDetail from "@/app/components/TripDetail/TripDetail";
 import api from "@/config/axios.config";
 import { TripData } from "@/model/TripData";
@@ -12,10 +13,10 @@ function Page() {
   const params = useParams() as { id: string };
   const router = useRouter();
   const id = params.id;
-
+  const { role } = useParams();
   const [tripData, setTripData] = useState<TripData | null>(null);
   const [loading, setLoading] = useState(true);
-
+  const LayoutComponent = role === "manager" ? ManagerLayout : SaleStaffLayout;
   useEffect(() => {
     if (!id) return;
 
@@ -23,10 +24,18 @@ function Page() {
       try {
         const response = await api.get(`/trip/${id}`);
         const data = response.data.value;
-
+        const customerResponse = await api.get(`trip/${id}/trip-bookings`);
+        const customerData = customerResponse.data.value;
         if (!data) throw new Error("No data returned from API");
-
+        if (!customerData) throw new Error("No Customer Booking");
         setTripData({
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          customers: customerData.map((customer: any) => ({
+            tripBookingId: customer.tripBookingId,
+            customerName: customer.customerName,
+            phoneNumber: customer.phoneNumber,
+            email: customer.email,
+          })),
           consultingStaffName: data.consultingStaffName,
           salesStaffName: data.salesStaffName,
           tripType: data.tripType,
@@ -117,16 +126,18 @@ function Page() {
   if (!tripData) return <p>Trip not found</p>;
 
   return (
-    <ManagerLayout title="Trip Detail">
+    <LayoutComponent title="Trip Detail">
       <div className="p-6 max-w-5xl mx-auto">
-        <TripDetail data={tripData} />
-        <div className="p-6 max-w-5xl mx-auto flex justify-end">
-          <Button type="primary" size="large" onClick={handleSelectStaff}>
-            Assign
-          </Button>
-        </div>
+        <TripDetail data={tripData} role={role as string} />
+        {role === "manager" && (
+          <div className="p-6 max-w-5xl mx-auto flex justify-end">
+            <Button type="primary" size="large" onClick={handleSelectStaff}>
+              Assign
+            </Button>
+          </div>
+        )}
       </div>
-    </ManagerLayout>
+    </LayoutComponent>
   );
 }
 

@@ -3,11 +3,13 @@ import React, { useEffect, useState } from "react";
 import { Button, Col, Input, Modal, Row, Select } from "antd";
 import styles from "./profile.module.css";
 import ManagerLayout from "@/app/components/ManagerLayout/ManagerLayout";
+import SaleStaffLayout from "@/app/components/SaleStaffLayout/SaleStaffLayout";
 import api from "@/config/axios.config";
 import ImageUploader from "@/app/components/ImageUpload/ImageUpload";
 import { getDownloadURL, ref, uploadBytesResumable } from "firebase/storage";
 import { storage } from "@/config/firebase";
 import { toast } from "react-toastify";
+import { useParams } from "next/navigation";
 
 interface UserProfile {
   fullName: string;
@@ -20,6 +22,9 @@ interface UserProfile {
 }
 
 function Profile() {
+  const { role } = useParams();
+  const LayoutComponent = role === "manager" ? ManagerLayout : SaleStaffLayout;
+
   const [user, setUser] = useState<UserProfile | null>(null);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [uploading, setUploading] = useState(false);
@@ -62,8 +67,7 @@ function Profile() {
             (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
           console.log(`Uploading: ${progress}%`);
         },
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        (error: any) => {
+        (error) => {
           console.error("Error uploading:", error);
           setUploading(false);
         },
@@ -72,14 +76,10 @@ function Profile() {
           console.log("Image uploaded successfully:", downloadURL);
 
           if (user) {
-            const updatedUser = {
-              ...user,
-              urlAvatar: downloadURL,
-            };
+            const updatedUser = { ...user, urlAvatar: downloadURL };
 
             await api.put("/accounts/current-user", updatedUser);
             setUser(updatedUser);
-
             toast.success("Avatar updated successfully!");
           }
           setUploading(false);
@@ -91,9 +91,8 @@ function Profile() {
     }
   };
 
-  const handleEdit = () => {
-    setIsModalOpen(true);
-  };
+  const handleEdit = () => setIsModalOpen(true);
+  const handleCancel = () => setIsModalOpen(false);
 
   const handleSave = async () => {
     if (!editedUser) return;
@@ -102,27 +101,23 @@ function Profile() {
       await api.put("/accounts/current-user", editedUser);
       setUser(editedUser);
       setIsModalOpen(false);
-      toast.success("Cập nhật thông tin thành công!");
+      toast.success("Update Infomation Succcessfully!!!");
     } catch (error) {
-      console.error("Lỗi cập nhật thông tin:", error);
-      toast.error("Cập nhật thất bại!");
+      console.error("Update information error:", error);
+      toast.error("Update information error");
     }
-  };
-
-  const handleCancel = () => {
-    setIsModalOpen(false);
   };
 
   if (isLoading) {
     return (
-      <ManagerLayout title="Profile">
+      <LayoutComponent title="Profile">
         <div className={styles.loadingContainer}>Loading...</div>
-      </ManagerLayout>
+      </LayoutComponent>
     );
   }
 
   return (
-    <ManagerLayout title="Profile">
+    <LayoutComponent title="Profile">
       <div className={styles.container}>
         <div className={styles.card}>
           <div className={styles.avatarSection}>
@@ -246,7 +241,7 @@ function Profile() {
           </div>
         </Modal>
       </div>
-    </ManagerLayout>
+    </LayoutComponent>
   );
 }
 

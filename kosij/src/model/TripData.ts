@@ -43,4 +43,10 @@ export interface TripData {
       }[];
     }[];
   };
+  customers: {
+    tripBookingId: string;
+    customerName: string;
+    email: string;
+    phoneNumber: string;
+  };
 }

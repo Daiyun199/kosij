@@ -1,9 +1,17 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { Card, Collapse, Rate, Tag } from "antd";
-
+import { EyeOutlined } from "@ant-design/icons";
+import { useRouter } from "next/navigation";
 const { Panel } = Collapse;
 
-const TripDetail = ({ data }: { data: any }) => {
+const TripDetail = ({ data, role }: { data: any; role: string }) => {
+  const router = useRouter();
+
+  const handleViewDetail = (tripBookingId: number) => {
+    const basePath =
+      role === "sale" ? "/sale/passengers" : "/manager/passengers";
+    router.push(`${basePath}/${tripBookingId}`);
+  };
   return (
     <div className="p-6 max-w-5xl mx-auto">
       <Card className="border border-gray-200 shadow-sm">
@@ -193,6 +201,37 @@ const TripDetail = ({ data }: { data: any }) => {
               </Panel>
             ))}
           </Collapse>
+        </div>
+        <div className="mt-4">
+          <h3 className="font-semibold text-lg mb-4">Customer List</h3>
+          {data.customers && data.customers.length > 0 ? (
+            <div className="grid grid-cols-3 gap-4">
+              {data.customers.map((customer: any, index: number) => (
+                <div
+                  key={index}
+                  className="border p-4 rounded-lg shadow-md bg-white flex flex-col"
+                >
+                  <p>
+                    <strong>Name:</strong> {customer.customerName}
+                  </p>
+                  <p>
+                    <strong>Phone:</strong> {customer.phoneNumber}
+                  </p>
+                  <p>
+                    <strong>Email:</strong> {customer.email}
+                  </p>
+                  <button
+                    className="mt-2 flex items-center text-blue-500 hover:text-blue-700"
+                    onClick={() => handleViewDetail(customer.tripBookingId)}
+                  >
+                    <EyeOutlined className="mr-1" /> Detail
+                  </button>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <p>No customers available</p>
+          )}
         </div>
       </div>
     </div>

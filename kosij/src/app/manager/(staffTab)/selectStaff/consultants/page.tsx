@@ -24,7 +24,7 @@ function Page() {
   const fetchConsultingStaff = async () => {
     setLoading(true);
     try {
-      const response = await api.get("/manager/users/ConsultingStaff");
+      const response = await api.get("/manager/active-users/ConsultingStaff");
       const transformedData = response.data.value.map(
         (staff: ConsultingStaff) => ({
           ...staff,

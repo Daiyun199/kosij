@@ -9,6 +9,7 @@ import { Role } from "@/lib/domain/User/role.enum";
 import { App } from "antd";
 import manager_uri from "@/features/manager/uri";
 import farmbreeder_uri from "@/features/farmbreeder/uri";
+import salesstaff_uri from "@/features/sales/uri";
 
 type FieldType = {
   email: string;
@@ -84,6 +85,14 @@ export default function Home() {
               return;
             }
             router.push(farmbreeder_uri.sidebar.dashboard);
+            break;
+          }
+          case Role.salesstaff: {
+            if (uri && uri[1] === "salesstaff1@kosij.com") {
+              router.push(path!);
+              return;
+            }
+            router.push(salesstaff_uri.sidebar.dashboard);
             break;
           }
           default: {

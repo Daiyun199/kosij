@@ -12,6 +12,8 @@ import {
   TeamOutlined,
   WalletOutlined,
 } from "@ant-design/icons";
+import api from "@/config/axios.config";
+import { useQuery } from "@tanstack/react-query";
 
 const columns = [
   {
@@ -40,15 +42,38 @@ const columns = [
   },
 ];
 
-const data = [
-    { key: "1", orderId: "ORD001", name: "Alice Johnson", amount: 150.5, status: "Completed" },
-    { key: "2", orderId: "ORD002", name: "Bob Smith", amount: 89.99, status: "Pending" },
-    { key: "3", orderId: "ORD003", name: "Charlie Brown", amount: 210.75, status: "Shipped" },
-    { key: "4", orderId: "ORD004", name: "Diana Ross", amount: 329.99, status: "Completed" },
-    { key: "5", orderId: "ORD005", name: "Ethan Hunt", amount: 75.0, status: "Cancelled" },
-  ];
+const fetchStatistics = async () => {
+  const response = await api.get("/farm-variety/statistics/current-farm", {
+    headers: {
+      Authorization: `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJGQVItMDAxIiwiaHR0cDovL3NjaGVtYXMubWljcm9zb2Z0LmNvbS93cy8yMDA4LzA2L2lkZW50aXR5L2NsYWltcy9yb2xlIjoiRmFybUJyZWVkZXIiLCJleHAiOjE3NDEwMjYyODZ9.kP7UYrXoQIa1NpC6H9LGe_MsY057B17ltluwe8r6-5Q`,
+      Accept: "text/plain",
+    },
+  });
+  console.log("API Response:", response.data); // Check the structure
+
+  return response.data.value;
+};
 
 function Page() {
+  const { data, isLoading, isError } = useQuery({
+    queryKey: ["farmStatistics"],
+    queryFn: fetchStatistics,
+  });
+
+  const statistics = data || { totalOrders: {}, totalCustomers: 0, totalRevenue: 0, currentBalance: 0 };
+
+  const totalOrders = statistics.totalOrders ?? {};
+  const totalCustomers = statistics.totalCustomers ?? 0;
+  const totalRevenue = statistics.totalRevenue ?? 0;
+  const currentBalance = statistics.currentBalance ?? 0;
+
+  const totalOrderCount =
+    (totalOrders.totalPendingOrders ?? 0) +
+    (totalOrders.totalCompletedOrders ?? 0) +
+    (totalOrders.totalCanceledOrders ?? 0);
+
+  if (isLoading) return <div>Loading...</div>;
+  if (isError) return <div>Error fetching data</div>;
   return (
     <PageContainer
       title="Dashboard"
@@ -80,7 +105,7 @@ function Page() {
               title={
                 <span className="text-lg font-normal">Total Customers</span>
               }
-              value={12}
+              value={totalCustomers}
               valueStyle={{ fontSize: "1.5rem", fontWeight: "bold" }}
             />
             <TeamOutlined className="text-blue-600 text-2xl cursor-pointer" />
@@ -96,7 +121,7 @@ function Page() {
           <div className="flex items-start justify-between">
             <Statistic
               title={<span className="text-lg font-normal">Total Orders</span>}
-              value={12}
+              value={totalOrderCount}
               valueStyle={{ fontSize: "1.5rem", fontWeight: "bold" }}
             />
             <ShopOutlined className="text-violet-500 text-2xl cursor-pointer" />
@@ -112,7 +137,7 @@ function Page() {
           <div className="flex items-start justify-between">
             <Statistic
               title={<span className="text-lg font-normal">Total Revenue</span>}
-              value={12}
+              value={totalRevenue}
               valueStyle={{ fontSize: "1.5rem", fontWeight: "bold" }}
             />
             <WalletOutlined className="text-green-600 text-2xl cursor-pointer" />
@@ -130,7 +155,7 @@ function Page() {
               title={
                 <span className="text-lg font-normal">Total Withdrawals</span>
               }
-              value={12}
+              value={currentBalance}
               valueStyle={{ fontSize: "1.5rem", fontWeight: "bold" }}
             />
             <MoneyCollectOutlined className="text-orange-500 text-2xl cursor-pointer" />

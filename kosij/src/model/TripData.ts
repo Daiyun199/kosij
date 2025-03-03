@@ -49,4 +49,8 @@ export interface TripData {
     email: string;
     phoneNumber: string;
   };
+  notes: {
+    userName: string;
+    note: string;
+  };
 }

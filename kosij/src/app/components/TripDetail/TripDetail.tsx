@@ -75,20 +75,26 @@ const TripDetail = ({ data, role }: { data: any; role: string }) => {
           <h3 className="font-semibold">Tour Price Includes</h3>
           <ul className="list-disc pl-5">
             {data.tour.tourPriceIncludes.map((item: string, index: number) => (
-              <li key={index}>{item}</li>
+              <li key={index}>
+                {item.charAt(0).toUpperCase() + item.slice(1)}
+              </li>
             ))}
           </ul>
         </Card>
+
         <Card className="mt-4 border border-gray-200 shadow-sm">
           <h3 className="font-semibold">Tour Price Not Includes</h3>
           <ul className="list-disc pl-5">
             {data.tour.tourPriceNotIncludes.map(
               (item: string, index: number) => (
-                <li key={index}>{item}</li>
+                <li key={index}>
+                  {item.charAt(0).toUpperCase() + item.slice(1)}
+                </li>
               )
             )}
           </ul>
         </Card>
+
         <Card className="mt-4 border border-gray-200 shadow-sm">
           <h3 className="font-semibold">Cancellation Policy</h3>
           <ul className="list-disc pl-5">
@@ -206,28 +212,41 @@ const TripDetail = ({ data, role }: { data: any; role: string }) => {
           <h3 className="font-semibold text-lg mb-4">Customer List</h3>
           {data.customers && data.customers.length > 0 ? (
             <div className="grid grid-cols-3 gap-4">
-              {data.customers.map((customer: any, index: number) => (
-                <div
-                  key={index}
-                  className="border p-4 rounded-lg shadow-md bg-white flex flex-col"
-                >
-                  <p>
-                    <strong>Name:</strong> {customer.customerName}
-                  </p>
-                  <p>
-                    <strong>Phone:</strong> {customer.phoneNumber}
-                  </p>
-                  <p>
-                    <strong>Email:</strong> {customer.email}
-                  </p>
-                  <button
-                    className="mt-2 flex items-center text-blue-500 hover:text-blue-700"
-                    onClick={() => handleViewDetail(customer.tripBookingId)}
+              {data.customers.map((customer: any, index: number) => {
+                const customerNote = data.notes?.find(
+                  (note: any) => note.userName === customer.customerName
+                )?.note;
+
+                return (
+                  <div
+                    key={index}
+                    className="border p-4 rounded-lg shadow-md bg-white flex flex-col"
                   >
-                    <EyeOutlined className="mr-1" /> Detail
-                  </button>
-                </div>
-              ))}
+                    <p>
+                      <strong>Name:</strong> {customer.customerName}
+                    </p>
+                    <p>
+                      <strong>Phone:</strong> {customer.phoneNumber}
+                    </p>
+                    <p>
+                      <strong>Email:</strong> {customer.email}
+                    </p>
+
+                    {customerNote && (
+                      <p className="mt-2 p-2 bg-gray-100 rounded-md">
+                        <strong>Note:</strong> {customerNote}
+                      </p>
+                    )}
+
+                    <button
+                      className="mt-2 flex items-center text-blue-500 hover:text-blue-700"
+                      onClick={() => handleViewDetail(customer.tripBookingId)}
+                    >
+                      <EyeOutlined className="mr-1" /> Detail
+                    </button>
+                  </div>
+                );
+              })}
             </div>
           ) : (
             <p>No customers available</p>

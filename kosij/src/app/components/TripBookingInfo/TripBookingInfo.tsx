@@ -10,6 +10,7 @@ import axios from "axios";
 import { storage } from "@/config/firebase";
 import api from "@/config/axios.config";
 import { toast } from "react-toastify";
+import { useParams } from "next/navigation";
 
 const { Title, Text } = Typography;
 
@@ -17,7 +18,8 @@ const TripBookingInfo: React.FC<TripBookingProps> = ({ tripBooking }) => {
   const [outboundFile, setOutboundFile] = useState<File | null>(null);
   const [inboundFile, setInboundFile] = useState<File | null>(null);
   const [uploading, setUploading] = useState(false);
-
+  const { role } = useParams();
+  const isManager = role === "manager";
   const uploadFileToFirebase = async (file: File) => {
     return new Promise<string>((resolve, reject) => {
       const storageRef = ref(storage, `trip-tickets/${file.name}`);
@@ -117,9 +119,9 @@ const TripBookingInfo: React.FC<TripBookingProps> = ({ tripBooking }) => {
               alt="Outbound Ticket"
               className="mb-2 rounded-lg shadow-md"
               style={{
-                width: "150px", // Giới hạn chiều rộng ảnh
-                height: "150px", // Giới hạn chiều cao ảnh
-                objectFit: "contain", // Đảm bảo hiển thị đầy đủ QR code mà không bị cắt
+                width: "150px",
+                height: "150px",
+                objectFit: "contain",
               }}
             />
           )}
@@ -161,14 +163,16 @@ const TripBookingInfo: React.FC<TripBookingProps> = ({ tripBooking }) => {
         </Descriptions.Item>
       </Descriptions>
 
-      <Button
-        type="primary"
-        className="mt-4"
-        onClick={handleUpload}
-        disabled={uploading}
-      >
-        {uploading ? "Uploading..." : "Update"}
-      </Button>
+      {!isManager && (
+        <Button
+          type="primary"
+          className="mt-4"
+          onClick={handleUpload}
+          disabled={uploading}
+        >
+          {uploading ? "Uploading..." : "Update"}
+        </Button>
+      )}
     </Card>
   );
 };

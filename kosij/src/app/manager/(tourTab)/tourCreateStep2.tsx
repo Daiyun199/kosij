@@ -12,6 +12,7 @@ interface CreateTourStep2Props {
   onNext: () => void;
   data: Day[];
   updateData: (data: Day[]) => void;
+  dayStep1: number;
 }
 
 interface Farm {
@@ -25,6 +26,7 @@ export default function CreateTourStep2({
   onNext,
   data,
   updateData,
+  dayStep1,
 }: CreateTourStep2Props) {
   const [days, setDays] = useState<Day[]>(Array.isArray(data) ? data : []);
 
@@ -35,8 +37,30 @@ export default function CreateTourStep2({
   }, [days]);
 
   useEffect(() => {
-    setDays(data);
-  }, [data]);
+    setDays((prevDays) => {
+      let updatedDays = [...prevDays];
+
+      if (updatedDays.length < dayStep1) {
+        for (let i = updatedDays.length; i < dayStep1; i++) {
+          updatedDays.push({
+            title: `Day ${i + 1}`,
+            activities: [
+              {
+                time: "",
+                description: "",
+                locations: "",
+              },
+            ],
+          });
+        }
+      } else if (updatedDays.length > dayStep1) {
+        updatedDays = updatedDays.slice(0, dayStep1);
+      }
+
+      return updatedDays;
+    });
+  }, [dayStep1]);
+
   useEffect(() => {
     api
       .get("/farms/active")
@@ -63,16 +87,6 @@ export default function CreateTourStep2({
     const updatedDays = [...days];
     updatedDays[dayIndex].activities[activityIndex][field] = value;
     setDays(updatedDays);
-  };
-
-  const handleAddDay = () => {
-    setDays([...days, { title: `Day ${days.length + 1}`, activities: [] }]);
-  };
-
-  const handleDeleteDay = (dayIndex: number) => {
-    if (window.confirm("Are you sure you want to delete this day?")) {
-      setDays(days.filter((_, index) => index !== dayIndex));
-    }
   };
 
   const handleAddActivity = (dayIndex: number) => {
@@ -111,12 +125,6 @@ export default function CreateTourStep2({
               onChange={(e) => handleUpdateDayTitle(dayIndex, e.target.value)}
               className="text-lg font-semibold w-full p-2 border rounded bg-white shadow-sm mt-3"
             />
-            <button
-              onClick={() => handleDeleteDay(dayIndex)}
-              className="absolute top-1 right-1 text-red-500"
-            >
-              <FiTrash size={20} />
-            </button>
 
             {day.activities.map((activity, activityIndex) => (
               <div
@@ -200,13 +208,6 @@ export default function CreateTourStep2({
             </button>
           </div>
         ))}
-
-        <button
-          onClick={handleAddDay}
-          className="bg-purple-500 text-white px-4 py-2 rounded mt-4 shadow hover:bg-purple-600 flex items-center gap-2"
-        >
-          <FiPlus /> New Day
-        </button>
 
         <div className="flex justify-between mt-6">
           <button

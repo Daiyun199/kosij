@@ -20,7 +20,7 @@ function Page() {
   const fetchSalesStaff = async () => {
     setLoading(true);
     try {
-      const response = await api.get("/manager/active-users/SalesStaff");
+      const response = await api.get("/manager/users/SalesStaff");
       const transformedData = response.data.value.map((staff: SalesStaff) => ({
         ...staff,
         status: staff.status ? "Active" : "Inactive",
@@ -75,6 +75,11 @@ function Page() {
       title: "Completed Requests",
       dataIndex: "completedRequest",
       key: "completedRequest",
+    },
+    {
+      title: "Assigned Trip",
+      dataIndex: "assignedTrip",
+      key: "assignedTrip",
     },
     {
       title: "Status",

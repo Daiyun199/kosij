@@ -7,4 +7,5 @@ export interface SalesStaff {
   completedRequest: number;
   status: string;
   salesStaffId: string;
+  assignedTrip: number;
 }

@@ -59,6 +59,7 @@ export default function CreateTour() {
           onNext={() => setStep(3)}
           data={tourData.step2}
           updateData={(data) => updateStepData("step2", data)}
+          dayStep1={tourData.step1.day}
         />
       )}
       {step === 3 && (

@@ -188,8 +188,16 @@ const CreateTourStep4: React.FC<CreateTourStep4Props> = ({
       toast.success("Tour created successfully!");
       resetForm();
       setStep(1);
-    } catch (error) {
-      toast.error("Failed to create tour. Please try again.");
+    } catch (error: any) {
+      if (error.response && error.response.data) {
+        const errorMessage =
+          error.response.data.value ||
+          error.response.data.message ||
+          "Failed to create tour. Please try again.";
+        toast.error(errorMessage);
+      } else {
+        toast.error("Failed to create tour. Please try again.");
+      }
     }
   };
 

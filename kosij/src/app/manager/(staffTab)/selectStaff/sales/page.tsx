@@ -25,7 +25,7 @@ function Page() {
   const fetchSalesStaff = async () => {
     setLoading(true);
     try {
-      const response = await api.get("/manager/users/SalesStaff");
+      const response = await api.get("/manager/active-users/SalesStaff");
       const transformedData = response.data.value.map((staff: SalesStaff) => ({
         ...staff,
         status: staff.status ? "Active" : "Inactive",

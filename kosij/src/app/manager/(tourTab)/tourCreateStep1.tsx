@@ -4,6 +4,7 @@ import { Button, Upload } from "antd";
 import { useState, useEffect } from "react";
 import { UploadOutlined } from "@ant-design/icons";
 import Image from "next/image";
+import { toast } from "react-toastify";
 interface Step1Props {
   onNext: () => void;
   data: {
@@ -73,6 +74,45 @@ export default function CreateTourStep1({
   const handleUpload = (file: File) => {
     setImg(file);
     return false;
+  };
+  const validateForm = () => {
+    let isValid = true;
+
+    if (!tourName.trim()) {
+      toast.error("Tour name is required");
+      isValid = false;
+    }
+    if (!departure.trim()) {
+      toast.error("Departure is required");
+      isValid = false;
+    }
+    if (!destination.trim()) {
+      toast.error("Destination is required");
+      isValid = false;
+    }
+    if (!registrationConditions.trim()) {
+      toast.error("Registration conditions are required");
+      isValid = false;
+    }
+    if (!standardPrice) {
+      toast.error("Standard price is required");
+      isValid = false;
+    }
+    if (!visaFee) {
+      toast.error("Visa fee is required");
+      isValid = false;
+    }
+    if (!img) {
+      toast.error("Tour image is required");
+      isValid = false;
+    }
+
+    return isValid;
+  };
+  const handleNext = () => {
+    if (validateForm()) {
+      onNext();
+    }
   };
 
   return (
@@ -213,7 +253,7 @@ export default function CreateTourStep1({
         </div>
         <div className="flex justify-end">
           <button
-            onClick={onNext}
+            onClick={handleNext}
             className="bg-blue-500 text-white px-4 py-2 rounded flex items-center gap-2"
           >
             Next ➜

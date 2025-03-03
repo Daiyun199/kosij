@@ -4,6 +4,7 @@ import ManagerLayout from "@/app/components/ManagerLayout/ManagerLayout";
 import { CreateTourStep3Props } from "@/model/CreateTourStep3Props";
 import { FiArrowLeft } from "react-icons/fi";
 import api from "@/config/axios.config";
+import { toast } from "react-toastify";
 
 const CreateTourStep3: React.FC<CreateTourStep3Props> = ({
   onBack,
@@ -30,6 +31,22 @@ const CreateTourStep3: React.FC<CreateTourStep3Props> = ({
         item.id === id ? { ...item, [field]: value } : item
       )
     );
+  };
+  const handleNext = () => {
+    let hasError = false;
+
+    if (!includes.trim()) {
+      toast.error("Tour Price Includes is required");
+      hasError = true;
+    }
+    if (!notIncludes.trim()) {
+      toast.error("Tour Price Not Includes is required");
+      hasError = true;
+    }
+
+    if (hasError) return;
+
+    onNext();
   };
 
   const addPrice = () => {
@@ -164,7 +181,7 @@ const CreateTourStep3: React.FC<CreateTourStep3Props> = ({
             Back
           </button>
           <button
-            onClick={onNext}
+            onClick={handleNext}
             className="bg-blue-500 text-white px-6 py-2 rounded"
           >
             Next ➜

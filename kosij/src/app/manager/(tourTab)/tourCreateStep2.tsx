@@ -4,8 +4,12 @@ import { Activity } from "@/model/Activity";
 import { Day } from "@/model/Day";
 import { useState, useEffect } from "react";
 import { FiArrowLeft, FiPlus, FiTrash } from "react-icons/fi";
-import { Select } from "antd";
+import { Select, Input, Button, Card, Typography, TimePicker } from "antd";
+import dayjs from "dayjs";
 import api from "@/config/axios.config";
+
+const { TextArea } = Input;
+const { Title, Text } = Typography;
 
 interface CreateTourStep2Props {
   onBack: () => void;
@@ -28,35 +32,76 @@ export default function CreateTourStep2({
   updateData,
   dayStep1,
 }: CreateTourStep2Props) {
-  const [days, setDays] = useState<Day[]>(Array.isArray(data) ? data : []);
-
+  const [days, setDays] = useState<Day[]>(
+    Array.isArray(data)
+      ? data.map((day) => ({
+          ...day,
+          activities: day.activities.map((activity) => ({
+            ...activity,
+            time: activity.time || "07:00",
+          })),
+        }))
+      : []
+  );
   const [farms, setFarms] = useState<Farm[]>([]);
 
   useEffect(() => {
     updateData(days);
   }, [days]);
+  const handleTimeChange = (
+    dayIndex: number,
+    activityIndex: number,
+    time: dayjs.Dayjs | null
+  ) => {
+    if (!time) return;
 
+    const formattedTime = time.format("HH:mm");
+    handleUpdateActivity(dayIndex, activityIndex, "time", formattedTime);
+  };
+
+  const [errors, setErrors] = useState<
+    { dayIndex: number; activityIndex?: number; field: string }[]
+  >([]);
+
+  const validateForm = () => {
+    const newErrors: {
+      dayIndex: number;
+      activityIndex?: number;
+      field: string;
+    }[] = [];
+
+    days.forEach((day, dayIndex) => {
+      if (!day.title.trim()) {
+        newErrors.push({ dayIndex, field: "title" });
+      }
+      day.activities.forEach((activity, activityIndex) => {
+        if (!activity.description.trim()) {
+          newErrors.push({ dayIndex, activityIndex, field: "description" });
+        }
+      });
+    });
+
+    setErrors(newErrors);
+    return newErrors.length === 0;
+  };
+  const handleNext = () => {
+    if (validateForm()) {
+      onNext();
+    }
+  };
   useEffect(() => {
     setDays((prevDays) => {
       let updatedDays = [...prevDays];
-
       if (updatedDays.length < dayStep1) {
         for (let i = updatedDays.length; i < dayStep1; i++) {
           updatedDays.push({
-            title: `Day ${i + 1}`,
-            activities: [
-              {
-                time: "",
-                description: "",
-                locations: "",
-              },
-            ],
+            title: ``,
+            activities: [{ time: "", description: "", locations: "" }],
           });
         }
       } else if (updatedDays.length > dayStep1) {
         updatedDays = updatedDays.slice(0, dayStep1);
       }
-
       return updatedDays;
     });
   }, [dayStep1]);
@@ -65,9 +110,7 @@ export default function CreateTourStep2({
     api
       .get("/farms/active")
       .then((response) => {
-        if (response.data.value) {
-          setFarms(response.data.value);
-        }
+        if (response.data.value) setFarms(response.data.value);
       })
       .catch((error) => console.error("Error fetching farms:", error));
   }, []);
@@ -100,128 +143,126 @@ export default function CreateTourStep2({
   };
 
   const handleDeleteActivity = (dayIndex: number, activityIndex: number) => {
-    if (window.confirm("Are you sure you want to delete this activity?")) {
-      const updatedDays = [...days];
-      updatedDays[dayIndex].activities.splice(activityIndex, 1);
-      setDays(updatedDays);
-    }
+    const updatedDays = [...days];
+    updatedDays[dayIndex].activities.splice(activityIndex, 1);
+    setDays(updatedDays);
   };
 
   return (
     <ManagerLayout title="Tour Create">
       <div className="p-6 bg-white shadow-lg rounded-lg max-w-3xl mx-auto">
-        <h2 className="text-2xl font-bold text-center mb-6 text-gray-800">
+        <Title level={2} className="text-center text-gray-800">
           TOUR INFORMATION FORM
-        </h2>
+        </Title>
 
         {days.map((day, dayIndex) => (
-          <div
-            key={dayIndex}
-            className="border p-4 rounded-lg bg-gray-50 mb-6 relative"
-          >
-            <input
-              type="text"
+          <Card key={dayIndex} className="mb-6">
+            <Input
               value={day.title}
               onChange={(e) => handleUpdateDayTitle(dayIndex, e.target.value)}
-              className="text-lg font-semibold w-full p-2 border rounded bg-white shadow-sm mt-3"
+              className="text-lg font-semibold mt-2"
+              placeholder={`Enter title for Day ${dayIndex + 1}`}
+              required
             />
+            {errors.some(
+              (error) => error.dayIndex === dayIndex && error.field === "title"
+            ) && <Text type="danger">Title is required.</Text>}
 
             {day.activities.map((activity, activityIndex) => (
-              <div
+              <Card
                 key={activityIndex}
-                className="bg-white p-4 rounded-lg shadow-sm mt-4 relative"
+                className="mt-4 relative border border-gray-200"
               >
-                <button
+                <Button
+                  type="text"
+                  icon={<FiTrash size={20} className="text-red-500" />}
+                  className="absolute top-2 right-2"
                   onClick={() => handleDeleteActivity(dayIndex, activityIndex)}
-                  className="absolute top-2 right-2 text-red-500"
-                >
-                  <FiTrash size={20} />
-                </button>
-                <div className="mb-3">
-                  <label className="block text-sm font-medium text-gray-700">
-                    Time:
-                  </label>
-                  <input
-                    type="time"
-                    value={activity.time}
-                    onChange={(e) =>
-                      handleUpdateActivity(
-                        dayIndex,
-                        activityIndex,
-                        "time",
-                        e.target.value
-                      )
-                    }
-                    className="w-full p-2 border rounded"
-                  />
-                </div>
+                />
+                <Text className="block text-sm font-medium">Time:</Text>
+                <TimePicker
+                  value={
+                    activity.time
+                      ? dayjs(activity.time, "HH:mm")
+                      : dayjs("07:00", "HH:mm")
+                  }
+                  format="HH:mm"
+                  minuteStep={15}
+                  onChange={(time) =>
+                    handleTimeChange(dayIndex, activityIndex, time)
+                  }
+                  className="mb-3 w-full"
+                />
 
-                <div className="mb-3">
-                  <label className="block text-sm font-medium text-gray-700">
-                    Description:
-                  </label>
-                  <textarea
-                    value={activity.description}
-                    onChange={(e) =>
-                      handleUpdateActivity(
-                        dayIndex,
-                        activityIndex,
-                        "description",
-                        e.target.value
-                      )
-                    }
-                    className="w-full p-2 border rounded"
-                    rows={3}
-                  />
-                </div>
-
-                <div className="mb-3">
-                  <label className="block text-sm font-medium text-gray-700">
-                    Location:
-                  </label>
-                  <Select
-                    value={activity.locations}
-                    onChange={(value) =>
-                      handleUpdateActivity(
-                        dayIndex,
-                        activityIndex,
-                        "locations",
-                        value
-                      )
-                    }
-                    className="w-full"
-                    placeholder="Select a farm"
-                    options={farms.map((farm) => ({
-                      label: farm.farmName,
-                      value: farm.id,
-                    }))}
-                  />
-                </div>
-              </div>
+                <Text className="block text-sm font-medium">Description:</Text>
+                <TextArea
+                  value={activity.description}
+                  onChange={(e) =>
+                    handleUpdateActivity(
+                      dayIndex,
+                      activityIndex,
+                      "description",
+                      e.target.value
+                    )
+                  }
+                  rows={3}
+                  className={`mb-3 ${
+                    errors.some(
+                      (error) =>
+                        error.dayIndex === dayIndex &&
+                        error.activityIndex === activityIndex &&
+                        error.field === "description"
+                    )
+                      ? "border-red-500"
+                      : ""
+                  }`}
+                  required
+                />
+                {errors.some(
+                  (error) =>
+                    error.dayIndex === dayIndex &&
+                    error.activityIndex === activityIndex &&
+                    error.field === "description"
+                ) && <Text type="danger">Description is required.</Text>}
+                <Text className="block text-sm font-medium">Location:</Text>
+                <Select
+                  value={activity.locations}
+                  onChange={(value) =>
+                    handleUpdateActivity(
+                      dayIndex,
+                      activityIndex,
+                      "locations",
+                      value
+                    )
+                  }
+                  className="w-full"
+                  placeholder="Select a farm"
+                  options={farms.map((farm) => ({
+                    label: farm.farmName,
+                    value: farm.id,
+                  }))}
+                />
+              </Card>
             ))}
 
-            <button
+            <Button
+              type="primary"
+              icon={<FiPlus />}
               onClick={() => handleAddActivity(dayIndex)}
-              className="bg-green-500 text-white px-4 py-2 rounded mt-4 shadow hover:bg-green-600 flex items-center gap-2"
+              className="mt-4"
             >
-              <FiPlus /> Add Activity
-            </button>
-          </div>
+              Add Activity
+            </Button>
+          </Card>
         ))}
 
         <div className="flex justify-between mt-6">
-          <button
-            onClick={onBack}
-            className="bg-gray-500 text-white px-4 py-2 rounded shadow hover:bg-gray-600 flex items-center gap-2"
-          >
-            <FiArrowLeft size={20} /> Back
-          </button>
-          <button
-            onClick={onNext}
-            className="bg-blue-500 text-white px-4 py-2 rounded shadow hover:bg-blue-600"
-          >
+          <Button type="default" icon={<FiArrowLeft />} onClick={onBack}>
+            Back
+          </Button>
+          <Button type="primary" onClick={handleNext}>
             Next ➜
-          </button>
+          </Button>
         </div>
       </div>
     </ManagerLayout>

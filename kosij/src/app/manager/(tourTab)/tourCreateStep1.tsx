@@ -1,6 +1,7 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 "use client";
 import ManagerLayout from "@/app/components/ManagerLayout/ManagerLayout";
-import { Button, Upload } from "antd";
+import { Button, Card, Form, Input, InputNumber, Upload } from "antd";
 import { useState, useEffect } from "react";
 import { UploadOutlined } from "@ant-design/icons";
 import Image from "next/image";
@@ -27,6 +28,8 @@ export default function CreateTourStep1({
   data,
   updateData,
 }: Step1Props) {
+  const [loading, setLoading] = useState(true);
+  const [form] = Form.useForm();
   const [tourName, setTourName] = useState(data.tourName || "");
   const [night, setNight] = useState(data.night || 1);
   const [day, setDay] = useState((data.night || 0) + 1);
@@ -44,9 +47,8 @@ export default function CreateTourStep1({
   useEffect(() => {
     setDay(night + 1);
   }, [night]);
-
   useEffect(() => {
-    updateData({
+    form.setFieldsValue({
       tourName,
       night,
       day,
@@ -56,8 +58,8 @@ export default function CreateTourStep1({
       registrationConditions,
       standardPrice,
       visaFee,
-      img,
     });
+    setLoading(false);
   }, [
     tourName,
     night,
@@ -68,197 +70,188 @@ export default function CreateTourStep1({
     registrationConditions,
     standardPrice,
     visaFee,
-    img,
   ]);
+
+  const handleNext = () => {
+    form.validateFields().then((values) => {
+      const newData = {
+        ...values,
+        img,
+      };
+
+      console.log("Step 1 - New Data Before Update:", newData);
+      updateData(newData);
+      onNext();
+    });
+  };
+
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const handleUpload = (file: File) => {
     setImg(file);
     return false;
   };
-  const validateForm = () => {
-    let isValid = true;
 
-    if (!tourName.trim()) {
-      toast.error("Tour name is required");
-      isValid = false;
+  useEffect(() => {
+    if (!data || Object.keys(data).length === 0) {
+      setTourName("");
+      setNight(1);
+      setDay(2);
+      setDeparture("");
+      setDestination("");
+      setRegistrationDaysBefore(1);
+      setRegistrationConditions("");
+      setStandardPrice(0);
+      setVisaFee(0);
+      setImg(null);
     }
-    if (!departure.trim()) {
-      toast.error("Departure is required");
-      isValid = false;
-    }
-    if (!destination.trim()) {
-      toast.error("Destination is required");
-      isValid = false;
-    }
-    if (!registrationConditions.trim()) {
-      toast.error("Registration conditions are required");
-      isValid = false;
-    }
-    if (!standardPrice) {
-      toast.error("Standard price is required");
-      isValid = false;
-    }
-    if (!visaFee) {
-      toast.error("Visa fee is required");
-      isValid = false;
-    }
-    if (!img) {
-      toast.error("Tour image is required");
-      isValid = false;
-    }
-
-    return isValid;
-  };
-  const handleNext = () => {
-    if (validateForm()) {
-      onNext();
-    }
-  };
-
+  }, []);
+  if (loading) {
+    return (
+      <ManagerLayout title="Tour Create">
+        <div className="flex justify-center items-center min-h-screen">
+          <p className="text-lg font-semibold">Loading...</p>
+        </div>
+      </ManagerLayout>
+    );
+  }
   return (
     <ManagerLayout title="Tour Create">
-      <div className="p-6 bg-white shadow-md rounded-lg w-full max-w-3xl mx-auto">
-        <h2 className="text-2xl font-bold text-center mb-4">
-          TOUR INFORMATION FORM
-        </h2>
+      <div className="flex justify-center p-6">
+        <Card className="p-6 w-full max-w-3xl">
+          <h2 className="text-2xl font-bold text-center mb-4">
+            TOUR INFORMATION FORM
+          </h2>
+          <Form layout="vertical" form={form} initialValues={data}>
+            <Form.Item
+              label="Tour Name:"
+              name="tourName"
+              rules={[
+                { required: true, message: "Please input the Tour name!!!" },
+              ]}
+            >
+              <Input placeholder="Enter tour name" value={tourName} />
+            </Form.Item>
 
-        <div className="mb-4">
-          <label className="block text-sm font-medium">Tour name:</label>
-          <input
-            type="text"
-            value={tourName}
-            onChange={(e) => setTourName(e.target.value)}
-            className="w-full p-2 border rounded"
-          />
-        </div>
+            <div className="grid grid-cols-2 gap-4">
+              <Form.Item
+                label="Night:"
+                name="night"
+                rules={[{ required: true }]}
+              >
+                <InputNumber min={1} className="w-full" value={night} />
+              </Form.Item>
+              <Form.Item label="Day (Auto):" name="day">
+                <InputNumber className="w-full" readOnly disabled value={day} />
+              </Form.Item>
+            </div>
 
-        <div className="grid grid-cols-2 gap-4 mb-4">
-          <div>
-            <label className="block text-sm font-medium">Night:</label>
-            <input
-              type="number"
-              value={night}
-              min={1}
-              onChange={(e) => setNight(Math.max(0, Number(e.target.value)))}
-              className="w-full p-2 border rounded"
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium">Day (Auto):</label>
-            <input
-              type="number"
-              value={day}
-              readOnly
-              className="w-full p-2 border rounded bg-gray-100 cursor-not-allowed"
-            />
-          </div>
-        </div>
+            <Form.Item
+              label="Departure Points:"
+              name="departure"
+              rules={[
+                {
+                  required: true,
+                  message: "Please input the Departure Point!!!",
+                },
+              ]}
+            >
+              <Input placeholder="Enter departure points" value={departure} />
+            </Form.Item>
 
-        <div className="mb-4">
-          <label className="block text-sm font-medium">Departure points:</label>
-          <input
-            type="text"
-            value={departure}
-            onChange={(e) => setDeparture(e.target.value)}
-            className="w-full p-2 border rounded"
-          />
-        </div>
+            <Form.Item
+              label="Destination Points:"
+              name="destination"
+              rules={[
+                {
+                  required: true,
+                  message: "Please input the Destination Points!!!",
+                },
+              ]}
+            >
+              <Input
+                placeholder="Enter destination points"
+                value={destination}
+              />
+            </Form.Item>
 
-        <div className="mb-4">
-          <label className="block text-sm font-medium">
-            Destination points:
-          </label>
-          <input
-            type="text"
-            value={destination}
-            onChange={(e) => setDestination(e.target.value)}
-            className="w-full p-2 border rounded"
-          />
-        </div>
+            <div className="grid grid-cols-2 gap-4">
+              <Form.Item
+                label="Registration Days Before:"
+                name="registrationDaysBefore"
+              >
+                <InputNumber
+                  min={1}
+                  className="w-full"
+                  value={registrationDaysBefore}
+                />
+              </Form.Item>
+              <Form.Item
+                label="Registration Conditions:"
+                name="registrationConditions"
+              >
+                <Input
+                  placeholder="Enter registration conditions"
+                  value={registrationConditions}
+                />
+              </Form.Item>
+            </div>
 
-        <div className="grid grid-cols-2 gap-4 mb-4">
-          <div>
-            <label className="block text-sm font-medium">
-              Registration Days Before:
-            </label>
-            <input
-              type="number"
-              min={1}
-              value={registrationDaysBefore}
-              onChange={(e) =>
-                setRegistrationDaysBefore(Number(e.target.value))
-              }
-              className="w-full p-2 border rounded"
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium">
-              Registration Conditions:
-            </label>
-            <input
-              type="text"
-              value={registrationConditions}
-              onChange={(e) => setRegistrationConditions(e.target.value)}
-              className="w-full p-2 border rounded"
-            />
-          </div>
-        </div>
+            <div className="grid grid-cols-2 gap-4">
+              <Form.Item label="Standard Price ($):" name="standardPrice">
+                <InputNumber
+                  min={0}
+                  className="w-full"
+                  value={standardPrice}
+                  formatter={(value) =>
+                    value
+                      ? value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+                      : "0"
+                  }
+                  parser={(value) => Number(value?.replace(/,/g, "") || "0")}
+                />
+              </Form.Item>
 
-        <div className="grid grid-cols-2 gap-4 mb-4">
-          <div>
-            <label className="block text-sm font-medium">
-              Standard Price ($):
-            </label>
-            <input
-              type="number"
-              value={standardPrice}
-              min={0}
-              onChange={(e) =>
-                setStandardPrice(Math.max(0, Number(e.target.value)))
-              }
-              className="w-full p-2 border rounded"
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium">Visa Fee ($):</label>
-            <input
-              type="number"
-              value={visaFee}
-              min={0}
-              onChange={(e) => setVisaFee(Math.max(0, Number(e.target.value)))}
-              className="w-full p-2 border rounded"
-            />
-          </div>
-        </div>
-        <div className="mb-4">
-          <label className="block text-sm font-medium">
-            Upload Tour Image:
-          </label>
-          <Upload
-            beforeUpload={handleUpload}
-            showUploadList={false}
-            accept="image/*"
-          >
-            <Button icon={<UploadOutlined />}>Click to Upload</Button>
-          </Upload>
-          {img && (
-            <Image
-              src={URL.createObjectURL(img)}
-              alt="Tour"
-              width={300}
-              height={200}
-              className="mt-2 rounded-lg"
-            />
-          )}
-        </div>
-        <div className="flex justify-end">
-          <button
-            onClick={handleNext}
-            className="bg-blue-500 text-white px-4 py-2 rounded flex items-center gap-2"
-          >
-            Next ➜
-          </button>
-        </div>
+              <Form.Item label="Visa Fee ($):" name="visaFee">
+                <InputNumber
+                  min={0}
+                  className="w-full"
+                  value={visaFee}
+                  formatter={(value) =>
+                    value
+                      ? value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+                      : "0"
+                  }
+                  parser={(value) => Number(value?.replace(/,/g, "") || "0")}
+                />
+              </Form.Item>
+            </div>
+
+            <Form.Item label="Upload Tour Image:">
+              <Upload
+                beforeUpload={handleUpload}
+                showUploadList={false}
+                accept="image/*"
+              >
+                <Button icon={<UploadOutlined />}>Click to Upload</Button>
+              </Upload>
+              {img && (
+                <Image
+                  src={URL.createObjectURL(img)}
+                  alt="Tour"
+                  width={300}
+                  height={200}
+                  className="mt-2 rounded-lg"
+                />
+              )}
+            </Form.Item>
+
+            <div className="flex justify-end">
+              <Button type="primary" onClick={handleNext}>
+                Next ➜
+              </Button>
+            </div>
+          </Form>
+        </Card>
       </div>
     </ManagerLayout>
   );

@@ -1,15 +1,17 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
-import { useState, useEffect } from "react";
+import { useState, useEffect, Key } from "react";
 import ManagerLayout from "@/app/components/ManagerLayout/ManagerLayout";
-import { FiArrowLeft } from "react-icons/fi";
+import { FiArrowLeft, FiTrash } from "react-icons/fi";
 import api from "@/config/axios.config";
 import { Day } from "@/model/Day";
 import { toast } from "react-toastify";
 
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { storage } from "@/config/firebase";
+import { Button, Card, Input } from "antd";
+import { ValueType } from "rc-input/lib/interface";
 interface CreateTourStep4Props {
   onBack: () => void;
   setStep: (step: number) => void;
@@ -259,136 +261,157 @@ const CreateTourStep4: React.FC<CreateTourStep4Props> = ({
           Tour Information Form
         </h2>
 
-        <div className="border rounded-lg p-4 mb-6">
-          <h3 className="text-lg font-semibold mb-4">Cancel Policy</h3>
-          {policies.map((policy: any) => (
-            <div key={policy.id} className="relative border p-4 mb-4 rounded">
-              <button
-                onClick={() => removePolicy(policy.id)}
-                className="absolute top-0 right-0 text-gray-500 hover:text-red-500 text-sm"
-              >
-                ✖
-              </button>
-              <div className="grid grid-cols-3 gap-4">
-                <input
+        <Card title="Cancel Policy" className="mb-6">
+          {policies.map(
+            (policy: {
+              id: Key | null | undefined;
+              start: any;
+              end: any;
+              rate: any;
+              description: any;
+            }) => (
+              <Card key={policy.id} className="mb-4 relative">
+                <Button
                   type="text"
-                  className="w-full p-2 border rounded"
-                  placeholder="Starting Point"
-                  value={policy.start}
+                  icon={<FiTrash size={16} className="text-red-500" />}
+                  className="absolute -top-1.5 -right-1.5"
+                  onClick={() => removePolicy(Number(policy.id))}
+                />
+                <div className="grid grid-cols-3 gap-4">
+                  <Input
+                    placeholder="Starting Point"
+                    value={policy.start}
+                    onChange={(e) =>
+                      handlePolicyChange(
+                        Number(policy.id),
+                        "start",
+                        e.target.value
+                      )
+                    }
+                  />
+                  <Input
+                    placeholder="End Point"
+                    value={policy.end}
+                    onChange={(e) =>
+                      handlePolicyChange(
+                        Number(policy.id),
+                        "end",
+                        e.target.value
+                      )
+                    }
+                  />
+                  <Input
+                    placeholder="Penalty Rate (%)"
+                    value={policy.rate}
+                    onChange={(e) =>
+                      handlePolicyChange(
+                        Number(policy.id),
+                        "rate",
+                        e.target.value
+                      )
+                    }
+                  />
+                </div>
+                <Input.TextArea
+                  className="mt-4"
+                  placeholder="Description"
+                  rows={2}
+                  value={policy.description}
                   onChange={(e) =>
-                    handlePolicyChange(policy.id, "start", e.target.value)
+                    handlePolicyChange(
+                      Number(policy.id),
+                      "description",
+                      e.target.value
+                    )
                   }
                 />
-                <input
-                  type="text"
-                  className="w-full p-2 border rounded"
-                  placeholder="End Point"
-                  value={policy.end}
-                  onChange={(e) =>
-                    handlePolicyChange(policy.id, "end", e.target.value)
-                  }
-                />
-                <input
-                  type="text"
-                  className="w-full p-2 border rounded"
-                  placeholder="Penalty Rate (%)"
-                  value={policy.rate}
-                  onChange={(e) =>
-                    handlePolicyChange(policy.id, "rate", e.target.value)
-                  }
-                />
-              </div>
-              <textarea
-                className="w-full p-2 border rounded mt-4"
-                placeholder="Description"
-                rows={2}
-                value={policy.description}
-                onChange={(e) =>
-                  handlePolicyChange(policy.id, "description", e.target.value)
-                }
-              ></textarea>
-            </div>
-          ))}
-          <button
-            onClick={addPolicy}
-            className="mt-4 px-4 py-2 bg-gray-300 rounded"
-          >
+              </Card>
+            )
+          )}
+          <Button type="dashed" className="mt-4" onClick={addPolicy}>
             + New Policy
-          </button>
-        </div>
+          </Button>
+        </Card>
 
-        <div className="border rounded-lg p-4 mb-6">
-          <h3 className="text-lg font-semibold mb-4">Deposit Policy</h3>
-          {deposits.map((deposit: any) => (
-            <div key={deposit.id} className="relative border p-4 mb-4 rounded">
-              <button
-                onClick={() => removeDeposit(deposit.id)}
-                className="absolute top-0 right-0 text-gray-500 hover:text-red-500 text-sm"
-              >
-                ✖
-              </button>
-              <div className="grid grid-cols-3 gap-4">
-                <input
+        <Card title="Deposit Policy" className="mb-6">
+          {deposits.map(
+            (deposit: {
+              id: Key | null | number;
+              start: ValueType;
+              end: ValueType;
+              rate: ValueType;
+              description: any;
+            }) => (
+              <Card key={deposit.id} className="mb-4 relative">
+                <Button
                   type="text"
-                  className="w-full p-2 border rounded"
-                  placeholder="Starting Point"
-                  value={deposit.start}
+                  icon={<FiTrash size={16} className="text-red-500" />}
+                  className="absolute -top-1.5 -right-1.5"
+                  onClick={() => removeDeposit(Number(deposit.id))}
+                />
+                <div className="grid grid-cols-3 gap-4">
+                  <Input
+                    placeholder="Starting Point"
+                    value={deposit.start}
+                    onChange={(e) =>
+                      handleDepositChange(
+                        Number(deposit.id),
+                        "start",
+                        e.target.value
+                      )
+                    }
+                  />
+                  <Input
+                    placeholder="End Point"
+                    value={deposit.end}
+                    onChange={(e) =>
+                      handleDepositChange(
+                        Number(deposit.id),
+                        "end",
+                        e.target.value
+                      )
+                    }
+                  />
+                  <Input
+                    placeholder="Pricing Rate (%)"
+                    value={deposit.rate}
+                    onChange={(e) =>
+                      handleDepositChange(
+                        Number(deposit.id),
+                        "rate",
+                        e.target.value
+                      )
+                    }
+                  />
+                </div>
+                <Input.TextArea
+                  className="mt-4"
+                  placeholder="Description"
+                  rows={2}
+                  value={deposit.description}
                   onChange={(e) =>
-                    handleDepositChange(deposit.id, "start", e.target.value)
+                    handleDepositChange(
+                      Number(deposit.id),
+                      "description",
+                      e.target.value
+                    )
                   }
                 />
-                <input
-                  type="text"
-                  className="w-full p-2 border rounded"
-                  placeholder="End Point"
-                  value={deposit.end}
-                  onChange={(e) =>
-                    handleDepositChange(deposit.id, "end", e.target.value)
-                  }
-                />
-                <input
-                  type="text"
-                  className="w-full p-2 border rounded"
-                  placeholder="Pricing Rate (%)"
-                  value={deposit.rate}
-                  onChange={(e) =>
-                    handleDepositChange(deposit.id, "rate", e.target.value)
-                  }
-                />
-              </div>
-              <textarea
-                className="w-full p-2 border rounded mt-4"
-                placeholder="Description"
-                rows={2}
-                value={deposit.description}
-                onChange={(e) =>
-                  handleDepositChange(deposit.id, "description", e.target.value)
-                }
-              ></textarea>
-            </div>
-          ))}
-          <button
-            onClick={addDeposit}
-            className="mt-4 px-4 py-2 bg-gray-300 rounded"
-          >
+              </Card>
+            )
+          )}
+          <Button type="dashed" className="mt-4" onClick={addDeposit}>
             + New Deposit
-          </button>
-        </div>
+          </Button>
+        </Card>
 
         <div className="flex justify-between mt-6">
-          <button
-            onClick={onBack}
-            className="bg-gray-500 text-white px-4 py-2 rounded shadow hover:bg-gray-600 flex items-center gap-2"
-          >
-            <FiArrowLeft size={20} />
-            Back
-          </button>
-          <button
-            onClick={handleCreateTour}
-            className="bg-blue-500 text-white px-6 py-2 rounded"
-          >
+          <Button onClick={onBack} className="flex items-center gap-2">
+            <FiArrowLeft size={20} /> Back
+          </Button>
+          <Button type="primary" onClick={handleCreateTour}>
             Create ➜
-          </button>
+          </Button>
         </div>
       </div>
     </ManagerLayout>

@@ -22,19 +22,25 @@ function Page() {
 
     const fetchTripData = async () => {
       try {
-        const response = await api.get(`/trip/${id}`);
+        const response = await api.get(`/staff/trip/${id}`);
         const data = response.data.value;
-        const customerResponse = await api.get(`trip/${id}/trip-bookings`);
-        const customerData = customerResponse.data.value;
+        // const customerResponse = await api.get(`trip/${id}/trip-bookings`);
+        // const customerData = customerResponse.data.value;
         if (!data) throw new Error("No data returned from API");
-        if (!customerData) throw new Error("No Customer Booking");
+        // if (!customerData) throw new Error("No Customer Booking");
+
         setTripData({
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          customers: customerData.map((customer: any) => ({
+          customers: data.tripBookingsResponse.map((customer: any) => ({
             tripBookingId: customer.tripBookingId,
             customerName: customer.customerName,
             phoneNumber: customer.phoneNumber,
             email: customer.email,
+          })),
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          notes: data.notes.map((note: any) => ({
+            userName: note.userName,
+            note: note.note,
           })),
           consultingStaffName: data.consultingStaffName,
           salesStaffName: data.salesStaffName,

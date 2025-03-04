@@ -99,7 +99,7 @@ const CreateTripPage: React.FC = () => {
               >
                 <Input
                   type="datetime-local"
-                  min={new Date(Date.now() + 21 * 24 * 60 * 60 * 1000)
+                  min={new Date(Date.now() + 22 * 24 * 60 * 60 * 1000)
                     .toISOString()
                     .slice(0, 16)}
                   value={tripData.departureDate}
@@ -150,6 +150,17 @@ const CreateTripPage: React.FC = () => {
                   step="0.1"
                   value={tripData.pricingRate}
                   onChange={(e) => handleChange("pricingRate", e.target.value)}
+                  onInvalid={(e) => {
+                    const input = e.target as HTMLInputElement;
+                    input.setCustomValidity(
+                      "Please enter a value less than or equal to 3."
+                    );
+                  }}
+                  onInput={(e) => {
+                    const input = e.target as HTMLInputElement;
+                    input.setCustomValidity("");
+                  }}
+                  required
                 />
               </Form.Item>
               <Form.Item>

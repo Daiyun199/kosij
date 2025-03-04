@@ -49,7 +49,7 @@ const fetchStatistics = async () => {
       Accept: "text/plain",
     },
   });
-  console.log("API Response:", response.data); // Check the structure
+  console.log("API Response:", response.data.value);
 
   return response.data.value;
 };
@@ -71,6 +71,7 @@ function Page() {
     (totalOrders.totalPendingOrders ?? 0) +
     (totalOrders.totalCompletedOrders ?? 0) +
     (totalOrders.totalCanceledOrders ?? 0);
+console.log('totalOrders: ', totalOrderCount);
 
   if (isLoading) return <div>Loading...</div>;
   if (isError) return <div>Error fetching data</div>;
@@ -175,7 +176,7 @@ function Page() {
           bordered
           pagination={false}
           scroll={{ x: "max-content" }}
-          dataSource={data}
+          // dataSource={data}
         />
       </section>
     </PageContainer>

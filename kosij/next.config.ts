@@ -15,15 +15,7 @@ const nextConfig: NextConfig = {
       { protocol: "https", hostname: "visinhcakoi.com" },
     ],
   },
-  async redirects() {
-    return [
-      {
-        source: "/",
-        destination: "/login",
-        permanent: true, // 301 redirect, đảm bảo luôn chuyển hướng
-      },
-    ];
-  },
+
   async rewrites() {
     return [
       {

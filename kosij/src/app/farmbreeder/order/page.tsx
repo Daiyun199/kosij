@@ -1,14 +1,14 @@
 "use client";
 
-import {
-  ProColumns,
-  ProTable,
-} from "@ant-design/pro-components";
+import { ProColumns, ProTable } from "@ant-design/pro-components";
 import { PageContainer } from "@ant-design/pro-layout";
 import { Button, Space, Tag } from "antd";
 import { EditOutlined, EyeOutlined } from "@ant-design/icons";
+import { useQuery } from "@tanstack/react-query";
+import { fetchCurrentFarmOrders } from "@/features/farmbreeder/api/order/all.api";
 
 const statusColors = {
+  Pending: "default",
   Unpacked: "default",
   Packed: "blue",
   Shipping: "gold",
@@ -17,67 +17,64 @@ const statusColors = {
 };
 
 type Order = {
-  id: string;
-  tripName: string;
-  customerName: string;
-  orderDate: string;
-  deliveryCompany: string;
-  deliveryCustomer: string;
-  status: keyof typeof statusColors;
-  total: number;
-  paid: number;
+  orderId: number;
+  fullName: string;
+  createdTime: string;
+  expectedDeliveryDate: string;
+  orderStatus: keyof typeof statusColors;
+  totalAmount: number;
+  paidAmount: number;
   remaining: number;
 };
-
 
 const columns: ProColumns<Order>[] = [
   {
     title: "ID",
-    dataIndex: "id",
-    key: "id",
+    dataIndex: "orderId",
+    key: "orderId",
     width: 98,
   },
   {
-    title: "Trip Name",
-    dataIndex: "tripName",
-    key: "tripName",
-  },
-  {
     title: "Customer Name",
-    dataIndex: "customerName",
-    key: "customerName",
+    dataIndex: "fullName",
+    key: "fullName",
   },
   {
     title: "Order Date",
-    dataIndex: "orderDate",
-    key: "orderDate",
+    dataIndex: "createdTime",
+    key: "createdTime",
   },
   {
-    title: "Delivery to Customer (Expected)",
-    dataIndex: "deliveryCustomer",
-    key: "deliveryCustomer",
+    title: "Delivery Date (Expected)",
+    dataIndex: "expectedDeliveryDate",
+    key: "expectedDeliveryDate",
   },
   {
     title: "Status",
-    dataIndex: "status",
-    key: "status",
-    render: (_, record: Order) => <Tag color={statusColors[record.status]}>{record.status}</Tag>,
+    dataIndex: "orderStatus",
+    key: "orderStatus",
+    render: (_, record: Order) => (
+      <Tag color={statusColors[record.orderStatus]}>{record.orderStatus}</Tag>
+    ),
   },
   {
     title: "Total",
-    dataIndex: "total",
-    key: "total",
+    dataIndex: "totalAmount",
+    key: "totalAmount",
     align: "right",
-    render: (_, record: Order) => `${record.total.toLocaleString()} VND`,
+    render: (_, record: Order) => `${record.totalAmount.toLocaleString()} VND`,
   },
   {
     title: "Paid",
-    dataIndex: "paid",
-    key: "paid",
+    dataIndex: "paidAmount",
+    key: "paidAmount",
     align: "right",
     render: (_, record: Order) => (
-      <span style={{ color: "green" }}>{record.paid.toLocaleString()} VND</span>
-    ),  },
+      <span style={{ color: "green" }}>
+        {record.paidAmount.toLocaleString()} VND
+      </span>
+    ),
+  },
   {
     title: "Remaining",
     dataIndex: "remaining",
@@ -101,113 +98,22 @@ const columns: ProColumns<Order>[] = [
   },
 ];
 
-const data: Order[] = [
-  {
-    id: "ORD-12345",
-    tripName: "Paris Spring Tour",
-    customerName: "John Doe",
-    orderDate: "Jan 15, 2025",
-    deliveryCompany: "Feb 01, 2025",
-    deliveryCustomer: "Feb 15, 2025",
-    status: "Unpacked",
-    total: 71000000,
-    paid: 56800000,
-    remaining: 14200000,
-  },
-  {
-    id: "ORD-12345",
-    tripName: "Paris Spring Tour",
-    customerName: "John Doe",
-    orderDate: "Jan 15, 2025",
-    deliveryCompany: "Feb 01, 2025",
-    deliveryCustomer: "Feb 15, 2025",
-    status: "Packed",
-    total: 71000000,
-    paid: 56800000,
-    remaining: 14200000,
-  },
-  {
-    id: "ORD-12345",
-    tripName: "Paris Spring Tour",
-    customerName: "John Doe",
-    orderDate: "Jan 15, 2025",
-    deliveryCompany: "Feb 01, 2025",
-    deliveryCustomer: "Feb 15, 2025",
-    status: "Shipping",
-    total: 71000000,
-    paid: 56800000,
-    remaining: 14200000,
-  },
-  {
-    id: "ORD-12345",
-    tripName: "Paris Spring Tour",
-    customerName: "John Doe",
-    orderDate: "Jan 15, 2025",
-    deliveryCompany: "Feb 01, 2025",
-    deliveryCustomer: "Feb 15, 2025",
-    status: "Shipping",
-    total: 71000000,
-    paid: 56800000,
-    remaining: 14200000,
-  },
-  {
-    id: "ORD-12345",
-    tripName: "Paris Spring Tour",
-    customerName: "John Doe",
-    orderDate: "Jan 15, 2025",
-    deliveryCompany: "Feb 01, 2025",
-    deliveryCustomer: "Feb 15, 2025",
-    status: "Completed",
-    total: 71000000,
-    paid: 56800000,
-    remaining: 14200000,
-  },
-  {
-    id: "ORD-12345",
-    tripName: "Paris Spring Tour",
-    customerName: "John Doe",
-    orderDate: "Jan 15, 2025",
-    deliveryCompany: "Feb 01, 2025",
-    deliveryCustomer: "Feb 15, 2025",
-    status: "Canceled",
-    total: 71000000,
-    paid: 56800000,
-    remaining: 14200000,
-  },
-];
-
 function Page() {
+  const { data, isLoading } = useQuery({
+    queryKey: ["currentFarmOrders"],
+    queryFn: fetchCurrentFarmOrders,
+  });
+
   return (
-    <PageContainer
-      title="Orders List"
-      extra={
-        <Space>
-          <Button
-            style={{
-              borderRadius: "2rem",
-              width: "5rem",
-              borderColor: "#000000",
-            }}
-          >
-            ENG
-          </Button>
-        </Space>
-      }
-      header={{
-        style: {
-          boxShadow: "0px 4px 6px rgba(0, 0, 0, 0.1)",
-          background: "white",
-          zIndex: 10,
-        },
-      }}
-    >
+    <PageContainer title="Orders List">
       <section className="mt-5">
         <ProTable<Order>
-          columns={columns as ProColumns<Order>[]}
+          columns={columns}
           dataSource={data}
-          rowKey="id"
+          rowKey="orderId"
           search={false}
           pagination={{ pageSize: 5 }}
+          loading={isLoading}
         />
       </section>
     </PageContainer>

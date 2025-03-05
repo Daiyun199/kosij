@@ -6,7 +6,7 @@ import {
   UploadOutlined,
 } from "@ant-design/icons";
 import api from "@/config/axios.config";
-
+import { Image } from "antd";
 interface UpdateVarietyModalProps {
   visible: boolean;
   onCancel: () => void;
@@ -28,6 +28,7 @@ function UpdateVarietyModal({
     if (visible) {
       fetchVarietyDetails();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [visible]);
 
   const fetchVarietyDetails = async () => {
@@ -125,10 +126,13 @@ function UpdateVarietyModal({
           {/* Preview the uploaded image */}
           {form.getFieldValue("imageUrl") && (
             <div style={{ marginTop: 10 }}>
-              <img
+              <Image
                 src={form.getFieldValue("imageUrl")}
                 alt="Uploaded"
-                style={{ width: "100%", maxHeight: 200, objectFit: "cover" }}
+                width="100%"
+                height={200}
+                style={{ objectFit: "cover" }}
+                preview={false}
               />
             </div>
           )}

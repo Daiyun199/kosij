@@ -4,7 +4,7 @@ import SaleStaffLayout from "@/app/components/SaleStaffLayout/SaleStaffLayout";
 import TripDetail from "@/app/components/TripDetail/TripDetail";
 import api from "@/config/axios.config";
 import { TripData } from "@/model/TripData";
-import { Button } from "antd";
+import { Button, Empty } from "antd";
 import { useParams, useRouter } from "next/navigation";
 
 import React, { useEffect, useState } from "react";
@@ -129,7 +129,16 @@ function Page() {
     router.push(`/manager/selectStaff?tripId=${id}`);
   };
   if (loading) return <p>Loading...</p>;
-  if (!tripData) return <p>Trip not found</p>;
+
+  if (!tripData) {
+    return (
+      <LayoutComponent title="Trip Detail">
+        <div className="p-6 max-w-5xl mx-auto flex justify-center">
+          <Empty description="Trip not found" />
+        </div>
+      </LayoutComponent>
+    );
+  }
 
   return (
     <LayoutComponent title="Trip Detail">

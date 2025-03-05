@@ -1,11 +1,12 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
+import Image from "next/image";
 import React, { useState } from "react";
 import { Card, Collapse, Tag, DatePicker } from "antd";
 import { CalendarOutlined, EyeOutlined } from "@ant-design/icons";
 import dayjs from "dayjs";
 import { TourData } from "@/model/TourData";
-import { useRouter } from "next/navigation"; // Import useRouter
+import { useRouter } from "next/navigation";
 const { Panel } = Collapse;
 const { RangePicker } = DatePicker;
 
@@ -13,7 +14,7 @@ const TourDetail = ({ data }: { data: TourData }) => {
   const [filteredTrips, setFilteredTrips] = useState(data.tripList);
 
   const router = useRouter();
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+
   const handleDateFilter = (dates: any) => {
     if (!dates || dates.length !== 2) {
       setFilteredTrips(data.tripList);
@@ -32,10 +33,12 @@ const TourDetail = ({ data }: { data: TourData }) => {
   return (
     <div className="p-6 max-w-5xl mx-auto">
       <Card className="border border-gray-200 shadow-sm">
-        <img
+        <Image
           src={data.imageUrl}
           alt={data.title}
-          className="w-full h-64 object-cover rounded-md mb-4"
+          width={400} // Thay đổi theo kích thước phù hợp
+          height={256} // 64 * 4px = 256px
+          className="object-cover rounded-md mb-4 w-full h-64"
         />
         <div className="flex justify-between items-center">
           <h2 className="text-xl font-semibold">{data.title}</h2>

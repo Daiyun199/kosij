@@ -61,6 +61,7 @@ export default function CreateTourStep1({
     });
     setLoading(false);
   }, [
+    form,
     tourName,
     night,
     day,
@@ -85,7 +86,6 @@ export default function CreateTourStep1({
     });
   };
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const handleUpload = (file: File) => {
     setImg(file);
     return false;
@@ -104,7 +104,7 @@ export default function CreateTourStep1({
       setVisaFee(0);
       setImg(null);
     }
-  }, []);
+  }, [data]);
   if (loading) {
     return (
       <ManagerLayout title="Tour Create">
@@ -134,13 +134,13 @@ export default function CreateTourStep1({
 
             <div className="grid grid-cols-2 gap-4">
               <Form.Item
-                label="Night:"
+                label="Nights:"
                 name="night"
                 rules={[{ required: true }]}
               >
                 <InputNumber min={1} className="w-full" value={night} />
               </Form.Item>
-              <Form.Item label="Day (Auto):" name="day">
+              <Form.Item label="Days (Auto):" name="day">
                 <InputNumber className="w-full" readOnly disabled value={day} />
               </Form.Item>
             </div>

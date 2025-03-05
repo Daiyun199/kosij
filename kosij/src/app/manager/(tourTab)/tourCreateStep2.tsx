@@ -47,7 +47,8 @@ export default function CreateTourStep2({
 
   useEffect(() => {
     updateData(days);
-  }, [days]);
+  }, [days, updateData]);
+
   const handleTimeChange = (
     dayIndex: number,
     activityIndex: number,

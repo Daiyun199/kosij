@@ -1,6 +1,7 @@
 "use client";
 
 import { Dropdown } from "antd";
+import { Image } from "antd";
 import {
   BellOutlined,
   DashboardOutlined,
@@ -21,7 +22,7 @@ function RightNavbar({ children }: PropsWithChildren) {
   const pathname = usePathname();
   const router = useRouter();
 
-  const farmId = pathname.split("/")[2]
+  const farmId = pathname.split("/")[2];
   console.log("Rendering RightNavbar", pathname, farmId);
   return (
     <ProLayout
@@ -98,8 +99,8 @@ function RightNavbar({ children }: PropsWithChildren) {
                     icon: <SettingOutlined />,
                     label: "Profile",
                     onClick: () => {
-                      router.push("/farmbreeder/profile")
-                    }
+                      router.push("/farmbreeder/profile");
+                    },
                   },
                 ],
               }}
@@ -118,7 +119,7 @@ function RightNavbar({ children }: PropsWithChildren) {
             gap: 8,
           }}
         >
-          <img src="/logo.png" alt="Logo" style={{ width: 50, height: 50 }} />
+          <Image src="/logo.png" alt="Logo" width={50} height={50} />
           <span style={{ fontSize: 24, fontWeight: "bold", color: "white" }}>
             KOSIJ
           </span>
@@ -202,7 +203,6 @@ function RightNavbar({ children }: PropsWithChildren) {
           {dom}
         </div>
       )}
-      
     >
       {children}
     </ProLayout>

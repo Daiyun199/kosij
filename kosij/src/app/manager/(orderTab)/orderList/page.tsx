@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 import CustomButton from "@/app/components/Button/Button";
 import ManagerLayout from "@/app/components/ManagerLayout/ManagerLayout";
@@ -81,7 +82,6 @@ function Page() {
     },
   ];
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any
   const actionColumn = (record: any) => (
     <div style={{ display: "flex", gap: "8px" }}>
       <CustomButton

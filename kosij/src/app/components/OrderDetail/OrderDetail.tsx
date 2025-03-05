@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-
+import Image from "next/image";
 interface OrderDetailsProps {
   orderId: string;
   status: string;
@@ -104,10 +104,12 @@ const OrderDetails: React.FC<OrderDetailsProps> = ({
               <tr key={item.id}>
                 <td className="border px-4 py-2">{index + 1}</td>
                 <td className="border px-4 py-2">
-                  <img
+                  <Image
                     src={item.image}
                     alt={`Item ${item.id}`}
-                    className="w-12 h-12 object-cover mx-auto"
+                    width={48}
+                    height={48}
+                    className="object-cover mx-auto"
                   />
                 </td>
                 <td className="border px-4 py-2">{item.name}</td>

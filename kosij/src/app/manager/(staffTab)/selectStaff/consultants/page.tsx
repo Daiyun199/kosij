@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { Suspense, useEffect, useState } from "react";
 import { Table, Button, message } from "antd";
 import ManagerLayout from "@/app/components/ManagerLayout/ManagerLayout";
 import api from "@/config/axios.config";
@@ -9,6 +9,13 @@ import { ConsultingStaff } from "@/model/ConsultantStaff";
 import SearchBar from "@/app/components/SearchBar/SearchBar";
 import { useRouter, useSearchParams } from "next/navigation";
 import { toast } from "react-toastify";
+function StaffPage() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <Page />
+    </Suspense>
+  );
+}
 function Page() {
   const [staffData, setStaffData] = useState<ConsultingStaff[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
@@ -151,4 +158,4 @@ function Page() {
   );
 }
 
-export default Page;
+export default StaffPage;

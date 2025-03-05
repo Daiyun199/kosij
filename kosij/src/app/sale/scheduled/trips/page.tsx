@@ -108,13 +108,6 @@ function Page() {
           >
             Detail
           </Button>
-          <Button
-            type="primary"
-            danger
-            onClick={() => console.log("Delete:", record)}
-          >
-            Delete
-          </Button>
         </div>
       ),
     },

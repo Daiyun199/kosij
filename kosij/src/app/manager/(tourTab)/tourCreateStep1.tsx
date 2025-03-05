@@ -134,13 +134,13 @@ export default function CreateTourStep1({
 
             <div className="grid grid-cols-2 gap-4">
               <Form.Item
-                label="Night:"
+                label="Nights:"
                 name="night"
                 rules={[{ required: true }]}
               >
                 <InputNumber min={1} className="w-full" value={night} />
               </Form.Item>
-              <Form.Item label="Day (Auto):" name="day">
+              <Form.Item label="Days (Auto):" name="day">
                 <InputNumber className="w-full" readOnly disabled value={day} />
               </Form.Item>
             </div>

@@ -59,12 +59,14 @@ function Page() {
       dataIndex: "standardPrice",
       key: "standardPrice",
       sorter: (a, b) => a.standardPrice - b.standardPrice,
+      render: (value) => new Intl.NumberFormat("en-US").format(value),
     },
     {
       title: "Visa Fee",
       dataIndex: "visaFee",
       key: "visaFee",
       sorter: (a, b) => a.visaFee - b.visaFee,
+      render: (value) => new Intl.NumberFormat("en-US").format(value),
     },
     {
       title: "Tour Status",

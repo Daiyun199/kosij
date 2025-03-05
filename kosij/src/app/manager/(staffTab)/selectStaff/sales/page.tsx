@@ -65,12 +65,12 @@ function Page() {
         toast.success(response.data.message || "Staff assigned successfully!");
         router.push(`/manager/trip/${tripId}`);
       } else {
-        toast.error(response.data.message || "Failed to assign staff.");
+        toast.error(response.data.value || "Failed to assign staff.");
       }
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
       const errorMessage =
-        error.response?.data?.message ||
+        error.response?.data?.value ||
         "An error occurred while assigning staff.";
       toast.error(errorMessage);
     }
@@ -106,6 +106,11 @@ function Page() {
       title: "Completed Requests",
       dataIndex: "completedRequest",
       key: "completedRequest",
+    },
+    {
+      title: "Assigned Trip",
+      dataIndex: "assignedTrip",
+      key: "assignedTrip",
     },
     {
       title: "Status",

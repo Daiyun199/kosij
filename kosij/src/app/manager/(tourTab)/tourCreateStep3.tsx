@@ -43,7 +43,7 @@ const CreateTourStep3: React.FC<CreateTourStep3Props> = ({
     }
 
     setErrors(newErrors);
-    return newErrors.length === 0; // Trả về true nếu không có lỗi
+    return newErrors.length === 0;
   };
 
   const handleNext = () => {

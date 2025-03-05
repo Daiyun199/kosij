@@ -1,6 +1,6 @@
 "use client";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import styles from "./login.module.css";
 import useLoginMutation from "@/features/common/mutations/Login.mutation";
 import Cookies from "js-cookie";
@@ -10,13 +10,19 @@ import { App } from "antd";
 import manager_uri from "@/features/manager/uri";
 import farmbreeder_uri from "@/features/farmbreeder/uri";
 import salesstaff_uri from "@/features/sales/uri";
-
+import Image from "next/image";
 type FieldType = {
   email: string;
   password: string;
 };
-
-export default function Home() {
+function HomePage() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <Home />
+    </Suspense>
+  );
+}
+function Home() {
   const router = useRouter();
   const appContext = App.useApp();
   const message = appContext?.message;
@@ -26,9 +32,15 @@ export default function Home() {
   const [cssLoaded, setCssLoaded] = useState(false);
 
   const searchParams = useSearchParams();
-  const error =
-    typeof window !== "undefined" ? searchParams.get("error") : null;
-  const path = typeof window !== "undefined" ? searchParams.get("path") : null;
+  const [error, setError] = useState<string | null>(null);
+  const [path, setPath] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (searchParams) {
+      setError(searchParams.get("error"));
+      setPath(searchParams.get("path"));
+    }
+  }, [searchParams]);
 
   const mutations = {
     LoginCredentials: useLoginMutation(),
@@ -132,7 +144,13 @@ export default function Home() {
   return (
     <div className={styles.container}>
       <div className={styles.logo}>
-        <img src="/logo.png" alt="Logo" />
+        <Image
+          src="/logo.png"
+          alt="Logo"
+          width={50}
+          height={50}
+          className="rounded-full"
+        />
         <span>KOSIJ</span>
       </div>
       <div className={styles.loginBox}>
@@ -176,3 +194,4 @@ export default function Home() {
     </div>
   );
 }
+export default HomePage;

@@ -61,6 +61,7 @@ export default function CreateTourStep1({
     });
     setLoading(false);
   }, [
+    form,
     tourName,
     night,
     day,
@@ -85,7 +86,6 @@ export default function CreateTourStep1({
     });
   };
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const handleUpload = (file: File) => {
     setImg(file);
     return false;
@@ -104,7 +104,7 @@ export default function CreateTourStep1({
       setVisaFee(0);
       setImg(null);
     }
-  }, []);
+  }, [data]);
   if (loading) {
     return (
       <ManagerLayout title="Tour Create">

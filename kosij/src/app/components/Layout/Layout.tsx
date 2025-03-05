@@ -4,7 +4,7 @@ import { useRouter, usePathname } from "next/navigation";
 import React, { useEffect, useState } from "react";
 import "./Layout.css";
 import useLogout from "@/lib/domain/User/useLogout";
-
+import Image from "next/image";
 interface MenuItem {
   label: string;
   icon?: string;
@@ -31,7 +31,7 @@ const CustomLayout: React.FC<LayoutProps> = ({
   const [expandedMenus, setExpandedMenus] = useState<{
     [key: string]: boolean;
   }>({});
-  const [handleLogout] = useLogout()
+  const [handleLogout] = useLogout();
   useEffect(() => {
     const savedPath = localStorage.getItem("activePath") || pathname;
     setActivePath(savedPath);
@@ -97,12 +97,14 @@ const CustomLayout: React.FC<LayoutProps> = ({
     <div className="layout">
       <aside className="sidebar">
         <div className="sidebar-header">
-          <img src="/logo.png" alt="Logo" />
+          <Image src="/logo.png" alt="Logo" width={50} height={50} />
           <div className="logo">KOSIJ</div>
         </div>
         <nav className="menu">{renderMenu(menuItems)}</nav>
         <div className="sidebar-footer">
-          <button className="sign-out" onClick={handleLogout} >Sign Out</button>
+          <button className="sign-out" onClick={handleLogout}>
+            Sign Out
+          </button>
         </div>
       </aside>
 

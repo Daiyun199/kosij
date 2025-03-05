@@ -7,7 +7,8 @@ export default function Home() {
 
   useEffect(() => {
     router.push("/login");
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  return <></>;
+  return <p>Redirecting...</p>;
 }

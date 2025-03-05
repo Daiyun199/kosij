@@ -2,6 +2,8 @@
 import { Card, Collapse, Rate, Tag } from "antd";
 import { EyeOutlined } from "@ant-design/icons";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
+
 const { Panel } = Collapse;
 
 const TripDetail = ({ data, role }: { data: any; role: string }) => {
@@ -21,10 +23,12 @@ const TripDetail = ({ data, role }: { data: any; role: string }) => {
           <span className="text-lg font-bold">{data.averageRating}/5</span>
         </div>
 
-        <img
+        <Image
           src={data.tour.imageUrl}
           alt={data.tour.title}
-          className="w-full h-64 object-cover rounded-md mb-4"
+          width={600} // Thay đổi theo kích thước phù hợp
+          height={256} // 64 * 4px = 256px
+          className="object-cover rounded-md mb-4 w-full h-64"
         />
         <div className="flex justify-between items-center">
           <h2 className="text-xl font-semibold">{data.tour.title}</h2>

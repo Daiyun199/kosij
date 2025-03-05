@@ -20,7 +20,7 @@ const CreateTourStep3: React.FC<CreateTourStep3Props> = ({
   console.log("Check", data);
   useEffect(() => {
     updateData({ ...data, includes, notIncludes, price: price ?? [] });
-  }, [includes, notIncludes, price]);
+  }, [data, includes, notIncludes, price, updateData]);
 
   const handlePriceChange = (id: number, field: string, value: string) => {
     setPrice((prevPrice) =>
@@ -78,7 +78,7 @@ const CreateTourStep3: React.FC<CreateTourStep3Props> = ({
       .catch((error) => {
         console.error("Error fetching policies:", error);
       });
-  }, []);
+  }, [updateData, includes, notIncludes, setPrice]);
 
   const removePrice = (id: number) => {
     setPrice(price.filter((item) => item.id !== id));

@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
@@ -36,7 +37,7 @@ const CreateTourStep4: React.FC<CreateTourStep4Props> = ({
   setFormData,
   setStep,
   resetForm,
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+
   tourData,
 }) => {
   const [policies, setPolicies] = useState(formData.policies || []);

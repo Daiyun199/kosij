@@ -1,13 +1,19 @@
 "use client";
 
-import { useState } from "react";
+import { Suspense, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 import { useRouter, useSearchParams } from "next/navigation";
 import ManagerLayout from "@/app/components/ManagerLayout/ManagerLayout";
 import { MapPinned, ShoppingCart } from "lucide-react";
-
+function SelectStaffPage() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <SelectStaff />
+    </Suspense>
+  );
+}
 const staffOptions = [
   {
     id: "consultant",
@@ -21,7 +27,7 @@ const staffOptions = [
   },
 ];
 
-export default function SelectStaff() {
+function SelectStaff() {
   const [selected, setSelected] = useState<string | null>(null);
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -86,3 +92,4 @@ export default function SelectStaff() {
     </ManagerLayout>
   );
 }
+export default SelectStaffPage;

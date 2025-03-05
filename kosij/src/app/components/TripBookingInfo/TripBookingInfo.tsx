@@ -5,7 +5,7 @@ import { Card, Descriptions, Typography, Upload, Button, message } from "antd";
 import { UploadOutlined } from "@ant-design/icons";
 import { TripBookingProps } from "@/model/TripBookingProps";
 import { ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
-
+import Image from "next/image";
 import axios from "axios";
 import { storage } from "@/config/firebase";
 import api from "@/config/axios.config";
@@ -114,15 +114,12 @@ const TripBookingInfo: React.FC<TripBookingProps> = ({ tripBooking }) => {
 
         <Descriptions.Item label="Outbound Ticket">
           {tripBooking.outboundTicketUrl && (
-            <img
+            <Image
               src={tripBooking.outboundTicketUrl}
               alt="Outbound Ticket"
-              className="mb-2 rounded-lg shadow-md"
-              style={{
-                width: "150px",
-                height: "150px",
-                objectFit: "contain",
-              }}
+              width={150}
+              height={150}
+              className="mb-2 rounded-lg shadow-md object-contain"
             />
           )}
           <Upload
@@ -139,15 +136,12 @@ const TripBookingInfo: React.FC<TripBookingProps> = ({ tripBooking }) => {
 
         <Descriptions.Item label="Inbound Ticket">
           {tripBooking.inboundTicketUrl && (
-            <img
+            <Image
               src={tripBooking.inboundTicketUrl}
               alt="Inbound Ticket"
-              className="mb-2 rounded-lg shadow-md"
-              style={{
-                width: "150px",
-                height: "150px",
-                objectFit: "contain",
-              }}
+              width={150}
+              height={150}
+              className="mb-2 rounded-lg shadow-md object-contain"
             />
           )}
           <Upload

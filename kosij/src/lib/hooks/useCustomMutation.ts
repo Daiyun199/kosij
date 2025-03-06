@@ -1,9 +1,9 @@
 import { useMutation, UseMutationOptions } from "@tanstack/react-query";
-import App from "antd/es/app";
+import { App } from "antd"; 
 import { CustomMutationHookProps } from "@/lib/types/CustomMutationHookProps";
 
 type Props<TData, TError, TVariables, TContext> = {
-  options: CustomMutationHookProps<TData, TError, TVariables, TContext> | null;
+  options?: CustomMutationHookProps<TData, TError, TVariables, TContext>;
   messageType?: "notification" | "message";
   messages?: {
     loading?: string;
@@ -17,69 +17,49 @@ export default function useCustomMutation<TData, TError, TVariables, TContext>(
   props: Props<TData, TError, TVariables, TContext>
 ) {
   const { message, notification } = App.useApp();
+  
+  if (!message || !notification) {
+    console.error("useCustomMutation must be used inside an <App> provider.");
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+    return useMutation(props);
+  }
 
-  const showMessages = props?.options?.showMessages ?? true;
-  const messageType = props.messageType ?? "message";
+  const { options, mutationKey, messages, messageType = "message", ...mutationOptions } = props;
+  const showMessages = options?.showMessages ?? true;
+  const messageKey = mutationKey.join("_");
 
-  const messageKey = props.mutationKey?.join("_");
-
+  // eslint-disable-next-line react-hooks/rules-of-hooks
   return useMutation({
-    ...props,
+    ...mutationOptions, 
     onMutate: async (req) => {
-      if (showMessages) {
+      if (showMessages && message) {
         message.destroy(messageKey ?? "loading");
-        message.loading({
-          content: props.messages?.loading ?? "In progress...",
-          key: messageKey ?? "loading",
-        });
+        message.loading({ content: messages?.loading ?? "In progress...", key: messageKey });
       }
       return props?.onMutate?.(req);
     },
     onSettled: (res, error, variables, context) => {
-      if (showMessages) {
-        message.destroy(messageKey ?? "loading");
-      }
+      if (showMessages && message) message.destroy(messageKey);
       return props?.onSettled?.(res, error, variables, context);
     },
     onError: async (error, variables, context) => {
       console.error(error);
       if (showMessages) {
-        const customError =
-          typeof props.messages?.error === "function"
-            ? props.messages.error(error)
-            : props.messages?.error;
-        switch (messageType) {
-          case "notification": {
-            notification.error({
-              message: customError ?? "Thất bại",
-            });
-            break;
-          }
-          case "message": {
-            message.error({
-              content: customError ?? "Thất bại",
-            });
-            break;
-          }
+        const customError = typeof messages?.error === "function" ? messages.error(error) : messages?.error;
+        if (messageType === "notification") {
+          notification.error({ message: customError ?? "Thất bại" });
+        } else {
+          message.error({ content: customError ?? "Thất bại" });
         }
       }
       return props?.onError?.(error, variables, context);
     },
     onSuccess: async (data, variables, context) => {
       if (showMessages) {
-        switch (messageType) {
-          case "notification": {
-            notification.success({
-              message: props.messages?.success ?? "Thành công",
-            });
-            break;
-          }
-          case "message": {
-            message.success({
-              content: props.messages?.success ?? "Thành công",
-            });
-            break;
-          }
+        if (messageType === "notification") {
+          notification.success({ message: messages?.success ?? "Thành công" });
+        } else {
+          message.success({ content: messages?.success ?? "Thành công" });
         }
       }
       return props?.onSuccess?.(data, variables, context);

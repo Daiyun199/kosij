@@ -24,7 +24,6 @@ function UpdateVarietyModal({
   const [loading, setLoading] = useState(false);
   const [imageFile, setImageFile] = useState<File | null>(null);
 
-  // Fetch variety details on open
   useEffect(() => {
     if (visible) {
       fetchVarietyDetails();
@@ -43,7 +42,6 @@ function UpdateVarietyModal({
     }
   };
 
-  // Handle form submission
   const handleSubmit = async (values: {
     varietyName: string;
     description: string;
@@ -53,7 +51,6 @@ function UpdateVarietyModal({
     try {
       let imageUrl = values.imageUrl;
 
-      // If a new image is uploaded, handle the upload first
       if (imageFile) {
         const formData = new FormData();
         formData.append("file", imageFile);
@@ -62,10 +59,9 @@ function UpdateVarietyModal({
           headers: { "Content-Type": "multipart/form-data" },
         });
 
-        imageUrl = uploadResponse.data.url; // Assume the API returns an image URL
+        imageUrl = uploadResponse.data.url;
       }
 
-      // Submit updated variety details
       await api.put("/farm-variety/variety/farm", {
         varietyName: values.varietyName,
         description: values.description,

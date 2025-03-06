@@ -1,7 +1,7 @@
 "use client";
 
 import { PageContainer } from "@ant-design/pro-layout";
-import { Button, Space, Statistic, Table } from "antd";
+import { Button, Space, Statistic, Table, Tag } from "antd";
 import ClickableArea from "@/app/components/ClickableArea";
 import { cn } from "@/lib/utils/cn.util";
 import {
@@ -14,38 +14,70 @@ import {
 } from "@ant-design/icons";
 import api from "@/config/axios.config";
 import { useQuery } from "@tanstack/react-query";
+import { Order } from "@/lib/domain/Order/Order.dto";
+import { fetchRecentOrders } from "@/features/farmbreeder/api/variety/all.api";
+import { ColumnsType } from "antd/es/table";
+import { getAuthToken } from "@/lib/utils/auth.utils";
 
-const columns = [
+const statusColors: Record<string, { color: string; background: string }> = {
+  Cancelled: { color: "#cf1322", background: "#fff1f0" },
+  Delivering: { color: "#ad6800", background: "#fffbe6" },
+  Pending: { color: "#595959", background: "#f0f0f0" },
+  Deposited: { color: "#ad6800", background: "#fffbe6" },
+  Packed: { color: "#1677ff", background: "#e6f4ff" },
+  Delivered: { color: "#389e0d", background: "#f6ffed" },
+  Refunded: { color: "#722ed1", background: "#f9f0ff" },
+};
+
+const columns: ColumnsType<Order> = [
   {
     title: "Order ID",
     dataIndex: "orderId",
     key: "orderId",
-    fixed: true,
+    fixed: "left",
   },
   {
-    title: "Customer",
-    dataIndex: "name",
-    key: "name",
-    fixed: true,
+    title: "Customer Name",
+    dataIndex: "fullName",
+    key: "customerName",
   },
   {
     title: "Amount",
-    dataIndex: "amount",
+    dataIndex: "totalAmount",
     key: "amount",
-    fixed: true,
+    render: (amount?: number) => (amount ? `${amount} VND` : "-"),
   },
   {
     title: "Status",
-    dataIndex: "status",
+    dataIndex: "orderStatus",
     key: "status",
-    fixed: true,
+    render: (status: string) => {
+      const style = statusColors[status] || {
+        color: "#000",
+        background: "#eee",
+      };
+      return (
+        <Tag
+          style={{
+            color: style.color,
+            backgroundColor: style.background,
+            borderRadius: 12,
+            padding: "4px 12px",
+            fontWeight: 500,
+          }}
+        >
+          {status}
+        </Tag>
+      );
+    },
   },
 ];
 
 const fetchStatistics = async () => {
+  const token = getAuthToken();
   const response = await api.get("/farm-variety/statistics/current-farm", {
     headers: {
-      Authorization: `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJGQVItMDAxIiwiaHR0cDovL3NjaGVtYXMubWljcm9zb2Z0LmNvbS93cy8yMDA4LzA2L2lkZW50aXR5L2NsYWltcy9yb2xlIjoiRmFybUJyZWVkZXIiLCJleHAiOjE3NDEwMjYyODZ9.kP7UYrXoQIa1NpC6H9LGe_MsY057B17ltluwe8r6-5Q`,
+      Authorization: `Bearer ${token}`,
       Accept: "text/plain",
     },
   });
@@ -60,7 +92,17 @@ function Page() {
     queryFn: fetchStatistics,
   });
 
-  const statistics = data || { totalOrders: {}, totalCustomers: 0, totalRevenue: 0, currentBalance: 0 };
+  const { data: orders } = useQuery<Order[]>({
+    queryKey: ["recentOrders"],
+    queryFn: fetchRecentOrders,
+  });
+
+  const statistics = data || {
+    totalOrders: {},
+    totalCustomers: 0,
+    totalRevenue: 0,
+    currentBalance: 0,
+  };
 
   const totalOrders = statistics.totalOrders ?? {};
   const totalCustomers = statistics.totalCustomers ?? 0;
@@ -71,7 +113,7 @@ function Page() {
     (totalOrders.totalPendingOrders ?? 0) +
     (totalOrders.totalCompletedOrders ?? 0) +
     (totalOrders.totalCanceledOrders ?? 0);
-console.log('totalOrders: ', totalOrderCount);
+  console.log("totalOrders: ", totalOrderCount);
 
   if (isLoading) return <div>Loading...</div>;
   if (isError) return <div>Error fetching data</div>;
@@ -173,10 +215,11 @@ console.log('totalOrders: ', totalOrderCount);
         <h2 className="mt-5 mb-3 font-medium text-lg">Recent Orders</h2>
         <Table
           columns={columns}
+          dataSource={orders}
+          rowKey="orderId"
           bordered
-          pagination={false}
+          pagination={{ pageSize: 10 }}
           scroll={{ x: "max-content" }}
-          // dataSource={data}
         />
       </section>
     </PageContainer>

@@ -42,10 +42,10 @@ const CreateTourStep4: React.FC<CreateTourStep4Props> = ({
 }) => {
   const [policies, setPolicies] = useState(formData.policies || []);
   const [deposits, setDeposits] = useState(formData.deposits || []);
-
+  const [promotions, setPromotions] = useState(formData.promotions || []);
   useEffect(() => {
-    setFormData({ ...formData, policies, deposits });
-  }, [policies, deposits]);
+    setFormData({ ...formData, policies, deposits, promotions });
+  }, [policies, deposits, promotions]);
 
   const handlePolicyChange = (id: number, field: string, value: string) => {
     setPolicies(

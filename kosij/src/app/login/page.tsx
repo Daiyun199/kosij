@@ -41,6 +41,22 @@ function Home() {
       setPath(searchParams.get("path"));
     }
   }, [searchParams]);
+  useEffect(() => {
+    if (typeof window === "undefined") return; // Ngăn lỗi prerender trên server
+    message?.destroy("error");
+
+    if (error === "unauthenticated") {
+      message.open({
+        content: "You are not allowed to access this page. Please login again.",
+        key: "error",
+        type: "error",
+      });
+    }
+
+    return () => {
+      message?.destroy("error");
+    };
+  }, [message, error]);
 
   const mutations = {
     LoginCredentials: useLoginMutation(),

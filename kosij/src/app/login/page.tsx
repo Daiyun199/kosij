@@ -25,39 +25,25 @@ function Home() {
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [cssLoaded, setCssLoaded] = useState(false);
-
-  const [searchParams, setSearchParams] = useState<URLSearchParams | null>(
-    null
-  );
-
-  useEffect(() => {
-    setSearchParams(new URLSearchParams(window.location.search));
-  }, []);
   const [error, setError] = useState<string | null>(null);
   const [path, setPath] = useState<string | null>(null);
 
   useEffect(() => {
-    if (searchParams) {
-      setError(searchParams.get("error"));
-      setPath(searchParams.get("path"));
-    }
-  }, [searchParams]);
+    const params = new URLSearchParams(window.location.search);
+    setError(params.get("error"));
+    setPath(params.get("path"));
+  }, []);
+
   useEffect(() => {
-    if (!message || typeof window === "undefined") return;
-
-    message.destroy("error");
-
-    if (error === "unauthenticated") {
+    if (message && error === "unauthenticated") {
       message.open({
         content: "You are not allowed to access this page. Please login again.",
         key: "error",
         type: "error",
       });
-    }
 
-    return () => {
-      message.destroy("error");
-    };
+      return () => message.destroy("error");
+    }
   }, [message, error]);
 
   const mutations = {
@@ -81,6 +67,7 @@ function Home() {
 
   function handleLogin(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    setLoading(true);
 
     const formData = new FormData(event.currentTarget);
     const values: FieldType = {
@@ -92,68 +79,46 @@ function Home() {
       onSuccess: async (token: string | null) => {
         if (!token) {
           message.error("Login failed: Invalid token received from server.");
+          setLoading(false);
           return;
         }
 
-        const uri = path && decodeURIComponent(path.trim()).split("/");
         Cookies.set("token", token);
         const payload = decodeJwt(token);
-        console.log("Decoded JWT payload:", payload);
 
+        let redirectPath = "";
         switch (payload.role) {
-          case Role.manager: {
-            if (uri && uri[1] === "manager@kosij.com") {
-              router.push(path!);
-              return;
-            }
-            router.push(manager_uri.sidebar.dashboard);
+          case Role.manager:
+            redirectPath = path?.includes("manager")
+              ? path
+              : manager_uri.sidebar.dashboard;
             break;
-          }
-          case Role.farmbreeder: {
-            if (uri && uri[1] === "farmbreeder1@kosij.com") {
-              router.push(path!);
-              return;
-            }
-            router.push(farmbreeder_uri.sidebar.dashboard);
+          case Role.farmbreeder:
+            redirectPath = path?.includes("farmbreeder")
+              ? path
+              : farmbreeder_uri.sidebar.dashboard;
             break;
-          }
-          case Role.salesstaff: {
-            if (uri && uri[1] === "salesstaff1@kosij.com") {
-              router.push(path!);
-              return;
-            }
-            router.push(salesstaff_uri.sidebar.dashboard);
+          case Role.salesstaff:
+            redirectPath = path?.includes("salesstaff")
+              ? path
+              : salesstaff_uri.sidebar.dashboard;
             break;
-          }
-          default: {
+          default:
             message.info(
               "This account has not been assigned a role. Please contact the manager."
             );
-          }
+            setLoading(false);
+            return;
         }
+
+        router.push(redirectPath);
       },
       onError: () => {
+        message.error("Login failed. Please try again.");
         setLoading(false);
       },
     });
   }
-
-  useEffect(() => {
-    if (!message || typeof window === "undefined") return;
-
-    message.destroy("error");
-    if (error === "unauthenticated") {
-      message.open({
-        content: "You are not allowed to access this page. Please login again.",
-        key: "error",
-        type: "error",
-      });
-    }
-
-    return () => {
-      message?.destroy("error");
-    };
-  }, [message, error]);
 
   if (!cssLoaded) {
     return <div>Loading...</div>;
@@ -179,32 +144,25 @@ function Home() {
             name="email"
             placeholder="staff_sales@gmail.com"
             className={styles.input}
-            value={email || ""}
+            value={email}
             onChange={(e) => setEmail(e.target.value)}
             required
             autoComplete="email"
-            suppressHydrationWarning
           />
           <input
             type="password"
             name="password"
             placeholder="********"
             className={styles.input}
-            value={password || ""}
+            value={password}
             onChange={(e) => setPassword(e.target.value)}
             required
             autoComplete="current-password"
-            suppressHydrationWarning
           />
           <div className={styles.forgotPassword}>
             <a href="#">Forgot your password?</a>
           </div>
-          <button
-            type="submit"
-            className={styles.button}
-            disabled={loading}
-            suppressHydrationWarning
-          >
+          <button type="submit" className={styles.button} disabled={loading}>
             {loading ? "Signing in..." : "Sign In"}
           </button>
         </form>
@@ -212,4 +170,5 @@ function Home() {
     </div>
   );
 }
+
 export default Home;

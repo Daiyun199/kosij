@@ -9,21 +9,23 @@ import { ConsultingStaff } from "@/model/ConsultantStaff";
 import SearchBar from "@/app/components/SearchBar/SearchBar";
 import { useRouter, useSearchParams } from "next/navigation";
 import { toast } from "react-toastify";
-function StaffPage() {
-  return (
-    <Suspense fallback={<div>Loading...</div>}>
-      <Page />
-    </Suspense>
-  );
-}
+
 function Page() {
   const [staffData, setStaffData] = useState<ConsultingStaff[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
   const [searchValue, setSearchValue] = useState<string>("");
   const [filteredData, setFilteredData] = useState<ConsultingStaff[]>([]);
   const router = useRouter();
-  const searchParams = useSearchParams();
-  const tripId = searchParams.get("tripId");
+  const [searchParams, setSearchParams] = useState<URLSearchParams | null>(
+    null
+  );
+  const [tripId, setTripId] = useState<string | null>(null);
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    setSearchParams(params);
+    setTripId(params.get("tripId"));
+  }, []);
   useEffect(() => {
     fetchConsultingStaff();
   }, []);
@@ -158,4 +160,4 @@ function Page() {
   );
 }
 
-export default StaffPage;
+export default Page;

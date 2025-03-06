@@ -1,19 +1,13 @@
 "use client";
 
-import { Suspense, useState } from "react";
+import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 import ManagerLayout from "@/app/components/ManagerLayout/ManagerLayout";
 import { MapPinned, ShoppingCart } from "lucide-react";
-function SelectStaffPage() {
-  return (
-    <Suspense fallback={<div>Loading...</div>}>
-      <SelectStaff />
-    </Suspense>
-  );
-}
+
 const staffOptions = [
   {
     id: "consultant",
@@ -30,8 +24,17 @@ const staffOptions = [
 function SelectStaff() {
   const [selected, setSelected] = useState<string | null>(null);
   const router = useRouter();
-  const searchParams = useSearchParams();
-  const tripId = searchParams.get("tripId");
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const [searchParams, setSearchParams] = useState<URLSearchParams | null>(
+    null
+  );
+  const [tripId, setTripId] = useState<string | null>(null);
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    setSearchParams(params);
+    setTripId(params.get("tripId"));
+  }, []);
   return (
     <ManagerLayout title="Select Staff">
       <div className="flex justify-center items-center min-h-screen bg-gray-100">
@@ -92,4 +95,4 @@ function SelectStaff() {
     </ManagerLayout>
   );
 }
-export default SelectStaffPage;
+export default SelectStaff;

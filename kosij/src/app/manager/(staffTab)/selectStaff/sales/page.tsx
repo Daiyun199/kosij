@@ -9,21 +9,23 @@ import { SalesStaff } from "@/model/SalesStaff";
 import SearchBar from "@/app/components/SearchBar/SearchBar";
 import { useRouter, useSearchParams } from "next/navigation";
 import { toast } from "react-toastify";
-function StaffPage() {
-  return (
-    <Suspense fallback={<div>Loading...</div>}>
-      <Page />
-    </Suspense>
-  );
-}
+
 function Page() {
   const [staffData, setStaffData] = useState<SalesStaff[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
   const [searchValue, setSearchValue] = useState<string>("");
   const [filteredData, setFilteredData] = useState<SalesStaff[]>([]);
   const router = useRouter();
-  const searchParams = useSearchParams();
-  const tripId = searchParams.get("tripId");
+  const [searchParams, setSearchParams] = useState<URLSearchParams | null>(
+    null
+  );
+  const [tripId, setTripId] = useState<string | null>(null);
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    setSearchParams(params);
+    setTripId(params.get("tripId"));
+  }, []);
   useEffect(() => {
     fetchSalesStaff();
   }, []);
@@ -162,4 +164,4 @@ function Page() {
   );
 }
 
-export default StaffPage;
+export default Page;

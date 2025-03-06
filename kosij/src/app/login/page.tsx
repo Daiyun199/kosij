@@ -1,6 +1,6 @@
 "use client";
-import { useRouter, useSearchParams } from "next/navigation";
-import { Suspense, useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
 import styles from "./login.module.css";
 import useLoginMutation from "@/features/common/mutations/Login.mutation";
 import Cookies from "js-cookie";
@@ -11,19 +11,12 @@ import manager_uri from "@/features/manager/uri";
 import farmbreeder_uri from "@/features/farmbreeder/uri";
 import salesstaff_uri from "@/features/sales/uri";
 import Image from "next/image";
-import dynamic from "next/dynamic";
+
 type FieldType = {
   email: string;
   password: string;
 };
-const HomePage = dynamic(() => Promise.resolve(ClientHomePage), { ssr: false });
-function ClientHomePage() {
-  return (
-    <Suspense fallback={<div>Loading...</div>}>
-      <Home />
-    </Suspense>
-  );
-}
+
 function Home() {
   const router = useRouter();
   const appContext = App.useApp();
@@ -33,7 +26,13 @@ function Home() {
   const [loading, setLoading] = useState(false);
   const [cssLoaded, setCssLoaded] = useState(false);
 
-  const searchParams = useSearchParams();
+  const [searchParams, setSearchParams] = useState<URLSearchParams | null>(
+    null
+  );
+
+  useEffect(() => {
+    setSearchParams(new URLSearchParams(window.location.search));
+  }, []);
   const [error, setError] = useState<string | null>(null);
   const [path, setPath] = useState<string | null>(null);
 
@@ -213,4 +212,4 @@ function Home() {
     </div>
   );
 }
-export default HomePage;
+export default Home;

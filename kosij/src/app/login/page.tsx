@@ -11,11 +11,13 @@ import manager_uri from "@/features/manager/uri";
 import farmbreeder_uri from "@/features/farmbreeder/uri";
 import salesstaff_uri from "@/features/sales/uri";
 import Image from "next/image";
+import dynamic from "next/dynamic";
 type FieldType = {
   email: string;
   password: string;
 };
-function HomePage() {
+const HomePage = dynamic(() => Promise.resolve(ClientHomePage), { ssr: false });
+function ClientHomePage() {
   return (
     <Suspense fallback={<div>Loading...</div>}>
       <Home />
@@ -42,8 +44,9 @@ function Home() {
     }
   }, [searchParams]);
   useEffect(() => {
-    if (typeof window === "undefined") return; // Ngăn lỗi prerender trên server
-    message?.destroy("error");
+    if (!message || typeof window === "undefined") return;
+
+    message.destroy("error");
 
     if (error === "unauthenticated") {
       message.open({
@@ -54,7 +57,7 @@ function Home() {
     }
 
     return () => {
-      message?.destroy("error");
+      message.destroy("error");
     };
   }, [message, error]);
 

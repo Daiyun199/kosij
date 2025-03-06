@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 "use client";
-
+export const dynamic = "force-dynamic";
 import React, { Suspense, useEffect, useState } from "react";
 import { Table, Button, message } from "antd";
 import ManagerLayout from "@/app/components/ManagerLayout/ManagerLayout";

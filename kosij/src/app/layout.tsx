@@ -1,8 +1,9 @@
+export const dynamic = "force-dynamic";
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import QueryProvider from "./QueryProvider";
-import { App as AntdApp } from "antd"; // Import Ant Design's App
+import { App as AntdApp } from "antd";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 const geistSans = Geist({

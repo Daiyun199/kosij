@@ -36,8 +36,8 @@ const TourDetail = ({ data }: { data: TourData }) => {
         <Image
           src={data.imageUrl}
           alt={data.title}
-          width={400} // Thay đổi theo kích thước phù hợp
-          height={256} // 64 * 4px = 256px
+          width={400}
+          height={256}
           className="object-cover rounded-md mb-4 w-full h-64"
         />
         <div className="flex justify-between items-center">
@@ -184,7 +184,10 @@ const TourDetail = ({ data }: { data: TourData }) => {
         <h3 className="font-semibold">Deposit Policy</h3>
         <div dangerouslySetInnerHTML={{ __html: data.depositPolicy }} />
       </Card>
-
+      <Card className="mt-4 border border-gray-200 shadow-sm">
+        <h3 className="font-semibold">Promotion Policy</h3>
+        <div dangerouslySetInnerHTML={{ __html: data.promotionPolicy }} />
+      </Card>
       <Card className="mt-4 border border-gray-200 shadow-sm">
         <h3 className="font-semibold">Trip List</h3>
         <div className="mb-4">

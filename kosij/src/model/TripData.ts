@@ -32,6 +32,7 @@ export interface TripData {
     tourPriceNotIncludes: string[];
     cancelPolicy: string;
     depositPolicy: string;
+    promotionPolicy: string;
     itinerary: {
       day: number;
       itineraryName: string;

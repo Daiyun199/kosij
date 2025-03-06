@@ -14,4 +14,5 @@ export interface TourData {
   tourPriceNotIncludes: string[];
   cancelPolicy: string;
   depositPolicy: string;
+  promotionPolicy: string;
 }

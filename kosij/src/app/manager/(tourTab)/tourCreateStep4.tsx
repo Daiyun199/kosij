@@ -46,6 +46,13 @@ const CreateTourStep4: React.FC<CreateTourStep4Props> = ({
   useEffect(() => {
     setFormData({ ...formData, policies, deposits, promotions });
   }, [policies, deposits, promotions]);
+  const handlePromotionChange = (id: number, field: string, value: string) => {
+    setPromotions(
+      promotions.map((promotion: { id: number }) =>
+        promotion.id === id ? { ...promotion, [field]: value } : promotion
+      )
+    );
+  };
 
   const handlePolicyChange = (id: number, field: string, value: string) => {
     setPolicies(
@@ -54,7 +61,31 @@ const CreateTourStep4: React.FC<CreateTourStep4Props> = ({
       )
     );
   };
-
+  useEffect(() => {
+    api
+      .get("/config-templates/TourGroupDiscount")
+      .then((response) => {
+        if (response.data?.value) {
+          const fetchedPromotions = response.data.value.map(
+            (promotion: any) => ({
+              id: promotion.id,
+              from: promotion.rangeStart.toString(),
+              to: promotion.rangeEnd.toString(),
+              discountRate: (promotion.rate * 100).toString(),
+              description: promotion.description,
+            })
+          );
+          setPromotions(fetchedPromotions);
+          setFormData((prev: any) => ({
+            ...prev,
+            promotions: fetchedPromotions,
+          }));
+        }
+      })
+      .catch((error) => {
+        console.error("Error fetching promotions:", error);
+      });
+  }, []);
   const handleDepositChange = (id: number, field: string, value: string) => {
     setDeposits(
       deposits.map((deposit: { id: number }) =>
@@ -82,6 +113,7 @@ const CreateTourStep4: React.FC<CreateTourStep4Props> = ({
         console.error("Error fetching policies:", error);
       });
   }, []);
+
   const convertTimeToHourMinute = (timeString: string) => {
     const [hour, minute] = timeString.split(":").map(Number);
     return { hour, minute };
@@ -184,6 +216,20 @@ const CreateTourStep4: React.FC<CreateTourStep4Props> = ({
               penaltyRate: policy.rate / 100,
             })
           ) || [],
+        tourPromotionRequests:
+          formData.promotions?.map(
+            (promotion: {
+              from: any;
+              to: any;
+              description: any;
+              discountRate: number;
+            }) => ({
+              from: promotion.from,
+              to: promotion.to,
+              description: promotion.description,
+              discountRate: promotion.discountRate / 100,
+            })
+          ) || [],
       };
 
       const response = await api.post("/tour", requestBody);
@@ -238,6 +284,12 @@ const CreateTourStep4: React.FC<CreateTourStep4Props> = ({
       { id: Date.now(), start: "", end: "", rate: "", description: "" },
     ]);
   };
+  const addPromotion = () => {
+    setPromotions([
+      ...promotions,
+      { id: Date.now(), from: "", to: "", discountRate: "", description: "" },
+    ]);
+  };
 
   const removePolicy = (id: number) => {
     if (confirm("Are you sure you want to delete this policy?")) {
@@ -254,7 +306,13 @@ const CreateTourStep4: React.FC<CreateTourStep4Props> = ({
       );
     }
   };
-
+  const removePromotion = (id: number) => {
+    if (confirm("Are you sure you want to delete this promotion ?")) {
+      setPromotions(
+        promotions.filter((promotion: { id: number }) => promotion.id !== id)
+      );
+    }
+  };
   return (
     <ManagerLayout title="Create Tour">
       <div className="p-6 bg-white shadow-md rounded-lg w-full max-w-4xl mx-auto">
@@ -405,7 +463,61 @@ const CreateTourStep4: React.FC<CreateTourStep4Props> = ({
             + New Deposit
           </Button>
         </Card>
-
+        <Card title="Promotion Policy" className="mb-6">
+          {promotions.map((promotion: any) => (
+            <Card key={promotion.id} className="mb-4 relative">
+              <Button
+                type="text"
+                icon={<FiTrash size={16} className="text-red-500" />}
+                className="absolute -top-1.5 -right-1.5"
+                onClick={() => removePromotion(promotion.id)}
+              />
+              <div className="grid grid-cols-3 gap-4">
+                <Input
+                  placeholder="From"
+                  value={promotion.from}
+                  onChange={(e) =>
+                    handlePromotionChange(promotion.id, "from", e.target.value)
+                  }
+                />
+                <Input
+                  placeholder="To"
+                  value={promotion.to}
+                  onChange={(e) =>
+                    handlePromotionChange(promotion.id, "to", e.target.value)
+                  }
+                />
+                <Input
+                  placeholder="Discount Rate (%)"
+                  value={promotion.discountRate}
+                  onChange={(e) =>
+                    handlePromotionChange(
+                      promotion.id,
+                      "discountRate",
+                      e.target.value
+                    )
+                  }
+                />
+              </div>
+              <Input.TextArea
+                className="mt-4"
+                placeholder="Description"
+                rows={2}
+                value={promotion.description}
+                onChange={(e) =>
+                  handlePromotionChange(
+                    promotion.id,
+                    "description",
+                    e.target.value
+                  )
+                }
+              />
+            </Card>
+          ))}
+          <Button type="dashed" className="mt-4" onClick={addPromotion}>
+            + New Promotion
+          </Button>
+        </Card>
         <div className="flex justify-between mt-6">
           <Button onClick={onBack} className="flex items-center gap-2">
             <FiArrowLeft size={20} /> Back

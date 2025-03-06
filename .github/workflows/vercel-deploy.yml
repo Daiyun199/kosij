@@ -1,26 +1,38 @@
-name: Create Vercel Preview URL
+name: Ensure Vercel Deployment Attribution
 
 on:
-  pull_request:
+  push:
     branches:
-      - main
+      - main # Replace with your target branch, if necessary
 
 jobs:
-  build_and_deploy:
+  check-email:
     runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
 
-      - name: Deploy to Vercel
-        uses: amondnet/vercel-action@v20
-        id: vercel-deploy
-        with:
-          vercel-token: ${{ secrets.VERCEL_TOKEN }}
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          vercel-org-id: ${{ secrets.ORG_ID }}
-          vercel-project-id: ${{ secrets.PROJECT_ID }}
+    steps: 
+      - name: Checkout repository
+        uses: actions/checkout@v3
 
-      - name: preview-url
+      - name: Get commit email
+        id: get_email
         run: |
-          echo ${{ steps.vercel-deploy.outputs.preview-url }}
+          email=$(git log -1 --pretty=format:'%ae')
+          echo "Commit email: $email"
+          echo "email=$email" >> $GITHUB_ENV
+
+      - name: Check if commit email matches preferred email
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          COMMITTER_EMAIL: ${{ env.email }}
+        run: |
+          if [ "${{ env.COMMITTER_EMAIL }}" != "yenphung3000@gmail.com" ]; then
+            echo "Email does not match. Performing dummy commit."
+            git config user.name "Daiyun199"
+            git config user.email "yenphung3000@gmail.com"
+            echo "Dummy commit at $(date)" > dummyfile.txt
+            git add dummyfile.txt
+            git commit -m "Dummy commit to ensure Vercel deployment"
+            git push
+          else
+            echo "Email matches. No action needed."
+          fi # This closes the if statement properly

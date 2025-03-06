@@ -22,9 +22,11 @@ function Page() {
   const [tripId, setTripId] = useState<string | null>(null);
 
   useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
-    setSearchParams(params);
-    setTripId(params.get("tripId"));
+    if (typeof window !== "undefined") {
+      const params = new URLSearchParams(window.location.search);
+      setSearchParams(params);
+      setTripId(params.get("tripId"));
+    }
   }, []);
   useEffect(() => {
     fetchConsultingStaff();

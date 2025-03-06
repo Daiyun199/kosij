@@ -1,0 +1,38 @@
+name: Ensure Vercel Deployment Attribution
+
+on:
+  push:
+    branches:
+      - main # Replace with your target branch, if necessary
+
+jobs:
+  check-email:
+    runs-on: ubuntu-latest
+
+    steps: 
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Get commit email
+        id: get_email
+        run: |
+          email=$(git log -1 --pretty=format:'%ae')
+          echo "Commit email: $email"
+          echo "email=$email" >> $GITHUB_ENV
+
+      - name: Check if commit email matches preferred email
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          COMMITTER_EMAIL: ${{ env.email }}
+        run: |
+          if [ "${{ env.COMMITTER_EMAIL }}" != "yenphung3000@gmail.com" ]; then
+            echo "Email does not match. Performing dummy commit."
+            git config user.name "Daiyun199"
+            git config user.email "yenphung3000@gmail.com"
+            echo "Dummy commit at $(date)" > dummyfile.txt
+            git add dummyfile.txt
+            git commit -m "Dummy commit to ensure Vercel deployment"
+            git push
+          else
+            echo "Email matches. No action needed."
+          fi # This closes the if statement properly

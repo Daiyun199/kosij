@@ -1,7 +1,11 @@
-"use client"
+"use client";
 
-import { PageContainer, ProTable, ProColumns } from "@ant-design/pro-components";
-import { Space, Tag } from "antd";
+import {
+  PageContainer,
+  ProTable,
+  ProColumns,
+} from "@ant-design/pro-components";
+
 import { useRef } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { getCurrentFarmTrips } from "@/features/farmbreeder/api/trip/all.api";

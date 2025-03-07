@@ -19,14 +19,19 @@ type TripItem = {
 };
 
 const statusColors: Record<string, { color: string; background: string }> = {
-  Available: { color: "#1890ff", background: "#e6f7ff" }, // Light Blue
-  "Not Available": { color: "#595959", background: "#f0f0f0" }, // Gray
-  Full: { color: "#ff85c0", background: "#fff0f6" }, // Pink
-  "Registration Closed": { color: "#fa8c16", background: "#fff7e6" }, // Orange
-  "Not Started": { color: "#fadb14", background: "#feffe6" }, // Yellow
-  "On Going": { color: "#1677ff", background: "#e6f4ff" }, // Blue
-  Completed: { color: "#389e0d", background: "#f6ffed" }, // Green
-  Canceled: { color: "#cf1322", background: "#fff1f0" }, // Red
+  Available: { color: "#1890ff", background: "#e6f7ff" },
+  "Not Available": { color: "#595959", background: "#f0f0f0" },
+  Full: { color: "#ff85c0", background: "#fff0f6" },
+  "Registration Closed": { color: "#fa8c16", background: "#fff7e6" },
+  "Not Started": { color: "#fadb14", background: "#feffe6" },
+  "On Going": { color: "#1677ff", background: "#e6f4ff" },
+  Completed: { color: "#389e0d", background: "#f6ffed" },
+  Canceled: { color: "#cf1322", background: "#fff1f0" },
+};
+
+const typeColors: Record<string, { color: string; background: string }> = {
+  Scheduled: { color: "#ffffff", background: "#2FBFDE" },
+  Customized: { color: "#ffffff", background: "#5A6ACF" },
 };
 
 const columns: ProColumns<TripItem>[] = [
@@ -54,47 +59,68 @@ const columns: ProColumns<TripItem>[] = [
     filters: true,
     ellipsis: true,
   },
-  // {
-  //   title: "Status",
-  //   dataIndex: "tripStatus",
-  //   key: "status",
-  //   render: (_, entity) => {
-  //     if (!entity || !entity.tripStatus) return "-"; // Prevent crashes
+  {
+    title: "Status",
+    dataIndex: "tripStatus",
+    key: "status",
+    render: (_, entity) => {
+      if (!entity || !entity.tripStatus) return "-";
 
-  //     const status = entity.tripStatus as keyof typeof statusColors; // Type safety
-  //     const style = statusColors[status] || {
-  //       color: "#000",
-  //       background: "#eee",
-  //     };
+      const status = entity.tripStatus as keyof typeof statusColors;
+      const style = statusColors[status] || {
+        color: "#000",
+        background: "#eee",
+      };
 
-  //     if (typeof window === "undefined") {
-  //       // Prevent errors during SSR
-  //       return status;
-  //     }
+      if (typeof window === "undefined") {
+        return status;
+      }
 
-  //     return (
-  //       <Tag
-  //         style={{
-  //           color: style.color,
-  //           backgroundColor: style.background,
-  //           borderRadius: 12,
-  //           padding: "4px 12px",
-  //           fontWeight: 500,
-  //         }}
-  //       >
-  //         {status}
-  //       </Tag>
-  //     );
-  //   },
-  // },
-
+      return (
+        <Tag
+          style={{
+            color: style.color,
+            backgroundColor: style.background,
+            borderRadius: 12,
+            padding: "4px 12px",
+            fontWeight: 500,
+          }}
+        >
+          {status}
+        </Tag>
+      );
+    },
+  },
   {
     title: "Type",
     dataIndex: "tripType",
-    valueType: "select",
-    valueEnum: {
-      open: { text: "Scheduled", status: "Processing" },
-      closed: { text: "Customized", status: "Success" },
+    key: "type",
+    render: (_, entity) => {
+      if (!entity || !entity.tripType) return "-";
+
+      const type = entity.tripType as keyof typeof typeColors;
+      const style = typeColors[type] || {
+        color: "#000",
+        background: "#eee",
+      };
+
+      if (typeof window === "undefined") {
+        return type;
+      }
+
+      return (
+        <Tag
+          style={{
+            color: style.color,
+            backgroundColor: style.background,
+            borderRadius: 12,
+            padding: "4px 12px",
+            fontWeight: 500,
+          }}
+        >
+          {type}
+        </Tag>
+      );
     },
   },
 ];

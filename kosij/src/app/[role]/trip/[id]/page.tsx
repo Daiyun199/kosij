@@ -24,10 +24,8 @@ function Page() {
       try {
         const response = await api.get(`/staff/trip/${id}`);
         const data = response.data.value;
-        // const customerResponse = await api.get(`trip/${id}/trip-bookings`);
-        // const customerData = customerResponse.data.value;
+
         if (!data) throw new Error("No data returned from API");
-        // if (!customerData) throw new Error("No Customer Booking");
 
         setTripData({
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -88,6 +86,9 @@ function Page() {
               (p: { description: string }) => p.description
             ),
             depositPolicy: data.tourResponse.paymentPolicy.map(
+              (p: { description: string }) => p.description
+            ),
+            promotionPolicy: data.tourResponse.promotionPolicy.map(
               (p: { description: string }) => p.description
             ),
             itinerary:

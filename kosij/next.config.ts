@@ -14,6 +14,7 @@ const nextConfig: NextConfig = {
       { protocol: "https", hostname: "www.pondexperts.ca" },
       { protocol: "https", hostname: "rinkoonline.com" },
       { protocol: "https", hostname: "visinhcakoi.com" },
+      { protocol: "https", hostname: "i.pinimg.com" },
     ],
   },
 

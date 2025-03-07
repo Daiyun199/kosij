@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 "use client";
 export const dynamic = "force-dynamic";
@@ -16,15 +17,13 @@ function Page() {
   const [searchValue, setSearchValue] = useState<string>("");
   const [filteredData, setFilteredData] = useState<SalesStaff[]>([]);
   const router = useRouter();
-  const [searchParams, setSearchParams] = useState<URLSearchParams | null>(
-    null
-  );
   const [tripId, setTripId] = useState<string | null>(null);
+  const [requestId, setRequestId] = useState<string | null>(null);
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
-    setSearchParams(params);
     setTripId(params.get("tripId"));
+    setRequestId(params.get("requestId"));
   }, []);
   useEffect(() => {
     fetchSalesStaff();
@@ -59,23 +58,24 @@ function Page() {
     setFilteredData(filtered);
   };
   const handleAssignStaff = async (staffId: string) => {
-    if (!tripId) {
-      toast.error("Trip ID is missing.");
+    if (!tripId && !requestId) {
+      toast.error("Trip ID or Request ID is missing.");
       return;
     }
 
+    const endpoint = tripId
+      ? `/trip/${tripId}/staff-assigment`
+      : `/trip-request/${requestId}/staff-assigment`;
+
     try {
-      const response = await api.put(`/trip/${tripId}/staff-assigment`, {
-        staffId,
-      });
+      const response = await api.put(endpoint, { staffId });
 
       if (response.status === 200) {
         toast.success(response.data.message || "Staff assigned successfully!");
-        router.push(`/manager/trip/${tripId}`);
+        router.push(tripId ? `/manager/trip/${tripId}` : `/manager/requests`);
       } else {
         toast.error(response.data.value || "Failed to assign staff.");
       }
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
       const errorMessage =
         error.response?.data?.value ||
@@ -128,7 +128,7 @@ function Page() {
         { text: "Active", value: "Active" },
         { text: "Inactive", value: "Inactive" },
       ],
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+
       onFilter: (value: any, record: SalesStaff) => record.status === value,
     },
     {

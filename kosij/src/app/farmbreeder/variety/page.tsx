@@ -2,7 +2,11 @@
 
 import { PageContainer } from "@ant-design/pro-layout";
 import { Button, Image, message, Space } from "antd";
-import { EditOutlined, MinusCircleOutlined, PlusCircleOutlined } from "@ant-design/icons";
+import {
+  EditOutlined,
+  MinusCircleOutlined,
+  PlusCircleOutlined,
+} from "@ant-design/icons";
 import { ProCard } from "@ant-design/pro-components";
 import { VarietyDto } from "@/lib/domain/Variety/Variety.dto";
 import { useEffect, useState } from "react";
@@ -67,7 +71,17 @@ function Page() {
       }}
     >
       <section className="mt-5">
-        <Button style={{ backgroundColor: "#149D52", color: "#fff", height: "40px", fontWeight: "normal" }} icon={<PlusCircleOutlined />}>Add Variety</Button>
+        <Button
+          style={{
+            backgroundColor: "#149D52",
+            color: "#fff",
+            height: "40px",
+            fontWeight: "normal",
+          }}
+          icon={<PlusCircleOutlined />}
+        >
+          Add Variety
+        </Button>
       </section>
       <section className="mt-5 grid grid-cols-2 gap-10 px-layout pb-layout">
         {loading && <p>Loading varieties...</p>}
@@ -82,7 +96,10 @@ function Page() {
                 title={variety.varietyName}
               >
                 <div className="absolute top-3 right-3 flex gap-2">
-                  <EditOutlined className="text-gray-600 hover:text-gray-800 cursor-pointer" onClick={handleOpen} />
+                  <EditOutlined
+                    className="text-gray-600 hover:text-gray-800 cursor-pointer"
+                    onClick={handleOpen}
+                  />
                   <MinusCircleOutlined className="text-gray-600 hover:text-gray-800 cursor-pointer" />
                 </div>
 
@@ -100,7 +117,6 @@ function Page() {
                       style={{ objectFit: "cover", borderRadius: "8px" }}
                     />
                   </div>
-
                   <div className="flex-1">
                     <p className="text-gray-600">{variety.description}</p>
                   </div>
@@ -109,7 +125,11 @@ function Page() {
             ))
           : !loading && !error && <p>No varieties available</p>}
       </section>
-      <UpdateVarietyModal visible={isModalOpen} onCancel={handleClose} onSubmit={handleSubmit}/>
+      <UpdateVarietyModal
+        visible={isModalOpen}
+        onCancel={handleClose}
+        onSubmit={handleSubmit}
+      />
     </PageContainer>
   );
 }

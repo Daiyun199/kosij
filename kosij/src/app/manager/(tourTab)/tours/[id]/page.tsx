@@ -74,6 +74,15 @@ function Page() {
                   .map((policy: { description: any }) => policy.description)
                   .join("<br>")
               : "",
+          promotionPolicy:
+            data.promotionPolicy && data.promotionPolicy.length > 0
+              ? data.promotionPolicy
+                  .map(
+                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                    (promotion: { description: any }) => promotion.description
+                  )
+                  .join("<br>")
+              : "",
 
           itinerary:
             data.tourDetails?.map(

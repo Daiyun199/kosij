@@ -178,6 +178,12 @@ export default function CreateTourStep1({
               <Form.Item
                 label="Registration Days Before:"
                 name="registrationDaysBefore"
+                rules={[
+                  {
+                    required: true,
+                    message: "Please input the Registration Days Before!!!",
+                  },
+                ]}
               >
                 <InputNumber
                   min={1}
@@ -188,6 +194,12 @@ export default function CreateTourStep1({
               <Form.Item
                 label="Registration Conditions:"
                 name="registrationConditions"
+                rules={[
+                  {
+                    required: true,
+                    message: "Please input the Registration Conditions!!!",
+                  },
+                ]}
               >
                 <Input
                   placeholder="Enter registration conditions"

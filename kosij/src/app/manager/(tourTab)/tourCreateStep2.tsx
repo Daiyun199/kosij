@@ -47,7 +47,8 @@ export default function CreateTourStep2({
 
   useEffect(() => {
     updateData(days);
-  }, [days, updateData]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [days]);
 
   const handleTimeChange = (
     dayIndex: number,

@@ -24,22 +24,23 @@ const staffOptions = [
 function SelectStaff() {
   const [selected, setSelected] = useState<string | null>(null);
   const router = useRouter();
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const [searchParams, setSearchParams] = useState<URLSearchParams | null>(
-    null
-  );
   const [tripId, setTripId] = useState<string | null>(null);
+  const [requestId, setRequestId] = useState<string | null>(null);
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
-    setSearchParams(params);
     setTripId(params.get("tripId"));
+    setRequestId(params.get("requestId"));
   }, []);
+  const filteredStaffOptions =
+    requestId && !tripId
+      ? staffOptions.filter((staff) => staff.id === "sale")
+      : staffOptions;
+
   return (
     <ManagerLayout title="Select Staff">
       <div className="flex justify-center items-center min-h-screen bg-gray-100">
         <div className="bg-white p-12 rounded-2xl shadow-2xl w-[800px] h-[650px] flex flex-col justify-between text-center">
-          {/* Tiêu đề */}
           <div>
             <h2 className="text-4xl font-bold text-gray-800">
               Please select the staff
@@ -50,7 +51,7 @@ function SelectStaff() {
           </div>
 
           <div className="flex justify-center gap-10">
-            {staffOptions.map((staff) => (
+            {filteredStaffOptions.map((staff) => (
               <Card
                 key={staff.id}
                 className={cn(
@@ -77,11 +78,13 @@ function SelectStaff() {
               )}
               disabled={!selected}
               onClick={() => {
-                if (!tripId) return;
+                if (!tripId && !requestId) return;
 
                 const url =
                   selected === "sale"
-                    ? `/manager/selectStaff/sales?tripId=${tripId}`
+                    ? `/manager/selectStaff/sales?${
+                        tripId ? `tripId=${tripId}` : `requestId=${requestId}`
+                      }`
                     : `/manager/selectStaff/consultants?tripId=${tripId}`;
 
                 router.push(url);

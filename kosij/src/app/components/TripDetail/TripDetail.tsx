@@ -115,6 +115,14 @@ const TripDetail = ({ data, role }: { data: any; role: string }) => {
             ))}
           </ul>
         </Card>
+        <Card className="mt-4 border border-gray-200 shadow-sm">
+          <h3 className="font-semibold">Promotion Policy</h3>
+          <ul className="list-disc pl-5">
+            {data.tour.promotionPolicy.map((item: string, index: number) => (
+              <li key={index}>{item}</li>
+            ))}
+          </ul>
+        </Card>
 
         <div className="mt-4">
           <Collapse accordion>

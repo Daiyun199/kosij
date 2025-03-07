@@ -21,11 +21,11 @@ const BookingPage: React.FC = () => {
           <Card title="Start Date" bgColor="bg-orange-400 text-white">
             2025-05-15 <br /> to <br /> 2025-05-20
           </Card>
-          <div></div> {/** Empty Center Cell */}
+          <div></div>
           <Card title="Number of Customers" bgColor="bg-purple-500 text-white">
             4 ADULTS, 1 CHILD (10 YEARS OLD)
           </Card>
-          {/** Bottom Row */}
+
           <Card title="List of Koi Varieties" bgColor="bg-blue-600 text-white">
             HIGH-QUALITY SHOWA OR SANKE
           </Card>

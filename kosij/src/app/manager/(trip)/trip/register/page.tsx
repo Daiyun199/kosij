@@ -48,7 +48,7 @@ const CreateTripPage: React.FC = () => {
 
   const handleSubmit = async () => {
     try {
-      const response = await api.post("trip", tripData);
+      const response = await api.post("trip/scheduled", tripData);
       console.log("Trip Created:", response.data);
       toast.success("Trip created successfully!");
       setErrors({});

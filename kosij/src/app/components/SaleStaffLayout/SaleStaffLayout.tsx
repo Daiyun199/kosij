@@ -40,7 +40,7 @@ const SaleStaffLayout: React.FC<SaleStaffLayoutProps> = ({
         {
           label: "Trip Request",
           icon: "fa-solid fa-clipboard-list",
-          path: "/sale-staff/trip-requests",
+          path: "/sale/requests",
         },
         {
           label: "Scheduled Trip",

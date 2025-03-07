@@ -14,11 +14,6 @@ const ManagerLayout: React.FC<ManagerLayoutProps> = ({ title, children }) => {
       icon: "fa-solid fa-house",
       children: [
         {
-          label: "Profile",
-          icon: "fa-solid fa-user",
-          path: "/manager/profile",
-        },
-        {
           label: "Dashboard",
           icon: "fa-solid fa-chart-pie",
           path: "/manager/dashboard",
@@ -44,6 +39,11 @@ const ManagerLayout: React.FC<ManagerLayoutProps> = ({ title, children }) => {
           label: "Notifications",
           icon: "fa-solid fa-bell",
           path: "/manager/notification",
+        },
+        {
+          label: "Profile",
+          icon: "fa-solid fa-user",
+          path: "/manager/profile",
         },
       ],
     },
@@ -91,6 +91,11 @@ const ManagerLayout: React.FC<ManagerLayoutProps> = ({ title, children }) => {
           label: "Order",
           icon: "fa-solid fa-shopping-cart",
           path: "/manager/order-list",
+        },
+        {
+          label: "Request",
+          icon: "fa-solid fa-paper-plane",
+          path: "/manager/requests",
         },
         {
           label: "Tour",

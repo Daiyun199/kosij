@@ -75,11 +75,9 @@ function Page() {
         <div style={{ display: "flex", gap: "8px" }}>
           <Button
             type="primary"
-            onClick={() =>
-              router.push(`/manager/selectStaff?requestId=${record.key}`)
-            }
+            onClick={() => router.push(`/sale/requests/${record.key}`)}
           >
-            Handle
+            Detail
           </Button>
         </div>
       ),

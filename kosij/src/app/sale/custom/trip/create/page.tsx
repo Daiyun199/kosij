@@ -1,17 +1,20 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 import { useState } from "react";
 
 import { Day } from "@/model/Day";
-import CreateTourStep2 from "./tourCreateStep2";
-import CreateTourStep1 from "./tourCreateStep1";
-import CreateTourStep3 from "./tourCreateStep3";
-import CreateTourStep4 from "./tourCreateStep4";
+
+import { useSearchParams } from "next/navigation";
+import CreateTripStep1 from "./tourCreateStep1";
+import CreateTripStep3 from "./tourCreateStep3";
+import CreateTripStep2 from "./tourCreateStep2";
+import CreateTripStep4 from "./tourCreateStep4";
 
 export default function CreateTour() {
   const [step, setStep] = useState(1);
-
+  const searchParams = useSearchParams();
+  const tripRequestId = searchParams.get("tripRequestId");
   const [tourData, setTourData] = useState({
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     step1: {} as Record<string, any>,
     step2: [] as Day[],
     step3: {
@@ -19,7 +22,7 @@ export default function CreateTour() {
       notIncludes: "",
       price: [] as [],
     },
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+
     step4: {} as Record<string, any>,
   });
   const resetForm = () => {
@@ -33,9 +36,9 @@ export default function CreateTour() {
       },
       step4: {},
     });
-    setStep(1);
+    setStep(0);
   };
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+
   const updateStepData = (stepKey: keyof typeof tourData, data: any) => {
     setTourData((prev) => ({
       ...prev,
@@ -48,14 +51,16 @@ export default function CreateTour() {
   return (
     <div>
       {step === 1 && (
-        <CreateTourStep1
+        <CreateTripStep1
+          tripRequestId={tripRequestId}
+          onBack={() => setStep(0)}
           onNext={() => setStep(2)}
           data={tourData.step1}
           updateData={(data) => updateStepData("step1", data)}
         />
       )}
       {step === 2 && (
-        <CreateTourStep2
+        <CreateTripStep2
           onBack={() => setStep(1)}
           onNext={() => setStep(3)}
           data={tourData.step2}
@@ -64,7 +69,7 @@ export default function CreateTour() {
         />
       )}
       {step === 3 && (
-        <CreateTourStep3
+        <CreateTripStep3
           onBack={() => setStep(2)}
           onNext={() => setStep(4)}
           data={tourData.step3}
@@ -72,7 +77,8 @@ export default function CreateTour() {
         />
       )}
       {step === 4 && (
-        <CreateTourStep4
+        <CreateTripStep4
+          tripRequestId={tripRequestId}
           onBack={() => setStep(3)}
           tourData={tourData}
           formData={tourData.step4}

@@ -1,42 +1,29 @@
 "use client";
 
-import { Card, Descriptions, Tag } from "antd";
+import { Button, Card, Descriptions, Tag } from "antd";
 import { useEffect, useState } from "react";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import api from "@/config/axios.config";
 import SaleStaffLayout from "@/app/components/SaleStaffLayout/SaleStaffLayout";
-
-type KoiVariety = {
-  id: string;
-  Name: string;
-};
-
-type TripRequest = {
-  NumberOfPassengers: number;
-  Nights: number;
-  DepartureDate: string;
-  DeparturePoint: string;
-  AffordableBudget: number;
-  NameContact: string;
-  EmailContact: string;
-  PhoneContact: string;
-  Note: string;
-  ListKoiVarietyRequests: KoiVariety[];
-};
+import { TripRequestScpeacial } from "@/model/TripRequestSpeacial";
 
 const TripRequestDetail = () => {
-  const [trip, setTrip] = useState<TripRequest | null>(null);
+  const [trip, setTrip] = useState<TripRequestScpeacial | null>(null);
   const params = useParams() as { id: string };
-
+  const router = useRouter();
   const id = params.id;
   useEffect(() => {
     api
       .get(`/staff/trip-request/${id}`)
-      .then((response) => setTrip(response.data))
+      .then((response) => setTrip(response.data.value))
       .catch((error) => console.error("Error fetching data:", error));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-
+  const handleBooking = () => {
+    router.push(
+      `/sale/custom/trip/booking?tripRequestId=${id}&tripBookingId=${trip?.tripBookingId}`
+    );
+  };
   if (!trip) return <p>Loading...</p>;
 
   return (
@@ -44,34 +31,34 @@ const TripRequestDetail = () => {
       <Card title="Trip Request Details" bordered={false}>
         <Descriptions bordered column={1}>
           <Descriptions.Item label="Number of Passengers">
-            {trip.NumberOfPassengers}
+            {trip.numberOfPassengers}
           </Descriptions.Item>
-          <Descriptions.Item label="Nights">{trip.Nights}</Descriptions.Item>
+          <Descriptions.Item label="Nights">{trip.nights}</Descriptions.Item>
           <Descriptions.Item label="Departure Date">
-            {trip.DepartureDate}
+            {trip.departureDate}
           </Descriptions.Item>
           <Descriptions.Item label="Departure Point">
-            {trip.DeparturePoint}
+            {trip.departurePoint}
           </Descriptions.Item>
           <Descriptions.Item label="Affordable Budget">
-            {trip.AffordableBudget} VND
+            {trip.affordableBudget} VND
           </Descriptions.Item>
           <Descriptions.Item label="Contact Name">
-            {trip.NameContact}
+            {trip.nameContact}
           </Descriptions.Item>
           <Descriptions.Item label="Contact Email">
-            {trip.EmailContact}
+            {trip.emailContact}
           </Descriptions.Item>
           <Descriptions.Item label="Contact Phone">
-            {trip.PhoneContact}
+            {trip.phoneContact}
           </Descriptions.Item>
           <Descriptions.Item label="Note">
-            {trip.Note || "No notes available"}
+            {trip.note || "No notes available"}
           </Descriptions.Item>
           <Descriptions.Item label="Koi Variety">
-            {trip?.ListKoiVarietyRequests &&
-            trip.ListKoiVarietyRequests.length > 0 ? (
-              trip.ListKoiVarietyRequests.map((item) => (
+            {trip?.listKoiVarietyRequests &&
+            trip.listKoiVarietyRequests.length > 0 ? (
+              trip.listKoiVarietyRequests.map((item) => (
                 <Tag color="blue" key={item.id}>
                   {item.Name}
                 </Tag>
@@ -81,6 +68,35 @@ const TripRequestDetail = () => {
             )}
           </Descriptions.Item>
         </Descriptions>
+        <div className="mt-4 flex gap-4">
+          <Button
+            type="default"
+            onClick={handleBooking}
+            className="bg-blue-500 hover:bg-blue-600 text-white"
+          >
+            Booking
+          </Button>
+          {trip.requestStatus === "Assigned" && (
+            <Button
+              type="default"
+              className="bg-blue-500 hover:bg-blue-600 text-white"
+              onClick={() =>
+                router.push(`/sale/custom/trip/create?tripRequestId=${id}`)
+              }
+            >
+              Handle
+            </Button>
+          )}
+          <Button
+            type="default"
+            className="bg-blue-500 hover:bg-blue-600 text-white"
+            onClick={() =>
+              router.push(`/sale/custom/trip/${trip.customizedTripResponse.id}`)
+            }
+          >
+            Trip
+          </Button>
+        </div>
       </Card>
     </SaleStaffLayout>
   );

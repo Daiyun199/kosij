@@ -1,5 +1,5 @@
 export type VarietyDto = {
-    id: number,
+    varietyId: number,
     varietyName: string,
     description: string,
     imageUrl: string[],

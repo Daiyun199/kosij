@@ -24,6 +24,7 @@ function Page() {
     try {
       const response = await api.get("/farm-variety/varieties/current-farm");
       setVarieties(response.data.value || []);
+      setSelectedVariety(response.data.value?.[0]);
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (error) {
       message.error("Failed to load varieties!");
@@ -39,12 +40,26 @@ function Page() {
 
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  const handleOpen = () => setIsModalOpen(true);
-  const handleClose = () => setIsModalOpen(false);
+  const [selectedVariety, setSelectedVariety] = useState<VarietyDto | null>(
+    null
+  );
+
+  const handleOpen = (variety: VarietyDto) => {
+    setSelectedVariety(variety);
+    setIsModalOpen(true);
+    setTimeout(() => {
+      console.log("Updated selectedVariety:", variety.varietyId);
+    }, 0);
+  };
+  const handleClose = () => {
+    setIsModalOpen(false);
+    setSelectedVariety(null);
+  };
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const handleSubmit = (values: any) => {
     console.log("Form Submitted:", values);
     setIsModalOpen(false);
+    fetchVarietyList();
   };
   return (
     <PageContainer
@@ -91,14 +106,14 @@ function Page() {
           ? varieties.map((variety, index) => (
               <ProCard
                 className="relative h-96 w-full shadow-md p-4 flex flex-col justify-center"
-                key={variety.id || `variety-${index}`}
+                key={variety.varietyId || `variety-${index}`}
                 bordered
                 title={variety.varietyName}
               >
                 <div className="absolute top-3 right-3 flex gap-2">
                   <EditOutlined
                     className="text-gray-600 hover:text-gray-800 cursor-pointer"
-                    onClick={handleOpen}
+                    onClick={() => handleOpen(variety)}
                   />
                   <MinusCircleOutlined className="text-gray-600 hover:text-gray-800 cursor-pointer" />
                 </div>
@@ -129,6 +144,7 @@ function Page() {
         visible={isModalOpen}
         onCancel={handleClose}
         onSubmit={handleSubmit}
+        varietyId={selectedVariety?.varietyId}
       />
     </PageContainer>
   );

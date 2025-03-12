@@ -15,7 +15,7 @@ function Page() {
   useEffect(() => {
     const fetchTripRequests = async () => {
       try {
-        const response = await api.get("/trip-requests?requestStatus=Assigned");
+        const response = await api.get("/trip-requests");
         setTripRequests(
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
           response.data.value.map((request: any) => ({
@@ -75,11 +75,9 @@ function Page() {
         <div style={{ display: "flex", gap: "8px" }}>
           <Button
             type="primary"
-            onClick={() =>
-              router.push(`/manager/selectStaff?requestId=${record.key}`)
-            }
+            onClick={() => router.push(`/sale/requests/${record.key}`)}
           >
-            Handle
+            Detail
           </Button>
         </div>
       ),

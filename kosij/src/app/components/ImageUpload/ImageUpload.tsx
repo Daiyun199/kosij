@@ -33,7 +33,7 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({
     <div style={{ textAlign: "center", position: "relative" }}>
       <div
         style={{
-          width: "250px", // Tăng kích thước hình tròn
+          width: "250px",
           height: "250px",
           borderRadius: "50%",
           overflow: "hidden",
@@ -47,7 +47,6 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({
         onMouseEnter={(e) => (e.currentTarget.style.borderColor = "#007bff")}
         onMouseLeave={(e) => (e.currentTarget.style.borderColor = "#ccc")}
       >
-        {/* Ảnh chiếm hết khung tròn */}
         <Image src={preview!} alt="Avatar" layout="fill" objectFit="cover" />
         <div
           style={{

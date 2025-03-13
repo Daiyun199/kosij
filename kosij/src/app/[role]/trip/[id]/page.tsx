@@ -35,6 +35,7 @@ function Page() {
             phoneNumber: customer.phoneNumber,
             email: customer.email,
           })),
+          id: data.id,
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
           notes: data.notes.map((note: any) => ({
             userName: note.userName,
@@ -144,7 +145,7 @@ function Page() {
   return (
     <LayoutComponent title="Trip Detail">
       <div className="p-6 max-w-5xl mx-auto">
-        <TripDetail data={tripData} role={role as string} />
+        <TripDetail data={tripData} role={role as string} custom={false} />
         {role === "manager" && (
           <div className="p-6 max-w-5xl mx-auto flex justify-end">
             <Button type="primary" size="large" onClick={handleSelectStaff}>

@@ -6,13 +6,23 @@ import Image from "next/image";
 
 const { Panel } = Collapse;
 
-const TripDetail = ({ data, role }: { data: any; role: string }) => {
+const TripDetail = ({
+  data,
+  role,
+  custom = false,
+}: {
+  data: any;
+  role: string;
+  custom: boolean;
+}) => {
   const router = useRouter();
-
+  console.log(data.id);
   const handleViewDetail = (tripBookingId: number) => {
     const basePath =
       role === "sale" ? "/sale/passengers" : "/manager/passengers";
-    router.push(`${basePath}/${tripBookingId}`);
+    router.push(
+      `${basePath}/${tripBookingId}?tripId=${data.id}&custom=${custom}`
+    );
   };
   return (
     <div className="p-6 max-w-5xl mx-auto">
@@ -26,8 +36,8 @@ const TripDetail = ({ data, role }: { data: any; role: string }) => {
         <Image
           src={data.tour.imageUrl}
           alt={data.tour.title}
-          width={600} // Thay đổi theo kích thước phù hợp
-          height={256} // 64 * 4px = 256px
+          width={600}
+          height={256}
           className="object-cover rounded-md mb-4 w-full h-64"
         />
         <div className="flex justify-between items-center">

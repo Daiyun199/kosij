@@ -4,17 +4,18 @@ import SaleStaffLayout from "@/app/components/SaleStaffLayout/SaleStaffLayout";
 import TripDetail from "@/app/components/TripDetail/TripDetail";
 import api from "@/config/axios.config";
 import { TripData } from "@/model/TripData";
-import { Empty } from "antd";
+import { Button, Empty } from "antd";
 
-import { useParams } from "next/navigation";
+import { useParams, useRouter, useSearchParams } from "next/navigation";
 
 import React, { useEffect, useState } from "react";
 
 function Page() {
   const params = useParams() as { id: string };
-
+  const router = useRouter();
   const id = params.id;
-  const { role } = useParams();
+  const searchParams = useSearchParams();
+  const tripRequestId = searchParams.get("requestId");
   const [tripData, setTripData] = useState<TripData | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -27,7 +28,7 @@ function Page() {
         const data = response.data.value;
 
         if (!data) throw new Error("No data returned from API");
-
+        console.log(data);
         setTripData({
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
           customers: data.tripBookingsResponse.map((customer: any) => ({
@@ -36,6 +37,7 @@ function Page() {
             phoneNumber: customer.phoneNumber,
             email: customer.email,
           })),
+          id: data.id,
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
           notes: data.notes.map((note: any) => ({
             userName: note.userName,
@@ -143,7 +145,14 @@ function Page() {
   return (
     <SaleStaffLayout title="Trip Detail">
       <div className="p-6 max-w-5xl mx-auto">
-        <TripDetail data={tripData} role={role as string} />
+        <TripDetail data={tripData} role="sale" custom={true} />
+        <Button
+          type="default"
+          className="bg-blue-500 hover:bg-blue-600 text-white"
+          onClick={() => router.push(`/sale/requests/${tripRequestId}`)}
+        >
+          Back
+        </Button>
       </div>
     </SaleStaffLayout>
   );

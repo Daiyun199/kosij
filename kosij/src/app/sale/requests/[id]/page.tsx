@@ -91,7 +91,9 @@ const TripRequestDetail = () => {
             type="default"
             className="bg-blue-500 hover:bg-blue-600 text-white"
             onClick={() =>
-              router.push(`/sale/custom/trip/${trip.customizedTripResponse.id}`)
+              router.push(
+                `/sale/custom/trip/${trip.customizedTripResponse.id}?requestId=${id}`
+              )
             }
           >
             Trip

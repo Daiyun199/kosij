@@ -107,34 +107,48 @@ export default function CreateTourStep0() {
     try {
       await form.validateFields();
 
-      const formattedPassengers = passengers.map((p) => ({
-        fullName: p.fullName,
-        ageGroup: p.ageGroup,
-        dateOfBirth: p.dateOfBirth
-          ? {
-              year: p.dateOfBirth.year(),
-              month: p.dateOfBirth.month() + 1,
-              day: p.dateOfBirth.date(),
-              dayOfWeek: p.dateOfBirth.format("dddd"),
-            }
-          : null,
-        sex: p.sex,
-        nationality: p.nationality,
-        email: p.email,
-        phoneNumber: p.phoneNumber,
-        passport: p.passport,
-        isRepresentative: p.isRepresentative,
-        hasVisa: p.hasVisa,
-      }));
+      const formattedPassengers = passengers.map((p) => {
+        const passengerData: any = {
+          fullName: p.fullName,
+          ageGroup: p.ageGroup,
+          dateOfBirth: p.dateOfBirth
+            ? {
+                year: p.dateOfBirth.year(),
+                month: p.dateOfBirth.month() + 1,
+                day: p.dateOfBirth.date(),
+                dayOfWeek: p.dateOfBirth.format("dddd"),
+              }
+            : null,
+          sex: p.sex,
+          nationality: p.nationality,
+          email: p.email,
+          phoneNumber: p.phoneNumber,
+          passport: p.passport,
+          isRepresentative: p.isRepresentative,
+          hasVisa: p.hasVisa,
+        };
+
+        if (tripBookingId && p.key !== String(Date.now())) {
+          passengerData.id = p.key;
+        }
+
+        return passengerData;
+      });
 
       const payload = {
-        tripRequestId,
-
         passengerDetailsRequests: formattedPassengers,
         note: form.getFieldValue("note"),
       };
 
-      await api.post("/trip-booking/customized", payload);
+      if (!tripBookingId) {
+        await api.post("/trip-booking/customized", {
+          tripRequestId,
+          ...payload,
+        });
+      } else {
+        await api.put(`/trip-booking/${tripBookingId}/passengers`, payload);
+      }
+
       toast.success("Trip booking submitted successfully!");
       router.push(`/sale/requests/${tripRequestId}`);
     } catch (error) {
@@ -142,6 +156,7 @@ export default function CreateTourStep0() {
       toast.error("Failed to submit trip booking.");
     }
   };
+
   const columns: ColumnsType<Passenger> = [
     {
       title: "Full Name",

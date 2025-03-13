@@ -8,24 +8,30 @@ import TripBookingInfo from "@/app/components/TripBookingInfo/TripBookingInfo";
 import api from "@/config/axios.config";
 import { Passenger } from "@/model/Passenger";
 import { Button, Card, Empty } from "antd";
-import { useParams, useRouter } from "next/navigation";
+import { useParams, useRouter, useSearchParams } from "next/navigation";
 import React, { useEffect, useState } from "react";
 
 function Page() {
   const params = useParams() as { id: string };
   const router = useRouter();
   const id = params.id;
+  const searchParams = useSearchParams();
+  const tripId = searchParams.get("tripId");
   const { role } = useParams();
   const LayoutComponent = role === "manager" ? ManagerLayout : SaleStaffLayout;
   const [passengerData, setPassengerData] = useState<Passenger[]>([]);
   const [loading, setLoading] = useState(true);
   const [tripBooking, setTripBooking] = useState(null);
+
+  const custom = searchParams.get("custom") === "true";
   useEffect(() => {
     if (!id) return;
 
     const fetchData = async () => {
       try {
-        const passengerResponse = await api.get(`/trip/${id}/trip-bookings`);
+        const passengerResponse = await api.get(
+          `/trip/${tripId}/trip-bookings`
+        );
         const tripBookings = passengerResponse.data.value;
         if (!tripBookings.length) throw new Error("No trip bookings found");
 
@@ -51,6 +57,9 @@ function Page() {
 
     fetchData();
   }, [id]);
+  const handleBack = () => {
+    router.push(`/sale/custom/trip/${tripId}`);
+  };
   const handleSelectStaff = () => {
     router.push(`/manager/selectStaff?tripId=${id}`);
   };
@@ -67,6 +76,13 @@ function Page() {
           <Card className="flex justify-center items-center h-40">
             <Empty description="No passengers found" />
           </Card>
+        )}
+        {custom && (
+          <div className="mt-4">
+            <Button type="primary" onClick={handleBack}>
+              Back
+            </Button>
+          </div>
         )}
       </div>
     </LayoutComponent>

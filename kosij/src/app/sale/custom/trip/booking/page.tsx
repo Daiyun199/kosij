@@ -151,9 +151,14 @@ export default function CreateTourStep0() {
 
       toast.success("Trip booking submitted successfully!");
       router.push(`/sale/requests/${tripRequestId}`);
-    } catch (error) {
-      console.log(error);
-      toast.error("Failed to submit trip booking.");
+    } catch (error: any) {
+      if (error.response && error.response.data) {
+        const errorMessage =
+          error.response.data.message || "Failed to submit trip booking.";
+        toast.error(errorMessage);
+      } else {
+        toast.error("Failed to submit trip booking.");
+      }
     }
   };
 

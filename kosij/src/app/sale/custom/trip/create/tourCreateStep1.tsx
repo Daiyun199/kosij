@@ -9,6 +9,7 @@ import {
   Form,
   Input,
   InputNumber,
+  Select,
   Upload,
 } from "antd";
 import timezone from "dayjs/plugin/timezone";
@@ -210,11 +211,18 @@ export default function CreateTripStep1({
               rules={[
                 {
                   required: true,
-                  message: "Please input the Departure Point!!!",
+                  message: "Please select the Departure Point!!!",
                 },
               ]}
             >
-              <Input placeholder="Enter departure points" value={departure} />
+              <Select placeholder="Select departure point">
+                <Select.Option value="Tân Sơn Nhất (TP Hồ Chí Minh)">
+                  Tân Sơn Nhất (TP Hồ Chí Minh)
+                </Select.Option>
+                <Select.Option value="Nội Bài (Hà Nội)">
+                  Nội Bài (Hà Nội)
+                </Select.Option>
+              </Select>
             </Form.Item>
 
             <Form.Item
@@ -309,7 +317,7 @@ export default function CreateTripStep1({
             </div>
 
             <div className="grid grid-cols-2 gap-4">
-              <Form.Item label="Standard Price ($):" name="standardPrice">
+              <Form.Item label="Standard Price (VND):" name="standardPrice">
                 <InputNumber
                   min={0}
                   className="w-full"
@@ -323,7 +331,7 @@ export default function CreateTripStep1({
                 />
               </Form.Item>
 
-              <Form.Item label="Visa Fee ($):" name="visaFee">
+              <Form.Item label="Visa Fee (VND):" name="visaFee">
                 <InputNumber
                   min={0}
                   className="w-full"

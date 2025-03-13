@@ -41,7 +41,7 @@ const TripRequestDetail = () => {
             {trip.departurePoint}
           </Descriptions.Item>
           <Descriptions.Item label="Affordable Budget">
-            {trip.affordableBudget} VND
+            {trip.affordableBudget.toLocaleString("en-US")} VND
           </Descriptions.Item>
           <Descriptions.Item label="Contact Name">
             {trip.nameContact}
@@ -56,11 +56,10 @@ const TripRequestDetail = () => {
             {trip.note || "No notes available"}
           </Descriptions.Item>
           <Descriptions.Item label="Koi Variety">
-            {trip?.listKoiVarietyRequests &&
-            trip.listKoiVarietyRequests.length > 0 ? (
-              trip.listKoiVarietyRequests.map((item) => (
+            {trip?.tripRequestVariety && trip.tripRequestVariety.length > 0 ? (
+              trip.tripRequestVariety.map((item) => (
                 <Tag color="blue" key={item.id}>
-                  {item.Name}
+                  {item.koiName}
                 </Tag>
               ))
             ) : (

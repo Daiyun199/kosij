@@ -13,7 +13,7 @@ export type TripRequestScpeacial = {
   phoneContact: string;
   note: string;
   requestStatus: string;
-  listKoiVarietyRequests: KoiVariety[];
+  tripRequestVariety: KoiVariety[];
   customizedTripResponse: {
     id: any;
   };

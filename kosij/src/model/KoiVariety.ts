@@ -1,4 +1,4 @@
 export type KoiVariety = {
   id: string;
-  Name: string;
+  koiName: string;
 };

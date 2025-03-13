@@ -29,19 +29,11 @@ function Page() {
 
     const fetchData = async () => {
       try {
-        const passengerResponse = await api.get(
-          `/trip/${tripId}/trip-bookings`
+        const passengerResponses = await api.get(
+          `/trip-booking/${id}/passengers`
         );
-        const tripBookings = passengerResponse.data.value;
-        if (!tripBookings.length) throw new Error("No trip bookings found");
-
-        const passengerRequests = tripBookings.map(
-          (booking: { tripBookingId: number }) =>
-            api.get(`/trip-booking/${booking.tripBookingId}/passengers`)
-        );
-
-        const passengerResponses = await Promise.all(passengerRequests);
-        const passengers = passengerResponses.flatMap((res) => res.data.value);
+        const passengers = passengerResponses.data.value;
+        console.log("passengers", passengers);
         setPassengerData(passengers);
 
         const tripBookingResponse = await api.get(`/trip-booking/${id}`);

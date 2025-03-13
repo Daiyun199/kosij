@@ -191,7 +191,7 @@ const CreateTripStep4: React.FC<CreateTourStep4Props> = ({
               ageFrom: price.start,
               ageTo: price.end,
               description: price.description,
-              penaltyRate: price.rate / 100,
+              pricingRate: price.rate / 100,
             })
           ) || [],
         tourPaymentRequests:
@@ -205,7 +205,7 @@ const CreateTripStep4: React.FC<CreateTourStep4Props> = ({
               dayFrom: deposit.start,
               dayTo: deposit.end,
               description: deposit.description,
-              penaltyRate: deposit.rate / 100,
+              depositRate: deposit.rate / 100,
             })
           ) || [],
         tourCancellationRequests:

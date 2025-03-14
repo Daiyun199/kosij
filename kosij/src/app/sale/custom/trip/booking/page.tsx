@@ -108,9 +108,12 @@ export default function CreateTourStep0() {
   const handleSubmit = async () => {
     try {
       await form.validateFields();
-
+      console.log("Passengers before formatting:", passengers);
       const formattedPassengers = passengers.map((p) => {
+        const isNewPassenger = !p.key || p.key.length > 10;
+
         const passengerData: any = {
+          id: isNewPassenger ? null : p.key,
           fullName: p.fullName,
           ageGroup: p.ageGroup,
           dateOfBirth: p.dateOfBirth
@@ -130,17 +133,14 @@ export default function CreateTourStep0() {
           hasVisa: p.hasVisa,
         };
 
-        if (tripBookingId && p.key !== String(Date.now())) {
-          passengerData.id = p.key;
-        }
-
         return passengerData;
       });
-
+      console.log("Formatted passengers:", formattedPassengers);
       const payload = {
         passengerDetailsRequests: formattedPassengers,
         note: form.getFieldValue("note"),
       };
+      console.log("Final Payload:", payload);
 
       if (!tripBookingId) {
         await api.post("/trip-booking/customized", {
@@ -148,15 +148,15 @@ export default function CreateTourStep0() {
           ...payload,
         });
       } else {
+        delete payload.note;
         await api.put(`/trip-booking/${tripBookingId}/passengers`, payload);
       }
-
       toast.success("Trip booking submitted successfully!");
       router.push(`/sale/requests/${tripRequestId}`);
     } catch (error: any) {
       if (error.response && error.response.data) {
         const errorMessage =
-          error.response.data.message || "Failed to submit trip booking.";
+          error.response.data.value || "Failed to submit trip booking.";
         toast.error(errorMessage);
       } else {
         toast.error("Failed to submit trip booking.");

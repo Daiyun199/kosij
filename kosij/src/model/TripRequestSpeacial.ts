@@ -13,8 +13,28 @@ export type TripRequestScpeacial = {
   phoneContact: string;
   note: string;
   requestStatus: string;
+  modifiedNote: string;
+  feedback: string;
+
   tripRequestVariety: KoiVariety[];
   customizedTripResponse: {
     id: any;
+  };
+  quotationResponse: {
+    quotationDetail: {
+      ageGroup: string;
+      quantity: number;
+      unitPrice: number;
+      totalAmount: number;
+    }[];
+    totalAmountPreDiscount: number;
+    discountPercentage: string;
+    discountAmount: number;
+    totalAmountAfterDiscount: number;
+    visaDetail: {
+      quantity: number;
+      unitPrice: number;
+    };
+    grandTotalAmount: number;
   };
 };

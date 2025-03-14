@@ -42,7 +42,15 @@ const TripDetail = ({
         />
         <div className="flex justify-between items-center">
           <h2 className="text-xl font-semibold">{data.tour.title}</h2>
-          <Tag color={data.tripStatus === "Active" ? "green" : "red"}>
+          <Tag
+            color={
+              ["Available", "Ongoing"].includes(data.tripStatus)
+                ? "green"
+                : data.tripStatus === "NotStarted"
+                ? "gray"
+                : "red"
+            }
+          >
             {data.tripStatus}
           </Tag>
         </div>

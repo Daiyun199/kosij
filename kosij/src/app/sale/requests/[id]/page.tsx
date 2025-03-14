@@ -1,6 +1,14 @@
 "use client";
 
-import { Button, Card, Descriptions, Tag } from "antd";
+import {
+  Button,
+  Card,
+  Descriptions,
+  Divider,
+  Table,
+  Tag,
+  Typography,
+} from "antd";
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import api from "@/config/axios.config";
@@ -55,6 +63,12 @@ const TripRequestDetail = () => {
           <Descriptions.Item label="Note">
             {trip.note || "No notes available"}
           </Descriptions.Item>
+          <Descriptions.Item label="Modified Note">
+            {trip.modifiedNote || "No modified notes available"}
+          </Descriptions.Item>
+          <Descriptions.Item label="Feedback">
+            {trip.feedback || "No feedback provided"}
+          </Descriptions.Item>
           <Descriptions.Item label="Koi Variety">
             {trip?.tripRequestVariety && trip.tripRequestVariety.length > 0 ? (
               trip.tripRequestVariety.map((item) => (
@@ -67,38 +81,96 @@ const TripRequestDetail = () => {
             )}
           </Descriptions.Item>
         </Descriptions>
-        <div className="mt-4 flex gap-4">
-          <Button
-            type="default"
-            onClick={handleBooking}
-            className="bg-blue-500 hover:bg-blue-600 text-white"
-          >
-            Booking
-          </Button>
-          {trip.requestStatus === "Assigned" && (
-            <Button
-              type="default"
-              className="bg-blue-500 hover:bg-blue-600 text-white"
-              onClick={() =>
-                router.push(`/sale/custom/trip/create?tripRequestId=${id}`)
-              }
-            >
-              Handle
-            </Button>
-          )}
+      </Card>
+      <Card title="Quotation Details" bordered={false} className="mt-4">
+        <Descriptions bordered column={1}>
+          <Descriptions.Item label="Total Amount Before Discount">
+            {trip.quotationResponse.totalAmountPreDiscount.toLocaleString(
+              "en-US"
+            )}{" "}
+            VND
+          </Descriptions.Item>
+          <Descriptions.Item label="Discount Percentage">
+            {trip.quotationResponse.discountPercentage}
+          </Descriptions.Item>
+          <Descriptions.Item label="Discount Amount">
+            {trip.quotationResponse.discountAmount.toLocaleString("en-US")} VND
+          </Descriptions.Item>
+          <Descriptions.Item label="Total Amount After Discount">
+            {trip.quotationResponse.totalAmountAfterDiscount.toLocaleString(
+              "en-US"
+            )}{" "}
+            VND
+          </Descriptions.Item>
+          <Descriptions.Item label="Visa Details">
+            {trip.quotationResponse.visaDetail.quantity} Visa(s) -
+            {trip.quotationResponse.visaDetail.unitPrice.toLocaleString(
+              "en-US"
+            )}{" "}
+            VND each
+          </Descriptions.Item>
+          <Descriptions.Item label="Grand Total Amount">
+            {trip.quotationResponse.grandTotalAmount.toLocaleString("en-US")}{" "}
+            VND
+          </Descriptions.Item>
+        </Descriptions>
+
+        <Divider />
+
+        <Typography.Title level={5}>Quotation Breakdown</Typography.Title>
+        <Table
+          dataSource={trip.quotationResponse.quotationDetail}
+          rowKey={(record) => record.ageGroup}
+          pagination={false}
+        >
+          <Table.Column title="Age Group" dataIndex="ageGroup" key="ageGroup" />
+          <Table.Column title="Quantity" dataIndex="quantity" key="quantity" />
+          <Table.Column
+            title="Unit Price"
+            dataIndex="unitPrice"
+            key="unitPrice"
+            render={(price) => `${price.toLocaleString("en-US")} VND`}
+          />
+          <Table.Column
+            title="Total Amount"
+            dataIndex="totalAmount"
+            key="totalAmount"
+            render={(amount) => `${amount.toLocaleString("en-US")} VND`}
+          />
+        </Table>
+      </Card>
+
+      <div className="mt-4 flex gap-4">
+        <Button
+          type="default"
+          onClick={handleBooking}
+          className="bg-blue-500 hover:bg-blue-600 text-white"
+        >
+          Booking
+        </Button>
+        {trip.requestStatus === "Assigned" && (
           <Button
             type="default"
             className="bg-blue-500 hover:bg-blue-600 text-white"
             onClick={() =>
-              router.push(
-                `/sale/custom/trip/${trip.customizedTripResponse.id}?requestId=${id}`
-              )
+              router.push(`/sale/custom/trip/create?tripRequestId=${id}`)
             }
           >
-            Trip
+            Handle
           </Button>
-        </div>
-      </Card>
+        )}
+        <Button
+          type="default"
+          className="bg-blue-500 hover:bg-blue-600 text-white"
+          onClick={() =>
+            router.push(
+              `/sale/custom/trip/${trip.customizedTripResponse.id}?requestId=${id}`
+            )
+          }
+        >
+          Trip
+        </Button>
+      </div>
     </SaleStaffLayout>
   );
 };

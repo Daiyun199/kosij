@@ -85,33 +85,45 @@ const TripRequestDetail = () => {
       <Card title="Quotation Details" bordered={false} className="mt-4">
         <Descriptions bordered column={1}>
           <Descriptions.Item label="Total Amount Before Discount">
-            {trip.quotationResponse.totalAmountPreDiscount.toLocaleString(
-              "en-US"
-            )}{" "}
-            VND
+            {trip.quotationResponse?.totalAmountPreDiscount
+              ? `${trip.quotationResponse.totalAmountPreDiscount.toLocaleString(
+                  "en-US"
+                )} VND`
+              : "N/A"}
           </Descriptions.Item>
           <Descriptions.Item label="Discount Percentage">
-            {trip.quotationResponse.discountPercentage}
+            {trip.quotationResponse?.discountPercentage ?? "N/A"}
           </Descriptions.Item>
           <Descriptions.Item label="Discount Amount">
-            {trip.quotationResponse.discountAmount.toLocaleString("en-US")} VND
+            {trip.quotationResponse?.discountAmount
+              ? `${trip.quotationResponse.discountAmount.toLocaleString(
+                  "en-US"
+                )} VND`
+              : "N/A"}
           </Descriptions.Item>
           <Descriptions.Item label="Total Amount After Discount">
-            {trip.quotationResponse.totalAmountAfterDiscount.toLocaleString(
-              "en-US"
-            )}{" "}
-            VND
+            {trip.quotationResponse?.totalAmountAfterDiscount
+              ? `${trip.quotationResponse.totalAmountAfterDiscount.toLocaleString(
+                  "en-US"
+                )} VND`
+              : "N/A"}
           </Descriptions.Item>
           <Descriptions.Item label="Visa Details">
-            {trip.quotationResponse.visaDetail.quantity} Visa(s) -
-            {trip.quotationResponse.visaDetail.unitPrice.toLocaleString(
-              "en-US"
-            )}{" "}
-            VND each
+            {trip.quotationResponse?.visaDetail?.quantity &&
+            trip.quotationResponse?.visaDetail?.unitPrice
+              ? `${
+                  trip.quotationResponse.visaDetail.quantity
+                } Visa(s) - ${trip.quotationResponse.visaDetail.unitPrice.toLocaleString(
+                  "en-US"
+                )} VND each`
+              : "N/A"}
           </Descriptions.Item>
           <Descriptions.Item label="Grand Total Amount">
-            {trip.quotationResponse.grandTotalAmount.toLocaleString("en-US")}{" "}
-            VND
+            {trip.quotationResponse?.grandTotalAmount
+              ? `${trip.quotationResponse.grandTotalAmount.toLocaleString(
+                  "en-US"
+                )} VND`
+              : "N/A"}
           </Descriptions.Item>
         </Descriptions>
 
@@ -119,8 +131,8 @@ const TripRequestDetail = () => {
 
         <Typography.Title level={5}>Quotation Breakdown</Typography.Title>
         <Table
-          dataSource={trip.quotationResponse.quotationDetail}
-          rowKey={(record) => record.ageGroup}
+          dataSource={trip.quotationResponse?.quotationDetail ?? []}
+          rowKey={(record) => record.ageGroup ?? Math.random().toString()}
           pagination={false}
         >
           <Table.Column title="Age Group" dataIndex="ageGroup" key="ageGroup" />
@@ -129,13 +141,17 @@ const TripRequestDetail = () => {
             title="Unit Price"
             dataIndex="unitPrice"
             key="unitPrice"
-            render={(price) => `${price.toLocaleString("en-US")} VND`}
+            render={(price) =>
+              price ? `${price.toLocaleString("en-US")} VND` : "N/A"
+            }
           />
           <Table.Column
             title="Total Amount"
             dataIndex="totalAmount"
             key="totalAmount"
-            render={(amount) => `${amount.toLocaleString("en-US")} VND`}
+            render={(amount) =>
+              amount ? `${amount.toLocaleString("en-US")} VND` : "N/A"
+            }
           />
         </Table>
       </Card>

@@ -20,21 +20,21 @@ export type TripRequestScpeacial = {
   customizedTripResponse: {
     id: any;
   };
-  quotationResponse: {
-    quotationDetail: {
-      ageGroup: string;
-      quantity: number;
-      unitPrice: number;
-      totalAmount: number;
+  quotationResponse?: {
+    quotationDetail?: {
+      ageGroup?: string;
+      quantity?: number;
+      unitPrice?: number;
+      totalAmount?: number;
     }[];
-    totalAmountPreDiscount: number;
-    discountPercentage: string;
-    discountAmount: number;
-    totalAmountAfterDiscount: number;
-    visaDetail: {
-      quantity: number;
-      unitPrice: number;
+    totalAmountPreDiscount?: number;
+    discountPercentage?: string;
+    discountAmount?: number;
+    totalAmountAfterDiscount?: number;
+    visaDetail?: {
+      quantity?: number;
+      unitPrice?: number;
     };
-    grandTotalAmount: number;
+    grandTotalAmount?: number;
   };
 };

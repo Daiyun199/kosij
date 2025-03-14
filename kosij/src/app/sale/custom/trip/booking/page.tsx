@@ -9,6 +9,8 @@ import {
   Select,
   Table,
   Button as AntButton,
+  Modal,
+  Popconfirm,
 } from "antd";
 import { Button } from "@/components/ui/button";
 import { PlusOutlined, DeleteOutlined } from "@ant-design/icons";
@@ -285,11 +287,27 @@ export default function CreateTourStep0() {
       title: "Actions",
       dataIndex: "actions",
       render: (_, record) => (
-        <AntButton
-          icon={<DeleteOutlined />}
-          onClick={() => removePassenger(record.key)}
-          danger
-        />
+        <Popconfirm
+          title="Are you sure to delete this passenger?"
+          onConfirm={() => removePassenger(record.key)}
+          okText="Yes"
+          cancelText="No"
+        >
+          <AntButton
+            type="primary"
+            danger
+            icon={
+              <DeleteOutlined
+                style={{
+                  color: "red",
+                  background: "white",
+                  padding: 4,
+                  borderRadius: "50%",
+                }}
+              />
+            }
+          />
+        </Popconfirm>
       ),
     },
   ];

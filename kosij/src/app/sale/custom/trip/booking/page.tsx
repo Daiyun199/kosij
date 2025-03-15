@@ -112,22 +112,48 @@ export default function CreateTourStep0() {
   const handleSubmit = async () => {
     try {
       await form.validateFields();
-      console.log("Passengers before formatting:", passengers);
-      const formattedPassengers = passengers.map((p) => {
-        const isNewPassenger = !p.key || p.key.length > 10;
 
-        const passengerData: any = {
-          id: isNewPassenger ? null : p.key,
+      if (passengers.length === 0) {
+        toast.error("Please add at least one passenger.");
+        return;
+      }
+
+      let hasAdult = false;
+      let invalidAge = false;
+
+      const formattedPassengers = passengers.map((p) => {
+        if (!p.dateOfBirth) {
+          invalidAge = true;
+          return null;
+        }
+
+        const age = dayjs().year() - p.dateOfBirth.year();
+
+        if (p.ageGroup === "Adult") {
+          hasAdult = true;
+          if (age < 18) {
+            invalidAge = true;
+          }
+        } else if (p.ageGroup === "Child") {
+          if (age < 2 || age > 11) {
+            invalidAge = true;
+          }
+        } else if (p.ageGroup === "Infant") {
+          if (age >= 2) {
+            invalidAge = true;
+          }
+        }
+
+        return {
+          id: p.key.length > 10 ? null : p.key,
           fullName: p.fullName,
           ageGroup: p.ageGroup,
-          dateOfBirth: p.dateOfBirth
-            ? {
-                year: p.dateOfBirth.year(),
-                month: p.dateOfBirth.month() + 1,
-                day: p.dateOfBirth.date(),
-                dayOfWeek: p.dateOfBirth.format("dddd"),
-              }
-            : null,
+          dateOfBirth: {
+            year: p.dateOfBirth.year(),
+            month: p.dateOfBirth.month() + 1,
+            day: p.dateOfBirth.date(),
+            dayOfWeek: p.dateOfBirth.format("dddd"),
+          },
           sex: p.sex,
           nationality: p.nationality,
           email: p.email,
@@ -136,9 +162,17 @@ export default function CreateTourStep0() {
           isRepresentative: p.isRepresentative,
           hasVisa: p.hasVisa,
         };
-
-        return passengerData;
       });
+
+      if (!hasAdult) {
+        toast.error("At least one passenger must be an adult (18+ years old).");
+        return;
+      }
+
+      if (invalidAge) {
+        toast.error("Please check the age requirements for each age group.");
+        return;
+      }
 
       const payload = {
         passengerDetailsRequests: formattedPassengers,
@@ -150,7 +184,11 @@ export default function CreateTourStep0() {
         tripBookingId === "null" ||
         tripBookingId === "undefined"
       ) {
-        payload.passengerDetailsRequests.forEach((p) => delete p.id);
+        payload.passengerDetailsRequests = JSON.parse(
+          JSON.stringify(payload.passengerDetailsRequests, (key, value) =>
+            key === "id" ? undefined : value
+          )
+        );
         await api.post("/trip-booking/customized", {
           tripRequestId,
           ...payload,
@@ -239,25 +277,47 @@ export default function CreateTourStep0() {
     {
       title: "Email",
       dataIndex: "email",
+      width: 200, // Đặt chiều rộng cột
       render: (_, record, index) => (
-        <Input
-          value={record.email}
-          onChange={(e) => updatePassenger(index, "email", e.target.value)}
-        />
+        <Form.Item
+          name={["passengers", index, "email"]}
+          rules={[
+            { required: true, message: "Email is required!" },
+            { type: "email", message: "Invalid email format!" },
+          ]}
+          style={{ marginBottom: 0 }} // Giảm khoảng cách dưới Form.Item
+        >
+          <Input
+            value={record.email}
+            onChange={(e) => updatePassenger(index, "email", e.target.value)}
+          />
+        </Form.Item>
       ),
     },
     {
       title: "Phone Number",
       dataIndex: "phoneNumber",
+      width: 180,
       render: (_, record, index) => (
-        <Input
-          value={record.phoneNumber}
-          onChange={(e) =>
-            updatePassenger(index, "phoneNumber", e.target.value)
-          }
-        />
+        <Form.Item
+          name={["passengers", index, "phoneNumber"]}
+          rules={[
+            { required: true, message: "Phone number is required!" },
+            { pattern: /^[0-9]{8,15}$/, message: "Must be 8-15 digits!" },
+          ]}
+          validateTrigger="onBlur"
+          style={{ marginBottom: 0 }}
+        >
+          <Input
+            value={record.phoneNumber}
+            onChange={(e) =>
+              updatePassenger(index, "phoneNumber", e.target.value)
+            }
+          />
+        </Form.Item>
       ),
     },
+
     {
       title: "Passport",
       dataIndex: "passport",

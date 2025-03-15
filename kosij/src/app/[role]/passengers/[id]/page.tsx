@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 "use client";
 import ManagerLayout from "@/app/components/ManagerLayout/ManagerLayout";
@@ -29,6 +30,10 @@ function Page() {
 
     const fetchData = async () => {
       try {
+        const tripBookingResponse = await api.get(`/trip-booking/${id}`);
+        const tripBookingData = tripBookingResponse.data.value;
+
+        setTripBooking({ ...tripBookingData, id });
         const passengerResponses = await api.get(
           `/trip-booking/${id}/passengers`
         );
@@ -36,15 +41,11 @@ function Page() {
           (passenger: Passenger) => ({
             ...passenger,
             tripBookingId: id,
+            tripBookingStatus: tripBookingData.tripBookingStatus,
           })
         );
         console.log("passengers", passengers);
         setPassengerData(passengers);
-
-        const tripBookingResponse = await api.get(`/trip-booking/${id}`);
-        const tripBookingData = tripBookingResponse.data.value;
-
-        setTripBooking({ ...tripBookingData, id });
       } catch (error) {
         console.error("Lỗi tải dữ liệu:", error);
       } finally {
@@ -54,21 +55,40 @@ function Page() {
 
     fetchData();
   }, [id]);
+  const handleUpdatePassenger = (updatedPassenger: Passenger) => {
+    setPassengerData((prevPassengers) =>
+      prevPassengers.map((p) =>
+        p.id === updatedPassenger.id ? updatedPassenger : p
+      )
+    );
+  };
   const handleBack = () => {
     router.push(`/sale/custom/trip/${tripId}`);
   };
   const handleSelectStaff = () => {
     router.push(`/manager/selectStaff?tripId=${id}`);
   };
-
+  const handleUpdateTripBooking = (updatedTripBooking: any) => {
+    setTripBooking(updatedTripBooking);
+  };
   if (loading) return <p>Loading...</p>;
 
   return (
     <LayoutComponent title="Passenger List">
       <div className="p-6 max-w-5xl mx-auto">
-        {tripBooking && <TripBookingInfo tripBooking={tripBooking} />}
+        {tripBooking && (
+          <TripBookingInfo
+            tripBooking={tripBooking}
+            onUpdateTripBooking={handleUpdateTripBooking}
+            PassengerList={passengerData}
+          />
+        )}
+
         {passengerData.length ? (
-          <PassengerList passengers={passengerData} />
+          <PassengerList
+            passengers={passengerData}
+            onUpdatePassenger={handleUpdatePassenger}
+          />
         ) : (
           <Card className="flex justify-center items-center h-40">
             <Empty description="No passengers found" />

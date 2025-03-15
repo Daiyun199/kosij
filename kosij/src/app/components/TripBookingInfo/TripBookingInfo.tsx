@@ -11,10 +11,21 @@ import { storage } from "@/config/firebase";
 import api from "@/config/axios.config";
 import { toast } from "react-toastify";
 import { useParams } from "next/navigation";
+import { Passenger } from "@/model/Passenger";
 
 const { Title, Text } = Typography;
-
-const TripBookingInfo: React.FC<TripBookingProps> = ({ tripBooking }) => {
+interface TripBookingInfoProps extends TripBookingProps {
+  onUpdateTripBooking: (updatedTripBooking: any) => void;
+  PassengerList: Passenger[];
+}
+const TripBookingInfo: React.FC<TripBookingInfoProps> = ({
+  tripBooking,
+  onUpdateTripBooking,
+  PassengerList,
+}) => {
+  const allPassengersHaveVisa = PassengerList.every(
+    (passenger) => passenger.hasVisa
+  );
   const [outboundFile, setOutboundFile] = useState<File | null>(null);
   const [inboundFile, setInboundFile] = useState<File | null>(null);
   const [uploading, setUploading] = useState(false);
@@ -69,12 +80,23 @@ const TripBookingInfo: React.FC<TripBookingProps> = ({ tripBooking }) => {
         inboundUrl = await uploadFileToFirebase(inboundFile);
       }
 
-      await updateTripBooking(tripBooking.id, {
+      const allPassengersHaveVisa = PassengerList.every(
+        (passenger) => passenger.hasVisa
+      );
+
+      const updatedTripBooking = {
+        ...tripBooking,
         outboundTicketUrl: outboundUrl,
         inboundTicketUrl: inboundUrl,
         note: "Updated ticket images",
-        tripBookingStatus: tripBooking.tripBookingStatus,
-      });
+        tripBookingStatus:
+          outboundUrl && inboundUrl && allPassengersHaveVisa
+            ? "Processing"
+            : tripBooking.tripBookingStatus,
+      };
+
+      await updateTripBooking(tripBooking.id, updatedTripBooking);
+      onUpdateTripBooking(updatedTripBooking);
     } catch (error) {
       message.error("Failed to update trip booking.");
     } finally {
@@ -157,7 +179,7 @@ const TripBookingInfo: React.FC<TripBookingProps> = ({ tripBooking }) => {
         </Descriptions.Item>
       </Descriptions>
 
-      {!isManager && (
+      {!isManager && allPassengersHaveVisa && (
         <Button
           type="primary"
           className="mt-4"

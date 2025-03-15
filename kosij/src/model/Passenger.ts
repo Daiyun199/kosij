@@ -11,4 +11,5 @@ export interface Passenger {
   isRepresentative: boolean;
   hasVisa: boolean;
   tripBookingId: number;
+  tripBookingStatus: string;
 }

@@ -13,6 +13,7 @@ import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { storage } from "@/config/firebase";
 import { Button, Card, Input } from "antd";
 import { ValueType } from "rc-input/lib/interface";
+import { useRouter, useSearchParams } from "next/navigation";
 
 interface CreateTourStep4Props {
   tripRequestId: any;
@@ -46,6 +47,8 @@ const CreateTripStep4: React.FC<CreateTourStep4Props> = ({
   const [policies, setPolicies] = useState(formData.policies || []);
   const [deposits, setDeposits] = useState(formData.deposits || []);
   const [promotions, setPromotions] = useState(formData.promotions || []);
+  const router = useRouter();
+
   useEffect(() => {
     setFormData({ ...formData, policies, deposits, promotions });
   }, [policies, deposits, promotions]);
@@ -242,7 +245,7 @@ const CreateTripStep4: React.FC<CreateTourStep4Props> = ({
 
       toast.success("Tour created successfully!");
       resetForm();
-      setStep(1);
+      router.push(`/sale/requests/${tripRequestId}`);
     } catch (error: any) {
       if (error.response && error.response.data) {
         const errorMessage =

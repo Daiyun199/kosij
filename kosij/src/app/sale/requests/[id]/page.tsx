@@ -164,7 +164,7 @@ const TripRequestDetail = () => {
         >
           Booking
         </Button>
-        {trip.requestStatus === "Assigned" && (
+        {trip.requestStatus === "Assigned" && trip.tripBookingId && (
           <Button
             type="default"
             className="bg-blue-500 hover:bg-blue-600 text-white"
@@ -175,17 +175,19 @@ const TripRequestDetail = () => {
             Handle
           </Button>
         )}
-        <Button
-          type="default"
-          className="bg-blue-500 hover:bg-blue-600 text-white"
-          onClick={() =>
-            router.push(
-              `/sale/custom/trip/${trip.customizedTripResponse.id}?requestId=${id}`
-            )
-          }
-        >
-          Trip
-        </Button>
+        {trip.customizedTripResponse?.id && (
+          <Button
+            type="default"
+            className="bg-blue-500 hover:bg-blue-600 text-white"
+            onClick={() =>
+              router.push(
+                `/sale/custom/trip/${trip.customizedTripResponse.id}?requestId=${id}`
+              )
+            }
+          >
+            Trip
+          </Button>
+        )}
       </div>
     </SaleStaffLayout>
   );

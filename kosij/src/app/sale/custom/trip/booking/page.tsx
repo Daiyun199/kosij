@@ -44,7 +44,11 @@ export default function CreateTourStep0() {
   const router = useRouter();
   useEffect(() => {
     const fetchPassengers = async () => {
-      if (!tripBookingId) {
+      if (
+        !tripBookingId ||
+        tripBookingId === "null" ||
+        tripBookingId === "undefined"
+      ) {
         return;
       }
 
@@ -135,14 +139,18 @@ export default function CreateTourStep0() {
 
         return passengerData;
       });
-      console.log("Formatted passengers:", formattedPassengers);
+
       const payload = {
         passengerDetailsRequests: formattedPassengers,
         note: form.getFieldValue("note"),
       };
-      console.log("Final Payload:", payload);
 
-      if (!tripBookingId) {
+      if (
+        !tripBookingId ||
+        tripBookingId === "null" ||
+        tripBookingId === "undefined"
+      ) {
+        payload.passengerDetailsRequests.forEach((p) => delete p.id);
         await api.post("/trip-booking/customized", {
           tripRequestId,
           ...payload,
@@ -151,6 +159,7 @@ export default function CreateTourStep0() {
         delete payload.note;
         await api.put(`/trip-booking/${tripBookingId}/passengers`, payload);
       }
+
       toast.success("Trip booking submitted successfully!");
       router.push(`/sale/requests/${tripRequestId}`);
     } catch (error: any) {

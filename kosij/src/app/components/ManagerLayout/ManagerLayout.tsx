@@ -98,6 +98,11 @@ const ManagerLayout: React.FC<ManagerLayoutProps> = ({ title, children }) => {
           path: "/manager/requests",
         },
         {
+          label: "Approve",
+          icon: "fa-solid fa-list-check",
+          path: "/manager/approves",
+        },
+        {
           label: "Tour",
           icon: "fa-solid fa-map",
           children: [

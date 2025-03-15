@@ -277,7 +277,7 @@ export default function CreateTourStep0() {
     {
       title: "Email",
       dataIndex: "email",
-      width: 200, // Đặt chiều rộng cột
+      width: 200,
       render: (_, record, index) => (
         <Form.Item
           name={["passengers", index, "email"]}
@@ -285,7 +285,7 @@ export default function CreateTourStep0() {
             { required: true, message: "Email is required!" },
             { type: "email", message: "Invalid email format!" },
           ]}
-          style={{ marginBottom: 0 }} // Giảm khoảng cách dưới Form.Item
+          style={{ marginBottom: 0 }}
         >
           <Input
             value={record.email}

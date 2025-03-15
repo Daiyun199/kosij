@@ -17,7 +17,7 @@ const CreateTourStep3: React.FC<CreateTourStep3Props> = ({
   const [includes, setIncludes] = useState(data.includes ?? "");
   const [notIncludes, setNotIncludes] = useState(data.notIncludes ?? "");
   const [price, setPrice] = useState(data.price || []);
-  console.log("Check", data);
+
   useEffect(() => {
     updateData({ ...data, includes, notIncludes, price: price ?? [] });
   }, [data, includes, notIncludes, price, updateData]);
@@ -57,7 +57,9 @@ const CreateTourStep3: React.FC<CreateTourStep3Props> = ({
       { id: Date.now(), start: "", end: "", rate: "", description: "" },
     ]);
   };
-
+  useEffect(() => {
+    updateData({ includes, notIncludes, price });
+  }, [includes, notIncludes, price, updateData]);
   useEffect(() => {
     api
       .get("/config-templates/TourPrice")
@@ -72,13 +74,12 @@ const CreateTourStep3: React.FC<CreateTourStep3Props> = ({
             description: price.description,
           }));
           setPrice(fetchedPrices);
-          updateData({ includes, notIncludes, price: fetchedPrices });
         }
       })
       .catch((error) => {
         console.error("Error fetching policies:", error);
       });
-  }, [updateData, includes, notIncludes, setPrice]);
+  }, []);
 
   const removePrice = (id: number) => {
     setPrice(price.filter((item) => item.id !== id));

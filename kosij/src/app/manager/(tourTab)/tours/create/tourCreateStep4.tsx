@@ -153,6 +153,7 @@ const CreateTourStep4: React.FC<CreateTourStep4Props> = ({
       } else {
         console.error("Invalid image file:", tourData.step1.img);
       }
+      console.log(tourData.step2);
       const requestBody = {
         imageUrl: imageUrl || "",
         tourName: tourData.step1.tourName || "",

@@ -88,7 +88,18 @@ export default function CreateTripStep2({
     return newErrors.length === 0;
   };
   const handleNext = () => {
+    const updatedDays = days.map((day) => ({
+      ...day,
+      activities: day.activities.map((activity) => ({
+        ...activity,
+        time: activity.time || "07:00",
+      })),
+    }));
+
+    setDays(updatedDays);
+
     if (validateForm()) {
+      updateData(updatedDays);
       onNext();
     }
   };

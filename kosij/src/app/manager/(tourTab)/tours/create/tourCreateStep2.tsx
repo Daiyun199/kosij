@@ -1,5 +1,5 @@
 "use client";
-import ManagerLayout from "@/app/components/ManagerLayout/ManagerLayout";
+
 import { Activity } from "@/model/Activity";
 import { Day } from "@/model/Day";
 import { useState, useEffect } from "react";
@@ -7,6 +7,7 @@ import { FiArrowLeft, FiPlus, FiTrash } from "react-icons/fi";
 import { Select, Input, Button, Card, Typography, TimePicker } from "antd";
 import dayjs from "dayjs";
 import api from "@/config/axios.config";
+import SaleStaffLayout from "@/app/components/SaleStaffLayout/SaleStaffLayout";
 
 const { TextArea } = Input;
 const { Title, Text } = Typography;
@@ -87,7 +88,18 @@ export default function CreateTourStep2({
     return newErrors.length === 0;
   };
   const handleNext = () => {
+    const updatedDays = days.map((day) => ({
+      ...day,
+      activities: day.activities.map((activity) => ({
+        ...activity,
+        time: activity.time || "07:00",
+      })),
+    }));
+
+    setDays(updatedDays);
+
     if (validateForm()) {
+      updateData(updatedDays);
       onNext();
     }
   };
@@ -151,7 +163,7 @@ export default function CreateTourStep2({
   };
 
   return (
-    <ManagerLayout title="Tour Create">
+    <SaleStaffLayout title="Tour Create">
       <div className="p-6 bg-white shadow-lg rounded-lg max-w-3xl mx-auto">
         <Title level={2} className="text-center text-gray-800">
           TOUR INFORMATION FORM
@@ -267,6 +279,6 @@ export default function CreateTourStep2({
           </Button>
         </div>
       </div>
-    </ManagerLayout>
+    </SaleStaffLayout>
   );
 }

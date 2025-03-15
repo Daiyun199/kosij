@@ -23,22 +23,23 @@ function Page() {
   const [tripData, setTripData] = useState<Trip[]>([]);
   const [loading, setLoading] = useState(true);
   const router = useRouter();
-
   useEffect(() => {
     const fetchTrips = async () => {
       try {
         const response = await api.get("/staff/trips");
         setTripData(
-          response.data.value.map((trip: any) => ({
-            key: trip.id,
-            tourName: trip.tourName,
-            departurePoint: trip.departurePoint,
-            destinationPoint: trip.destinationPoint,
-            tripType: trip.tripType,
-            departureDate: trip.departureDate,
-            returnDate: trip.returnDate,
-            tripStatus: trip.tripStatus,
-          }))
+          response.data.value
+            .filter((trip: any) => trip.tripType === "Scheduled") // Lọc chỉ lấy tripType = "Scheduled"
+            .map((trip: any) => ({
+              key: trip.id,
+              tourName: trip.tourName,
+              departurePoint: trip.departurePoint,
+              destinationPoint: trip.destinationPoint,
+              tripType: trip.tripType,
+              departureDate: trip.departureDate,
+              returnDate: trip.returnDate,
+              tripStatus: trip.tripStatus,
+            }))
         );
       } catch (error) {
         console.error("Error fetching trips:", error);

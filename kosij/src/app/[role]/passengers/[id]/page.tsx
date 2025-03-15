@@ -32,7 +32,12 @@ function Page() {
         const passengerResponses = await api.get(
           `/trip-booking/${id}/passengers`
         );
-        const passengers = passengerResponses.data.value;
+        const passengers = passengerResponses.data.value.map(
+          (passenger: Passenger) => ({
+            ...passenger,
+            tripBookingId: id,
+          })
+        );
         console.log("passengers", passengers);
         setPassengerData(passengers);
 

@@ -10,4 +10,5 @@ export interface Passenger {
   ageGroup: string;
   isRepresentative: boolean;
   hasVisa: boolean;
+  tripBookingId: number;
 }

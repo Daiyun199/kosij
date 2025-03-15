@@ -15,6 +15,7 @@ const nextConfig: NextConfig = {
       { protocol: "https", hostname: "rinkoonline.com" },
       { protocol: "https", hostname: "visinhcakoi.com" },
       { protocol: "https", hostname: "i.pinimg.com" },
+      { protocol: "https", hostname: "images.unsplash.com" },
     ],
   },
 

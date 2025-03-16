@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import {
@@ -5,6 +6,9 @@ import {
   Card,
   Descriptions,
   Divider,
+  Input,
+  Modal,
+  Popconfirm,
   Table,
   Tag,
   Typography,
@@ -15,6 +19,7 @@ import api from "@/config/axios.config";
 import SaleStaffLayout from "@/app/components/SaleStaffLayout/SaleStaffLayout";
 import { TripRequestScpeacial } from "@/model/TripRequestSpeacial";
 import ManagerLayout from "@/app/components/ManagerLayout/ManagerLayout";
+import { toast } from "react-toastify";
 
 const TripRequestDetail = () => {
   const [trip, setTrip] = useState<TripRequestScpeacial | null>(null);
@@ -22,6 +27,22 @@ const TripRequestDetail = () => {
   const router = useRouter();
   const id = params.id;
   const { role } = useParams();
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [description, setDescription] = useState("");
+  const [actionType, setActionType] = useState<"Approve" | "Deny" | null>(null);
+
+  const handleOpenModal = (type: "Approve" | "Deny") => {
+    setActionType(type);
+    setIsModalOpen(true);
+    console.log("Opened modal with actionType:", type);
+  };
+
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+    setDescription("");
+    setActionType(null);
+  };
+
   const LayoutComponent = role === "manager" ? ManagerLayout : SaleStaffLayout;
   useEffect(() => {
     api
@@ -36,6 +57,33 @@ const TripRequestDetail = () => {
     );
   };
   if (!trip) return <p>Loading...</p>;
+  const handleSubmit = async () => {
+    if (!actionType) return;
+    const tripStatus =
+      actionType === "Approve" ? "Approved" : "ManagerRejected";
+
+    try {
+      await api.put(`/manager/trip-request/${id}`, {
+        requestStatus: tripStatus,
+        feedback: description,
+      });
+
+      toast.success(`Trip request ${actionType.toLowerCase()} successfully!`);
+      router.push("/manager/approves");
+      handleCloseModal();
+    } catch (error: any) {
+      console.error(
+        `Error ${actionType.toLowerCase()}ing trip request:`,
+        error
+      );
+
+      const errorMessage =
+        error.response?.data?.value ||
+        `Failed to ${actionType.toLowerCase()} trip request.`;
+
+      toast.error(errorMessage);
+    }
+  };
 
   return (
     <LayoutComponent title="Trip Request Detail">
@@ -160,14 +208,15 @@ const TripRequestDetail = () => {
       </Card>
 
       <div className="mt-4 flex gap-4">
-        <Button
-          type="default"
-          onClick={handleBooking}
-          className="bg-blue-500 hover:bg-blue-600 text-white"
-        >
-          Booking
-        </Button>
-
+        {role === "sale" && (
+          <Button
+            type="default"
+            onClick={handleBooking}
+            className="bg-blue-500 hover:bg-blue-600 text-white"
+          >
+            Booking
+          </Button>
+        )}
         {role === "sale" &&
           trip.requestStatus === "Assigned" &&
           trip.tripBookingId && (
@@ -181,7 +230,6 @@ const TripRequestDetail = () => {
               Handle
             </Button>
           )}
-
         {trip.customizedTripResponse?.id && (
           <Button
             type="default"
@@ -195,6 +243,52 @@ const TripRequestDetail = () => {
             Trip
           </Button>
         )}
+        {role === "manager" && (
+          <>
+            <Button
+              type="default"
+              className="bg-green-500 hover:bg-green-600 text-white"
+              onClick={() => handleOpenModal("Approve")}
+            >
+              Approve
+            </Button>
+            <Button
+              type="default"
+              className="bg-red-500 hover:bg-red-600 text-white"
+              onClick={() => handleOpenModal("Deny")}
+            >
+              Deny
+            </Button>
+          </>
+        )}
+        <Modal
+          title={`${actionType || "Approve"} Trip Request`}
+          open={isModalOpen}
+          onCancel={handleCloseModal}
+          footer={[
+            <Button key="cancel" onClick={handleCloseModal}>
+              Cancel
+            </Button>,
+            <Popconfirm
+              key="confirm"
+              title="Are you sure?"
+              description="Do you really want to proceed with this action?"
+              onConfirm={handleSubmit}
+              okText="Yes"
+              cancelText="No"
+            >
+              <Button type="primary">{actionType}</Button>
+            </Popconfirm>,
+          ]}
+        >
+          <Input.TextArea
+            rows={4}
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
+            placeholder="Enter feedback description"
+          />
+        </Modal>
+        ;
       </div>
     </LayoutComponent>
   );

@@ -1,9 +1,10 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 import ManagerLayout from "@/app/components/ManagerLayout/ManagerLayout";
 import SaleStaffLayout from "@/app/components/SaleStaffLayout/SaleStaffLayout";
 import TripDetail from "@/app/components/TripDetail/TripDetail";
 import api from "@/config/axios.config";
-import { TripData } from "@/model/TripData";
+
 import { Button, Empty } from "antd";
 import { useParams, useRouter } from "next/navigation";
 
@@ -14,7 +15,7 @@ function Page() {
   const router = useRouter();
   const id = params.id;
   const { role } = useParams();
-  const [tripData, setTripData] = useState<TripData | null>(null);
+  const [tripData, setTripData] = useState<any | null>(null);
   const [loading, setLoading] = useState(true);
   const LayoutComponent = role === "manager" ? ManagerLayout : SaleStaffLayout;
   useEffect(() => {

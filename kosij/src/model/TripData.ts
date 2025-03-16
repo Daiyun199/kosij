@@ -1,4 +1,6 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 export interface TripData {
+  requestId: any;
   id: string;
   tripType: string;
   departureDate: string;

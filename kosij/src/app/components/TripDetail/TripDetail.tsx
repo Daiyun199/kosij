@@ -21,7 +21,7 @@ const TripDetail = ({
     const basePath =
       role === "sale" ? "/sale/passengers" : "/manager/passengers";
     router.push(
-      `${basePath}/${tripBookingId}?tripId=${data.id}&custom=${custom}`
+      `${basePath}/${tripBookingId}?tripId=${data.id}&custom=${custom}&requestId=${data.requestId}`
     );
   };
   return (

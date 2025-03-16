@@ -21,6 +21,7 @@ function Page() {
   const { role } = useParams();
   const LayoutComponent = role === "manager" ? ManagerLayout : SaleStaffLayout;
   const [passengerData, setPassengerData] = useState<Passenger[]>([]);
+  const tripRequestId = searchParams.get("requestId");
   const [loading, setLoading] = useState(true);
   const [tripBooking, setTripBooking] = useState(null);
 
@@ -63,7 +64,7 @@ function Page() {
     );
   };
   const handleBack = () => {
-    router.push(`/sale/custom/trip/${tripId}`);
+    router.push(`/${role}/custom/trip/${tripId}?requestId=${tripRequestId}`);
   };
   const handleSelectStaff = () => {
     router.push(`/manager/selectStaff?tripId=${id}`);

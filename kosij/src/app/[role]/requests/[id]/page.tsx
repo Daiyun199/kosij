@@ -14,12 +14,15 @@ import { useParams, useRouter } from "next/navigation";
 import api from "@/config/axios.config";
 import SaleStaffLayout from "@/app/components/SaleStaffLayout/SaleStaffLayout";
 import { TripRequestScpeacial } from "@/model/TripRequestSpeacial";
+import ManagerLayout from "@/app/components/ManagerLayout/ManagerLayout";
 
 const TripRequestDetail = () => {
   const [trip, setTrip] = useState<TripRequestScpeacial | null>(null);
   const params = useParams() as { id: string };
   const router = useRouter();
   const id = params.id;
+  const { role } = useParams();
+  const LayoutComponent = role === "manager" ? ManagerLayout : SaleStaffLayout;
   useEffect(() => {
     api
       .get(`/staff/trip-request/${id}`)
@@ -35,7 +38,7 @@ const TripRequestDetail = () => {
   if (!trip) return <p>Loading...</p>;
 
   return (
-    <SaleStaffLayout title="Trip Request Detail">
+    <LayoutComponent title="Trip Request Detail">
       <Card title="Trip Request Details" bordered={false}>
         <Descriptions bordered column={1}>
           <Descriptions.Item label="Number of Passengers">
@@ -164,24 +167,28 @@ const TripRequestDetail = () => {
         >
           Booking
         </Button>
-        {trip.requestStatus === "Assigned" && trip.tripBookingId && (
-          <Button
-            type="default"
-            className="bg-blue-500 hover:bg-blue-600 text-white"
-            onClick={() =>
-              router.push(`/sale/custom/trip/create?tripRequestId=${id}`)
-            }
-          >
-            Handle
-          </Button>
-        )}
+
+        {role === "sale" &&
+          trip.requestStatus === "Assigned" &&
+          trip.tripBookingId && (
+            <Button
+              type="default"
+              className="bg-blue-500 hover:bg-blue-600 text-white"
+              onClick={() =>
+                router.push(`/sale/custom/trip/create?tripRequestId=${id}`)
+              }
+            >
+              Handle
+            </Button>
+          )}
+
         {trip.customizedTripResponse?.id && (
           <Button
             type="default"
             className="bg-blue-500 hover:bg-blue-600 text-white"
             onClick={() =>
               router.push(
-                `/sale/custom/trip/${trip.customizedTripResponse.id}?requestId=${id}`
+                `/${role}/custom/trip/${trip.customizedTripResponse.id}?requestId=${id}`
               )
             }
           >
@@ -189,7 +196,7 @@ const TripRequestDetail = () => {
           </Button>
         )}
       </div>
-    </SaleStaffLayout>
+    </LayoutComponent>
   );
 };
 

@@ -1,5 +1,6 @@
 "use client";
 
+import ManagerLayout from "@/app/components/ManagerLayout/ManagerLayout";
 import SaleStaffLayout from "@/app/components/SaleStaffLayout/SaleStaffLayout";
 import TripDetail from "@/app/components/TripDetail/TripDetail";
 import api from "@/config/axios.config";
@@ -15,6 +16,8 @@ function Page() {
   const router = useRouter();
   const id = params.id;
   const searchParams = useSearchParams();
+  const { role } = useParams();
+  const LayoutComponent = role === "manager" ? ManagerLayout : SaleStaffLayout;
   const tripRequestId = searchParams.get("requestId");
   const [tripData, setTripData] = useState<TripData | null>(null);
   const [loading, setLoading] = useState(true);
@@ -30,6 +33,7 @@ function Page() {
         if (!data) throw new Error("No data returned from API");
         console.log(data);
         setTripData({
+          requestId: tripRequestId,
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
           customers: data.tripBookingsResponse.map((customer: any) => ({
             tripBookingId: customer.tripBookingId,
@@ -134,27 +138,33 @@ function Page() {
 
   if (!tripData) {
     return (
-      <SaleStaffLayout title="Trip Detail">
+      <LayoutComponent title="Trip Detail">
         <div className="p-6 max-w-5xl mx-auto flex justify-center">
           <Empty description="Trip not found" />
         </div>
-      </SaleStaffLayout>
+      </LayoutComponent>
     );
   }
 
   return (
-    <SaleStaffLayout title="Trip Detail">
+    <LayoutComponent title="Trip Detail">
       <div className="p-6 max-w-5xl mx-auto">
-        <TripDetail data={tripData} role="sale" custom={true} />
+        <TripDetail data={tripData} role={role as string} custom={true} />
         <Button
           type="default"
           className="bg-blue-500 hover:bg-blue-600 text-white"
-          onClick={() => router.push(`/sale/requests/${tripRequestId}`)}
+          onClick={() =>
+            router.push(
+              role === "manager"
+                ? `/manager/requests/${tripRequestId}`
+                : `/sale/requests/${tripRequestId}`
+            )
+          }
         >
           Back
         </Button>
       </div>
-    </SaleStaffLayout>
+    </LayoutComponent>
   );
 }
 

@@ -144,16 +144,18 @@ const TripBookingInfo: React.FC<TripBookingInfoProps> = ({
               className="mb-2 rounded-lg shadow-md object-contain"
             />
           )}
-          <Upload
-            beforeUpload={(file) => {
-              setOutboundFile(file);
-              return false;
-            }}
-          >
-            <Button icon={<UploadOutlined />} disabled={uploading}>
-              Upload Outbound Ticket
-            </Button>
-          </Upload>
+          {!isManager && (
+            <Upload
+              beforeUpload={(file) => {
+                setOutboundFile(file);
+                return false;
+              }}
+            >
+              <Button icon={<UploadOutlined />} disabled={uploading}>
+                Upload Outbound Ticket
+              </Button>
+            </Upload>
+          )}
         </Descriptions.Item>
 
         <Descriptions.Item label="Inbound Ticket">
@@ -166,16 +168,18 @@ const TripBookingInfo: React.FC<TripBookingInfoProps> = ({
               className="mb-2 rounded-lg shadow-md object-contain"
             />
           )}
-          <Upload
-            beforeUpload={(file) => {
-              setInboundFile(file);
-              return false;
-            }}
-          >
-            <Button icon={<UploadOutlined />} disabled={uploading}>
-              Upload Inbound Ticket
-            </Button>
-          </Upload>
+          {!isManager && (
+            <Upload
+              beforeUpload={(file) => {
+                setInboundFile(file);
+                return false;
+              }}
+            >
+              <Button icon={<UploadOutlined />} disabled={uploading}>
+                Upload Inbound Ticket
+              </Button>
+            </Upload>
+          )}
         </Descriptions.Item>
       </Descriptions>
 

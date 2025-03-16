@@ -83,9 +83,7 @@ function Page() {
               fontWeight: "bold",
               transition: "all 0.3s ease",
             }}
-            onClick={() =>
-              router.push(`/manager/requestDetail?requestId=${record.key}`)
-            }
+            onClick={() => router.push(`/manager/requests/${record.key}`)}
             onMouseEnter={(e) => {
               e.currentTarget.style.backgroundColor = "#e6f7ff";
             }}

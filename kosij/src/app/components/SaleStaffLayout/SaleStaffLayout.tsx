@@ -50,7 +50,7 @@ const SaleStaffLayout: React.FC<SaleStaffLayoutProps> = ({
         {
           label: "Custom Trip",
           icon: "fa-solid fa-map-marked-alt",
-          path: "/sale-staff/custom-trips",
+          path: "/sale/custom/trips",
         },
       ],
     },

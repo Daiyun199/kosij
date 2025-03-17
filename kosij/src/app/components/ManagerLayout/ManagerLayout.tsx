@@ -95,12 +95,23 @@ const ManagerLayout: React.FC<ManagerLayoutProps> = ({ title, children }) => {
         {
           label: "Request",
           icon: "fa-solid fa-paper-plane",
-          path: "/manager/requests",
-        },
-        {
-          label: "Approve",
-          icon: "fa-solid fa-list-check",
-          path: "/manager/approves",
+          children: [
+            {
+              label: "All",
+              icon: "fa-solid fa-list",
+              path: "/manager/requests/all",
+            },
+            {
+              label: "Processing",
+              icon: "fa-solid fa-spinner",
+              path: "/manager/requests/processing",
+            },
+            {
+              label: "Pending",
+              icon: "fa-solid fa-hourglass-half",
+              path: "/manager/requests/pending",
+            },
+          ],
         },
         {
           label: "Tour",

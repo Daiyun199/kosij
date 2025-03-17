@@ -157,10 +157,10 @@ export default function CreateTourStep1({
             >
               <Select placeholder="Select departure point">
                 <Select.Option value="Tân Sơn Nhất (TP Hồ Chí Minh)">
-                  Tân Sơn Nhất (TP Hồ Chí Minh)
+                  Tan Son Nhat (Ho Chi Minh City)
                 </Select.Option>
                 <Select.Option value="Nội Bài (Hà Nội)">
-                  Nội Bài (Hà Nội)
+                  Noi Bai (Ha Noi)
                 </Select.Option>
               </Select>
             </Form.Item>

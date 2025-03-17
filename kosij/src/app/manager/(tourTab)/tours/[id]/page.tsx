@@ -3,7 +3,9 @@ import ManagerLayout from "@/app/components/ManagerLayout/ManagerLayout";
 import TourDetail from "@/app/components/TourDetail/TourDetail";
 import api from "@/config/axios.config";
 import { TourData } from "@/model/TourData";
+
 import { useParams } from "next/navigation";
+
 import React, { useEffect, useState } from "react";
 
 function Page() {
@@ -23,6 +25,7 @@ function Page() {
         if (!data) throw new Error("No data returned from API");
 
         setTourData({
+          id: data.id,
           title: data.tourName,
           tourCode: `TRP-${data.id}`,
           duration: `${data.days} Days ${data.nights} Nights`,

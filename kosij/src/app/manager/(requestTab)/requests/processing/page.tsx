@@ -15,7 +15,9 @@ function Page() {
   useEffect(() => {
     const fetchTripRequests = async () => {
       try {
-        const response = await api.get("/trip-requests?requestStatus=Pending");
+        const response = await api.get(
+          "/trip-requests?requestStatus=Processing"
+        );
         setTripRequests(
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
           response.data.value.map((request: any) => ({
@@ -63,8 +65,15 @@ function Page() {
       dataIndex: "requestStatus",
       key: "requestStatus",
       filters: [
+        { text: "Pending", value: "Pending" },
+        { text: "Assigned", value: "Assigned" },
+        { text: "Modification Requested", value: "ModificationRequested" },
+        { text: "Manager Rejected", value: "ManagerRejected" },
+        { text: "Approved", value: "Approved" },
+        { text: "Processing", value: "Processing" },
+        { text: "Customer Confirmed", value: "Confirmed" },
+        { text: "Cancelled", value: "Cancelled" },
         { text: "Completed", value: "Completed" },
-        { text: "Confirmed", value: "Confirmed" },
       ],
       onFilter: (value, record) => record.requestStatus === value,
     },
@@ -75,11 +84,9 @@ function Page() {
         <div style={{ display: "flex", gap: "8px" }}>
           <Button
             type="primary"
-            onClick={() =>
-              router.push(`/manager/selectStaff?requestId=${record.key}`)
-            }
+            onClick={() => router.push(`/manager/requests/${record.key}`)}
           >
-            Assign
+            Detail
           </Button>
         </div>
       ),

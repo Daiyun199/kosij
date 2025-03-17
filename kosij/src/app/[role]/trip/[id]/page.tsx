@@ -6,7 +6,7 @@ import TripDetail from "@/app/components/TripDetail/TripDetail";
 import api from "@/config/axios.config";
 
 import { Button, Empty } from "antd";
-import { useParams, useRouter } from "next/navigation";
+import { useParams, useRouter, useSearchParams } from "next/navigation";
 
 import React, { useEffect, useState } from "react";
 
@@ -17,6 +17,8 @@ function Page() {
   const { role } = useParams();
   const [tripData, setTripData] = useState<any | null>(null);
   const [loading, setLoading] = useState(true);
+  const searchParams = useSearchParams();
+  const tourId = searchParams.get("tourId");
   const LayoutComponent = role === "manager" ? ManagerLayout : SaleStaffLayout;
   useEffect(() => {
     if (!id) return;
@@ -147,13 +149,19 @@ function Page() {
     <LayoutComponent title="Trip Detail">
       <div className="p-6 max-w-5xl mx-auto">
         <TripDetail data={tripData} role={role as string} custom={false} />
-        {role === "manager" && (
-          <div className="p-6 max-w-5xl mx-auto flex justify-end">
+        <div className="flex justify-between items-center mt-4">
+          <Button
+            size="large"
+            onClick={() => router.push(`/${role}/tours/${tourId}`)}
+          >
+            Back
+          </Button>
+          {role === "manager" && (
             <Button type="primary" size="large" onClick={handleSelectStaff}>
               Assign
             </Button>
-          </div>
-        )}
+          )}
+        </div>
       </div>
     </LayoutComponent>
   );

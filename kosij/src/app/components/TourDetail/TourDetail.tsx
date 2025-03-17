@@ -2,7 +2,7 @@
 "use client";
 import Image from "next/image";
 import React, { useState } from "react";
-import { Card, Collapse, Tag, DatePicker } from "antd";
+import { Card, Collapse, Tag, DatePicker, Button } from "antd";
 import { CalendarOutlined, EyeOutlined } from "@ant-design/icons";
 import dayjs from "dayjs";
 import { TourData } from "@/model/TourData";
@@ -209,7 +209,9 @@ const TourDetail = ({ data }: { data: TourData }) => {
                 </span>
                 <EyeOutlined
                   className="cursor-pointer text-blue-500"
-                  onClick={() => router.push(`/manager/trip/${trip.id}`)}
+                  onClick={() =>
+                    router.push(`/manager/trip/${trip.id}?tourId=${data.id}`)
+                  }
                 />
               </li>
             ))
@@ -221,6 +223,13 @@ const TourDetail = ({ data }: { data: TourData }) => {
         </ul>
         ;
       </Card>
+      <Button
+        type="default"
+        onClick={() => router.push("/manager/tours")}
+        style={{ marginTop: 10 }}
+      >
+        Back
+      </Button>
     </div>
   );
 };

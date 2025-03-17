@@ -1,4 +1,6 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 export interface TourData {
+  id: any;
   title: string;
   tourCode: string;
   duration: string;

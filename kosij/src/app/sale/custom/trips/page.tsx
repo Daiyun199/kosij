@@ -29,7 +29,7 @@ function Page() {
         const response = await api.get("/staff/trips");
         setTripData(
           response.data.value
-            .filter((trip: any) => trip.tripType === "Scheduled")
+            .filter((trip: any) => trip.tripType === "Customized")
             .map((trip: any) => ({
               key: trip.id,
               tourName: trip.tourName,

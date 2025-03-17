@@ -15,9 +15,7 @@ function Page() {
   useEffect(() => {
     const fetchTripRequests = async () => {
       try {
-        const response = await api.get(
-          "/trip-requests?requestStatus=Processing"
-        );
+        const response = await api.get("/trip-requests?requestStatus=Pending");
         setTripRequests(
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
           response.data.value.map((request: any) => ({
@@ -65,8 +63,15 @@ function Page() {
       dataIndex: "requestStatus",
       key: "requestStatus",
       filters: [
+        { text: "Pending", value: "Pending" },
+        { text: "Assigned", value: "Assigned" },
+        { text: "Modification Requested", value: "ModificationRequested" },
+        { text: "Manager Rejected", value: "ManagerRejected" },
+        { text: "Approved", value: "Approved" },
+        { text: "Processing", value: "Processing" },
+        { text: "Customer Confirmed", value: "Confirmed" },
+        { text: "Cancelled", value: "Cancelled" },
         { text: "Completed", value: "Completed" },
-        { text: "Confirmed", value: "Confirmed" },
       ],
       onFilter: (value, record) => record.requestStatus === value,
     },
@@ -76,22 +81,12 @@ function Page() {
       render: (_, record) => (
         <div style={{ display: "flex", gap: "8px" }}>
           <Button
-            ghost
-            style={{
-              borderColor: "#1890ff",
-              color: "#1890ff",
-              fontWeight: "bold",
-              transition: "all 0.3s ease",
-            }}
-            onClick={() => router.push(`/manager/requests/${record.key}`)}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.backgroundColor = "#e6f7ff";
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.backgroundColor = "transparent";
-            }}
+            type="primary"
+            onClick={() =>
+              router.push(`/manager/selectStaff?requestId=${record.key}`)
+            }
           >
-            Detail
+            Assign
           </Button>
         </div>
       ),

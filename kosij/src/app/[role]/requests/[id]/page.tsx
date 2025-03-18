@@ -69,7 +69,15 @@ const TripRequestDetail = () => {
       });
 
       toast.success(`Trip request ${actionType.toLowerCase()} successfully!`);
-      router.push("/manager/approves");
+      if (actionType === "Approve") {
+        router.push(
+          `/manager/selectStaff?tripId=${
+            trip.customizedTripResponse.id
+          }&consultant=${true}`
+        );
+      } else {
+        router.push(`/manager/requests/processing`);
+      }
       handleCloseModal();
     } catch (error: any) {
       console.error(
@@ -243,7 +251,7 @@ const TripRequestDetail = () => {
             Trip
           </Button>
         )}
-        {role === "manager" && (
+        {role === "manager" && trip.requestStatus === "Processing" && (
           <>
             <Button
               type="default"

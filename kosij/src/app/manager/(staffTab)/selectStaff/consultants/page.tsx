@@ -19,6 +19,13 @@ function Page() {
   const [searchParams, setSearchParams] = useState<URLSearchParams | null>(
     null
   );
+  const [customize, setCustomize] = useState<boolean | null>(false);
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+
+    const customizeParam = params.get("customize");
+    setCustomize(customizeParam === "true");
+  }, []);
   const [tripId, setTripId] = useState<string | null>(null);
 
   useEffect(() => {
@@ -63,7 +70,11 @@ function Page() {
 
       if (response.status === 200) {
         toast.success(response.data.message || "Staff assigned successfully!");
-        router.push(`/manager/trip/${tripId}`);
+        if (customize) {
+          router.push(`/manager/requests/all`);
+        } else {
+          router.push(`/manager/tours`);
+        }
       } else {
         toast.error(response.data.message || "Failed to assign staff.");
       }

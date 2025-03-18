@@ -72,9 +72,7 @@ function Page() {
 
       if (response.status === 200) {
         toast.success(response.data.message || "Staff assigned successfully!");
-        router.push(
-          tripId ? `/manager/trip/${tripId}` : `/manager/requests/pending`
-        );
+        router.push(tripId ? `/manager/tours` : `/manager/requests/pending`);
       } else {
         toast.error(response.data.value || "Failed to assign staff.");
       }

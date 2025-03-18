@@ -5,13 +5,14 @@ import ManagerLayout from "@/app/components/ManagerLayout/ManagerLayout";
 import PassengerList from "@/app/components/PassenegerList/PassenegerList";
 import SaleStaffLayout from "@/app/components/SaleStaffLayout/SaleStaffLayout";
 import TripBookingInfo from "@/app/components/TripBookingInfo/TripBookingInfo";
-
+import { EyeOutlined } from "@ant-design/icons";
 import api from "@/config/axios.config";
 import { Passenger } from "@/model/Passenger";
-import { Button, Card, Empty } from "antd";
+import { Button, Card, Collapse, Empty } from "antd";
+import Image from "next/image";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
 import React, { useEffect, useState } from "react";
-
+const { Panel } = Collapse;
 function Page() {
   const params = useParams() as { id: string };
   const router = useRouter();
@@ -24,7 +25,7 @@ function Page() {
   const tripRequestId = searchParams.get("requestId");
   const [loading, setLoading] = useState(true);
   const [tripBooking, setTripBooking] = useState(null);
-
+  const [orders, setOrders] = useState<any[]>([]);
   const custom = searchParams.get("custom") === "true";
   useEffect(() => {
     if (!id) return;
@@ -45,7 +46,8 @@ function Page() {
             tripBookingStatus: tripBookingData.tripBookingStatus,
           })
         );
-        console.log("passengers", passengers);
+        const ordersResponse = await api.get(`/trip-booking/${id}/orders`);
+        setOrders(ordersResponse.data.value);
         setPassengerData(passengers);
       } catch (error) {
         console.error("Lỗi tải dữ liệu:", error);
@@ -56,6 +58,10 @@ function Page() {
 
     fetchData();
   }, [id]);
+  const handleViewMore = (orderId: string) => {
+    console.log(orderId);
+    router.push(`/${role}/orders/${orderId}?tripBookingId=${id}`);
+  };
   const handleUpdatePassenger = (updatedPassenger: Passenger) => {
     setPassengerData((prevPassengers) =>
       prevPassengers.map((p) =>
@@ -101,6 +107,82 @@ function Page() {
               Back
             </Button>
           </div>
+        )}
+        {orders.length ? (
+          <div className="mt-6">
+            <h2 className="text-lg font-semibold mb-4">Order List</h2>
+            <Collapse accordion>
+              {orders.map((order) => (
+                <Panel
+                  header={
+                    <span className="font-semibold">{order.fullName}</span>
+                  }
+                  key={order.id}
+                >
+                  <Card className="mb-4">
+                    <p>
+                      <strong>Phone:</strong> {order.phoneNumber}
+                    </p>
+                    <p>
+                      <strong>Delivery Address:</strong> {order.deliveryAddress}
+                    </p>
+                    <p>
+                      <strong>Farm Name:</strong> {order.farmName}
+                    </p>
+                    <p>
+                      <strong>Total Amount:</strong>{" "}
+                      {order.totalOrderAmount
+                        ? order.totalOrderAmount.toLocaleString()
+                        : "N/A"}{" "}
+                      VND
+                    </p>
+                    <p>
+                      <strong>Paid:</strong>{" "}
+                      {order.paidAmount
+                        ? order.paidAmount.toLocaleString()
+                        : "N/A"}{" "}
+                      VND
+                    </p>
+                    <p>
+                      <strong>Remaining:</strong>{" "}
+                      {order.remaining
+                        ? order.remaining.toLocaleString()
+                        : "N/A"}{" "}
+                      VND
+                    </p>
+                    <p>
+                      <strong>Order Status:</strong> {order.orderStatus}
+                    </p>
+                    {order.cancellationReason && (
+                      <p>
+                        <strong>Cancellation Reason:</strong>{" "}
+                        {order.cancellationReason}
+                      </p>
+                    )}
+                    <p>
+                      <strong> Estimated Delivery Date:</strong>{" "}
+                      {order.expectedDeliveryDate}
+                    </p>
+                    <Button
+                      type="default"
+                      shape="round"
+                      icon={<EyeOutlined />}
+                      onClick={() => {
+                        handleViewMore(order.orderId);
+                      }}
+                      className="mt-2 px-4 shadow-sm hover:bg-gray-100"
+                    >
+                      View More
+                    </Button>
+                  </Card>
+                </Panel>
+              ))}
+            </Collapse>
+          </div>
+        ) : (
+          <Card className="flex justify-center items-center h-40">
+            <Empty description="No orders found" />
+          </Card>
         )}
       </div>
     </LayoutComponent>

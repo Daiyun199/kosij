@@ -16,6 +16,12 @@ const nextConfig: NextConfig = {
       { protocol: "https", hostname: "visinhcakoi.com" },
       { protocol: "https", hostname: "i.pinimg.com" },
       { protocol: "https", hostname: "images.unsplash.com" },
+      { protocol: "https", hostname: "japan.net.vn" },
+      { protocol: "https", hostname: "traveltop.vn" },
+      { protocol: "https", hostname: "th.bing.com" },
+      { protocol: "https", hostname: "s.elib.vn" },
+      { protocol: "https", hostname: "traicagiong.com" },
+      { protocol: "https", hostname: "toyomakoi.com" },
     ],
   },
 

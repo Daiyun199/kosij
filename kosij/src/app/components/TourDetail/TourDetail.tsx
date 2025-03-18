@@ -221,7 +221,6 @@ const TourDetail = ({ data }: { data: TourData }) => {
             </p>
           )}
         </ul>
-        ;
       </Card>
       <Button
         type="default"

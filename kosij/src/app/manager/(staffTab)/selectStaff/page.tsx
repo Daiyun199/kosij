@@ -26,14 +26,18 @@ function SelectStaff() {
   const router = useRouter();
   const [tripId, setTripId] = useState<string | null>(null);
   const [requestId, setRequestId] = useState<string | null>(null);
-
+  const [consultant, setConsultant] = useState<boolean | null>(false);
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     setTripId(params.get("tripId"));
     setRequestId(params.get("requestId"));
+    const consultantParam = params.get("consultant");
+    setConsultant(consultantParam === "true");
   }, []);
   const filteredStaffOptions =
-    requestId && !tripId
+    consultant === true
+      ? staffOptions.filter((staff) => staff.id === "consultant")
+      : requestId && !tripId
       ? staffOptions.filter((staff) => staff.id === "sale")
       : staffOptions;
 
@@ -85,7 +89,9 @@ function SelectStaff() {
                     ? `/manager/selectStaff/sales?${
                         tripId ? `tripId=${tripId}` : `requestId=${requestId}`
                       }`
-                    : `/manager/selectStaff/consultants?tripId=${tripId}`;
+                    : `/manager/selectStaff/consultants?tripId=${tripId}${
+                        consultant ? "&customize=true" : ""
+                      }`;
 
                 router.push(url);
               }}

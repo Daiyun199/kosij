@@ -320,7 +320,6 @@ function UpdateVarietyModal({
       reader.onerror = (error) => reject(error);
     });
   };
-  //handle submit upload ảnh lên firebase BE chỉ lưu URL dưới dạng string
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const handleSubmit = async (values: { description: string }) => {
     console.log("Submitting form...");
@@ -338,13 +337,13 @@ function UpdateVarietyModal({
   
       const payload = {
         description: values.description,
-        imageUrl: base64Image, // Send as Base64 string
+        imageUrl: base64Image,
       };
   
       console.log("Payload:", payload);
   
       await api.put(`/farm-variety/variety/${varietyId}/current-farm`, payload, {
-        headers: { "Content-Type": "application/json" }, // API expects JSON, not multipart/form-data
+        headers: { "Content-Type": "application/json" }, 
       });
   
       message.success("Variety updated successfully!");
@@ -403,14 +402,14 @@ function UpdateVarietyModal({
             accept=".jpg,.jpeg,.png"
             showUploadList={false}
             beforeUpload={(file) => {
-              console.log("beforeUpload triggered!"); // ✅ Confirm function runs
-              console.log("Selected file:", file); // ✅ See if a file is detected
+              console.log("beforeUpload triggered!"); 
+              console.log("Selected file:", file); 
 
-              setImageFile(file); // ✅ Store file in state
+              setImageFile(file); 
               const previewUrl = URL.createObjectURL(file);
-              setPreviewImage(previewUrl); // ✅ Show preview
+              setPreviewImage(previewUrl);
 
-              return false; // Prevent automatic upload
+              return false;
             }}
           >
             <Button icon={<UploadOutlined />}>Upload Image</Button>

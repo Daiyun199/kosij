@@ -5,7 +5,7 @@ import ManagerLayout from "@/app/components/ManagerLayout/ManagerLayout";
 
 import SaleStaffLayout from "@/app/components/SaleStaffLayout/SaleStaffLayout";
 import api from "@/config/axios.config";
-import { Empty, Spin } from "antd";
+import { Button, Empty, Spin } from "antd";
 
 import { useParams, useRouter, useSearchParams } from "next/navigation";
 import React, { useEffect, useState } from "react";
@@ -52,7 +52,9 @@ function Page() {
         {loading ? (
           <Spin size="large" />
         ) : orders ? (
-          <OrderInfo data={orders} />
+          <>
+            <OrderInfo data={orders} />
+          </>
         ) : (
           <Empty description="No order data available" />
         )}

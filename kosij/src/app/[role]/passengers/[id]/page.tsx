@@ -59,7 +59,6 @@ function Page() {
     fetchData();
   }, [id]);
   const handleViewMore = (orderId: string) => {
-    console.log(orderId);
     router.push(`/${role}/orders/${orderId}?tripBookingId=${id}`);
   };
   const handleUpdatePassenger = (updatedPassenger: Passenger) => {

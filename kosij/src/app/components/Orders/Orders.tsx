@@ -3,11 +3,17 @@ import { Card, Table, Descriptions, Collapse } from "antd";
 import { Button } from "@/components/ui/button";
 import Image from "next/image";
 import { BoxAllocation, OrderData, OrderDetail } from "@/model/OrderInfoProps";
+import { useParams, useRouter } from "next/navigation";
 
 interface OrderInfoProps {
   data: OrderData;
 }
 const OrderInfo: React.FC<OrderInfoProps> = ({ data }) => {
+  const { role } = useParams();
+  const router = useRouter();
+  const handleAssign = () => {
+    router.push(`/manager/selectStaff/deliveries?trackId=${data.id}`);
+  };
   return (
     <Card title={`Order #${data.id}`} className="shadow-md p-4">
       <Descriptions bordered column={1} size="middle">
@@ -90,10 +96,13 @@ const OrderInfo: React.FC<OrderInfoProps> = ({ data }) => {
           />
         </Collapse.Panel>
       </Collapse>
-
-      <div className="mt-4 flex justify-end">
-        <Button variant="outline">Assign</Button>
-      </div>
+      {role === "manager" && (
+        <div className="mt-4 flex justify-end">
+          <Button variant="outline" onClick={handleAssign}>
+            Assign
+          </Button>
+        </div>
+      )}
     </Card>
   );
 };

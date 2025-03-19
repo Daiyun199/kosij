@@ -15,9 +15,9 @@ import {
 import api from "@/config/axios.config";
 import { useQuery } from "@tanstack/react-query";
 import { Order } from "@/lib/domain/Order/Order.dto";
-import { fetchRecentOrders } from "@/features/farmbreeder/api/variety/all.api";
 import { ColumnsType } from "antd/es/table";
 import { getAuthToken } from "@/lib/utils/auth.utils";
+import { fetchRecentOrders } from "@/features/farmbreeder/api/order/recent.api";
 
 const statusColors: Record<string, { color: string; background: string }> = {
   Cancelled: { color: "#cf1322", background: "#fff1f0" },

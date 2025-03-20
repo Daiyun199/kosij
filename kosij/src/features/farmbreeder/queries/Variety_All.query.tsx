@@ -16,9 +16,9 @@ useVariety_All.queryOptions = (props?: Props): QueryOptions => ({
 
             return response ?? { statusCode: 204, message: "No content", data: [] };
         },
-        staleTime: 0,  // ✅ Luôn fetch mới thay vì lấy từ cache
-        // cacheTime: 5 * 60 * 1000,  // ✅ Không lưu cache lâu
-        retry: 1,      // ✅ Chỉ thử lại 1 lần nếu lỗi
+        staleTime: 0,  
+
+        retry: 1,  
     // };
 });
 

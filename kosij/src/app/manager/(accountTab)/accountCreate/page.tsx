@@ -113,7 +113,8 @@ function Page() {
       });
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
-      toast.error("Error: " + (error.response?.data?.error || error.message));
+      console.log(error);
+      toast.error("Error: " + (error.response?.data || error.message));
     } finally {
       setLoading(false);
     }

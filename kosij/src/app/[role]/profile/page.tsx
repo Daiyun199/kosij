@@ -1,6 +1,8 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 import React, { useEffect, useState } from "react";
-import { Button, Col, Input, Modal, Row, Select } from "antd";
+import { Button, Col, Form, Input, Modal, Popconfirm, Row, Select } from "antd";
 import styles from "./profile.module.css";
 import ManagerLayout from "@/app/components/ManagerLayout/ManagerLayout";
 import SaleStaffLayout from "@/app/components/SaleStaffLayout/SaleStaffLayout";
@@ -24,7 +26,11 @@ interface UserProfile {
 function Profile() {
   const { role } = useParams();
   const LayoutComponent = role === "manager" ? ManagerLayout : SaleStaffLayout;
-
+  const [isPasswordModalOpen, setIsPasswordModalOpen] = useState(false);
+  const [oldPassword, setOldPassword] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [loading, setLoading] = useState(false);
   const [user, setUser] = useState<UserProfile | null>(null);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [uploading, setUploading] = useState(false);
@@ -108,6 +114,60 @@ function Profile() {
     }
   };
 
+  const handleOpenPasswordModal = () => {
+    setIsPasswordModalOpen(true);
+  };
+
+  const handleClosePasswordModal = () => {
+    setIsPasswordModalOpen(false);
+    setOldPassword("");
+    setNewPassword("");
+    setConfirmPassword("");
+  };
+  const validatePassword = (password: string) => {
+    const uppercaseRegex = /[A-Z]/;
+    const specialCharRegex = /[@#$%^&*()_+!]/;
+
+    if (!uppercaseRegex.test(password)) {
+      return "Password must contain at least one uppercase letter (A-Z)";
+    }
+    if (!specialCharRegex.test(password)) {
+      return "Password must contain at least one special character (@, #, $, ...)";
+    }
+    return "";
+  };
+  const handleConfirmChangePassword = async () => {
+    if (!oldPassword || !newPassword || !confirmPassword) {
+      toast.error("All fields are required!");
+      return;
+    }
+
+    const validationError = validatePassword(newPassword);
+    if (validationError) {
+      toast.error(validationError);
+      return;
+    }
+
+    if (newPassword !== confirmPassword) {
+      toast.error("New password and confirm password must match!");
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const response = await api.post("/accounts/password/reset", {
+        oldPassword,
+        newPassword,
+        confirmPassword,
+      });
+
+      toast.success("Password changed successfully!");
+      handleClosePasswordModal();
+    } catch (error: any) {
+      toast.error(error.response?.data?.value || "Failed to change password");
+    }
+    setLoading(false);
+  };
   if (isLoading) {
     return (
       <LayoutComponent title="Profile">
@@ -158,10 +218,66 @@ function Profile() {
                 <strong>Address:</strong> {user?.address || "N/A"}
               </p>
             </div>
-            <Button className={styles.editButton} onClick={handleEdit}>
-              Edit
-            </Button>
+            <div className={styles.buttonGroup}>
+              <Button className={styles.editButton} onClick={handleEdit}>
+                Edit
+              </Button>
+              <Button
+                onClick={handleOpenPasswordModal}
+                className={styles.changePasswordButton}
+              >
+                Change Password
+              </Button>
+            </div>
           </div>
+
+          <Modal
+            title="Change Password"
+            open={isPasswordModalOpen}
+            onCancel={handleClosePasswordModal}
+            footer={[
+              <Button key="cancel" onClick={handleClosePasswordModal}>
+                Cancel
+              </Button>,
+              <Popconfirm
+                key="confirm"
+                title="Are you sure you want to change your password?"
+                onConfirm={handleConfirmChangePassword}
+                okText="Yes"
+                cancelText="No"
+              >
+                <Button type="primary" loading={loading}>
+                  Change Password
+                </Button>
+              </Popconfirm>,
+            ]}
+          >
+            <Form layout="vertical">
+              <Form.Item label="Old Password">
+                <Input.Password
+                  placeholder="Enter old password"
+                  value={oldPassword}
+                  onChange={(e) => setOldPassword(e.target.value)}
+                />
+              </Form.Item>
+
+              <Form.Item label="New Password">
+                <Input.Password
+                  placeholder="Enter new password"
+                  value={newPassword}
+                  onChange={(e) => setNewPassword(e.target.value)}
+                />
+              </Form.Item>
+
+              <Form.Item label="Confirm New Password">
+                <Input.Password
+                  placeholder="Confirm new password"
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                />
+              </Form.Item>
+            </Form>
+          </Modal>
         </div>
         <Modal
           title="Edit Information"

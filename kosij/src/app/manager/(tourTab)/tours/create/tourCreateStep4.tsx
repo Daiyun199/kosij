@@ -16,7 +16,6 @@ import { ValueType } from "rc-input/lib/interface";
 import { useRouter, useSearchParams } from "next/navigation";
 
 interface CreateTourStep4Props {
-  tripRequestId: any;
   onBack: () => void;
   setStep: (step: number) => void;
   tourData: {
@@ -35,13 +34,11 @@ interface CreateTourStep4Props {
 }
 
 const CreateTourStep4: React.FC<CreateTourStep4Props> = ({
-  tripRequestId,
   onBack,
   formData,
   setFormData,
   setStep,
   resetForm,
-
   tourData,
 }) => {
   const [policies, setPolicies] = useState(formData.policies || []);
@@ -217,7 +214,6 @@ const CreateTourStep4: React.FC<CreateTourStep4Props> = ({
         console.error("Invalid image file:", tourData.step1.img);
       }
       const requestBody = {
-        tripRequestId: tripRequestId,
         departureDate: tourData.step1.departureDate,
         pricingRate: tourData.step1.pricingRate,
         imageUrl: imageUrl || "",

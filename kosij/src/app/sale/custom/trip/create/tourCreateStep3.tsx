@@ -1,13 +1,12 @@
 "use client";
 import React, { useState, useEffect } from "react";
-
+import ManagerLayout from "@/app/components/ManagerLayout/ManagerLayout";
 import { CreateTourStep3Props } from "@/model/CreateTourStep3Props";
 import { FiArrowLeft, FiTrash } from "react-icons/fi";
 import api from "@/config/axios.config";
 
 import { Button, Input } from "antd";
 import { Card } from "@/components/ui/card";
-import SaleStaffLayout from "@/app/components/SaleStaffLayout/SaleStaffLayout";
 
 const CreateTripStep3: React.FC<CreateTourStep3Props> = ({
   onBack,
@@ -18,7 +17,7 @@ const CreateTripStep3: React.FC<CreateTourStep3Props> = ({
   const [includes, setIncludes] = useState(data.includes ?? "");
   const [notIncludes, setNotIncludes] = useState(data.notIncludes ?? "");
   const [price, setPrice] = useState(data.price || []);
-  console.log("Check", data);
+
   useEffect(() => {
     updateData({ ...data, includes, notIncludes, price: price ?? [] });
   }, [data, includes, notIncludes, price, updateData]);
@@ -58,7 +57,6 @@ const CreateTripStep3: React.FC<CreateTourStep3Props> = ({
       { id: Date.now(), start: "", end: "", rate: "", description: "" },
     ]);
   };
-
   useEffect(() => {
     updateData({ includes, notIncludes, price });
   }, [includes, notIncludes, price, updateData]);
@@ -88,21 +86,23 @@ const CreateTripStep3: React.FC<CreateTourStep3Props> = ({
   };
 
   return (
-    <SaleStaffLayout title="Create Tour">
+    <ManagerLayout title="Create Tour">
       <div className="p-6 bg-white shadow-md rounded-lg w-full max-w-4xl mx-auto">
         <h2 className="text-2xl font-bold text-center mb-6 uppercase">
           Tour Information Form
         </h2>
         <Card className="p-4 mb-6">
-          <h3 className="text-lg font-semibold mb-4">Cancel Price</h3>
-          {price.map((item) => (
+          <h3 className="text-lg font-semibold mb-4">Tour Price</h3>
+          {price.map((item, index) => (
             <Card key={item.id} className="relative p-4 mb-4">
-              <Button
-                type="text"
-                icon={<FiTrash size={16} className="text-red-500" />}
-                className="absolute -top-1.5 -right-1.5"
-                onClick={() => removePrice(item.id)}
-              />
+              {index >= 3 && (
+                <Button
+                  type="text"
+                  icon={<FiTrash size={16} className="text-red-500" />}
+                  className="absolute -top-1.5 -right-1.5"
+                  onClick={() => removePrice(item.id)}
+                />
+              )}
               <div className="grid grid-cols-3 gap-4">
                 <Input
                   placeholder="Starting Point"
@@ -110,6 +110,7 @@ const CreateTripStep3: React.FC<CreateTourStep3Props> = ({
                   onChange={(e) =>
                     handlePriceChange(item.id, "start", e.target.value)
                   }
+                  disabled={index < 3}
                 />
                 <Input
                   placeholder="End Point"
@@ -117,6 +118,7 @@ const CreateTripStep3: React.FC<CreateTourStep3Props> = ({
                   onChange={(e) =>
                     handlePriceChange(item.id, "end", e.target.value)
                   }
+                  disabled={index < 3}
                 />
                 <Input
                   placeholder="Penalty Rate (%)"
@@ -131,7 +133,7 @@ const CreateTripStep3: React.FC<CreateTourStep3Props> = ({
                 placeholder="Description"
                 rows={2}
                 value={item.description}
-                onChange={(e: { target: { value: string } }) =>
+                onChange={(e) =>
                   handlePriceChange(item.id, "description", e.target.value)
                 }
               />
@@ -145,6 +147,7 @@ const CreateTripStep3: React.FC<CreateTourStep3Props> = ({
             + New Price
           </Button>
         </Card>
+
         <div>
           <Card className="p-4 mb-6">
             <h3 className="text-lg font-semibold mb-4">Tour Price Includes</h3>
@@ -202,7 +205,7 @@ const CreateTripStep3: React.FC<CreateTourStep3Props> = ({
           </Button>
         </div>
       </div>
-    </SaleStaffLayout>
+    </ManagerLayout>
   );
 };
 

@@ -90,7 +90,7 @@ const ManagerLayout: React.FC<ManagerLayoutProps> = ({ title, children }) => {
         {
           label: "Order",
           icon: "fa-solid fa-shopping-cart",
-          path: "/manager/order-list",
+          path: "/manager/orders",
         },
         {
           label: "Request",
@@ -128,6 +128,11 @@ const ManagerLayout: React.FC<ManagerLayoutProps> = ({ title, children }) => {
               path: "/manager/tours/create",
             },
           ],
+        },
+        {
+          label: "Transaction",
+          icon: "fa-solid fa-shopping-cart",
+          path: "/manager/transactions",
         },
       ],
     },

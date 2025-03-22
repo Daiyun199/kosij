@@ -245,7 +245,10 @@ export default function CreateTourStep1({
               </Form.Item>
             </div>
 
-            <Form.Item label="Upload Tour Image:">
+            <Form.Item
+              label="Upload Tour Image:"
+              rules={[{ required: true, message: "Please upload an image!" }]}
+            >
               <Upload
                 beforeUpload={handleUpload}
                 showUploadList={false}
@@ -253,6 +256,9 @@ export default function CreateTourStep1({
               >
                 <Button icon={<UploadOutlined />}>Click to Upload</Button>
               </Upload>
+              {!img && (
+                <p className="text-red-500 mt-2">Please upload an image!</p>
+              )}
               {img && (
                 <Image
                   src={URL.createObjectURL(img)}

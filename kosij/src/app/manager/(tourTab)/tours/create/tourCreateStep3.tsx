@@ -93,14 +93,16 @@ const CreateTourStep3: React.FC<CreateTourStep3Props> = ({
         </h2>
         <Card className="p-4 mb-6">
           <h3 className="text-lg font-semibold mb-4">Tour Price</h3>
-          {price.map((item) => (
+          {price.map((item, index) => (
             <Card key={item.id} className="relative p-4 mb-4">
-              <Button
-                type="text"
-                icon={<FiTrash size={16} className="text-red-500" />}
-                className="absolute -top-1.5 -right-1.5"
-                onClick={() => removePrice(item.id)}
-              />
+              {index >= 3 && (
+                <Button
+                  type="text"
+                  icon={<FiTrash size={16} className="text-red-500" />}
+                  className="absolute -top-1.5 -right-1.5"
+                  onClick={() => removePrice(item.id)}
+                />
+              )}
               <div className="grid grid-cols-3 gap-4">
                 <Input
                   placeholder="Starting Point"
@@ -108,6 +110,7 @@ const CreateTourStep3: React.FC<CreateTourStep3Props> = ({
                   onChange={(e) =>
                     handlePriceChange(item.id, "start", e.target.value)
                   }
+                  disabled={index < 3}
                 />
                 <Input
                   placeholder="End Point"
@@ -115,6 +118,7 @@ const CreateTourStep3: React.FC<CreateTourStep3Props> = ({
                   onChange={(e) =>
                     handlePriceChange(item.id, "end", e.target.value)
                   }
+                  disabled={index < 3}
                 />
                 <Input
                   placeholder="Penalty Rate (%)"
@@ -129,7 +133,7 @@ const CreateTourStep3: React.FC<CreateTourStep3Props> = ({
                 placeholder="Description"
                 rows={2}
                 value={item.description}
-                onChange={(e: { target: { value: string } }) =>
+                onChange={(e) =>
                   handlePriceChange(item.id, "description", e.target.value)
                 }
               />
@@ -143,6 +147,7 @@ const CreateTourStep3: React.FC<CreateTourStep3Props> = ({
             + New Price
           </Button>
         </Card>
+
         <div>
           <Card className="p-4 mb-6">
             <h3 className="text-lg font-semibold mb-4">Tour Price Includes</h3>

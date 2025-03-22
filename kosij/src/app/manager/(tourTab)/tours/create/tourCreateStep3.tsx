@@ -92,7 +92,7 @@ const CreateTourStep3: React.FC<CreateTourStep3Props> = ({
           Tour Information Form
         </h2>
         <Card className="p-4 mb-6">
-          <h3 className="text-lg font-semibold mb-4">Cancel Price</h3>
+          <h3 className="text-lg font-semibold mb-4">Tour Price</h3>
           {price.map((item) => (
             <Card key={item.id} className="relative p-4 mb-4">
               <Button

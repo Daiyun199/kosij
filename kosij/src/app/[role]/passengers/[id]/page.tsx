@@ -39,6 +39,7 @@ function Page() {
         const passengerResponses = await api.get(
           `/trip-booking/${id}/passengers`
         );
+
         const passengers = passengerResponses.data.value.map(
           (passenger: Passenger) => ({
             ...passenger,
@@ -46,9 +47,11 @@ function Page() {
             tripBookingStatus: tripBookingData.tripBookingStatus,
           })
         );
-        const ordersResponse = await api.get(`/trip-booking/${id}/orders`);
-        setOrders(ordersResponse.data.value);
         setPassengerData(passengers);
+        if (role === "manager") {
+          const ordersResponse = await api.get(`/trip-booking/${id}/orders`);
+          setOrders(ordersResponse.data.value);
+        }
       } catch (error) {
         console.error("Lỗi tải dữ liệu:", error);
       } finally {
@@ -58,6 +61,7 @@ function Page() {
 
     fetchData();
   }, [id]);
+
   const handleViewMore = (orderId: string) => {
     router.push(`/${role}/orders/${orderId}?tripBookingId=${id}`);
   };
@@ -107,7 +111,7 @@ function Page() {
             </Button>
           </div>
         )}
-        {orders.length ? (
+        {role === "manager" && orders.length ? (
           <div className="mt-6">
             <h2 className="text-lg font-semibold mb-4">Order List</h2>
             <Collapse accordion>

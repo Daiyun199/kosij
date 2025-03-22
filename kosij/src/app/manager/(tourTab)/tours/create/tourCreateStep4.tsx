@@ -239,6 +239,7 @@ const CreateTourStep4: React.FC<CreateTourStep4Props> = ({
       resetForm();
       setStep(1);
     } catch (error: any) {
+      console.log(error);
       if (error.response && error.response.data) {
         const errorMessage =
           error.response.data.value ||

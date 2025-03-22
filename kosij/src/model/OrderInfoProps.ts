@@ -39,6 +39,9 @@ export interface OrderData {
   totalFishAmount: number;
   totalDeliveringAmount: number;
   totalOrderAmount: number;
+  commissionPercentage: number;
+  totalCommission: number;
+  totalAfterCommission: number;
   note: string;
   thirdPartyLogisticsInfo: string;
   expectedDeliveryDate: string;

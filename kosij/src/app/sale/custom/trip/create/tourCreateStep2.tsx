@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 "use client";
 
 import { Activity } from "@/model/Activity";
@@ -45,7 +46,12 @@ export default function CreateTripStep2({
       : []
   );
   const [farms, setFarms] = useState<Farm[]>([]);
+  const [allFarms, setAllFarms] = useState<Farm[]>([]);
+  const [selectedFarms, setSelectedFarms] = useState<
+    Record<number, Record<number, Farm>>
+  >({});
 
+  console.log(days);
   useEffect(() => {
     updateData(days);
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -95,7 +101,7 @@ export default function CreateTripStep2({
         time: activity.time || "07:00",
       })),
     }));
-
+    console.log("Updated Days", updatedDays);
     setDays(updatedDays);
 
     if (validateForm()) {
@@ -110,7 +116,7 @@ export default function CreateTripStep2({
         for (let i = updatedDays.length; i < dayStep1; i++) {
           updatedDays.push({
             title: ``,
-            activities: [{ time: "", description: "", locations: "" }],
+            activities: [{ time: "7:00", description: "", locations: "" }],
           });
         }
       } else if (updatedDays.length > dayStep1) {
@@ -125,6 +131,7 @@ export default function CreateTripStep2({
       .get("/farms/active")
       .then((response) => {
         if (response.data.value) setFarms(response.data.value);
+        setAllFarms(response.data.value);
       })
       .catch((error) => console.error("Error fetching farms:", error));
   }, []);
@@ -141,19 +148,74 @@ export default function CreateTripStep2({
     field: keyof Activity,
     value: string
   ) => {
-    const updatedDays = [...days];
-    updatedDays[dayIndex].activities[activityIndex][field] = value;
-    setDays(updatedDays);
+    if (field === "locations") {
+      const selectedFarm = allFarms.find((farm) => farm.id === Number(value));
+      if (!selectedFarm) return;
+
+      const previousFarm = selectedFarms[dayIndex]?.[activityIndex] || null;
+
+      setSelectedFarms((prev) => ({
+        ...prev,
+        [dayIndex]: {
+          ...prev[dayIndex],
+          [activityIndex]: selectedFarm,
+        },
+      }));
+
+      const updatedDays = [...days];
+      updatedDays[dayIndex].activities[activityIndex][field] =
+        selectedFarm.id.toString();
+      setDays(updatedDays);
+
+      setFarms((prevFarms) => {
+        let updatedFarms = prevFarms.filter(
+          (farm) => farm.id !== selectedFarm.id
+        );
+
+        if (previousFarm) {
+          updatedFarms = [...updatedFarms, previousFarm];
+        }
+
+        return updatedFarms;
+      });
+    } else {
+      setDays((prevDays) => {
+        const updatedDays = [...prevDays];
+        updatedDays[dayIndex].activities[activityIndex][field] = value;
+        return updatedDays;
+      });
+    }
   };
 
   const handleAddActivity = (dayIndex: number) => {
-    const updatedDays = [...days];
-    updatedDays[dayIndex].activities.push({
-      time: "",
-      description: "",
-      locations: "",
+    setDays((prevDays) => {
+      return prevDays.map((day, idx) => {
+        if (idx !== dayIndex) return day;
+
+        const activities = [...day.activities];
+
+        let newTime = "07:00";
+        if (activities.length > 0) {
+          const lastActivityTime = activities[activities.length - 1].time;
+          if (lastActivityTime) {
+            const lastTime = dayjs(lastActivityTime, "HH:mm").add(15, "minute");
+            newTime = lastTime.format("HH:mm");
+          }
+        }
+
+        return {
+          ...day,
+          activities: [
+            ...activities,
+            {
+              time: newTime,
+              description: "",
+              locations: "",
+            },
+          ],
+        };
+      });
     });
-    setDays(updatedDays);
   };
 
   const handleDeleteActivity = (dayIndex: number, activityIndex: number) => {
@@ -210,7 +272,7 @@ export default function CreateTripStep2({
 
                 <Text className="block text-sm font-medium">Description:</Text>
                 <TextArea
-                  value={activity.description}
+                  value={activity.description ?? ""}
                   onChange={(e) =>
                     handleUpdateActivity(
                       dayIndex,
@@ -232,6 +294,7 @@ export default function CreateTripStep2({
                   }`}
                   required
                 />
+
                 {errors.some(
                   (error) =>
                     error.dayIndex === dayIndex &&
@@ -240,20 +303,33 @@ export default function CreateTripStep2({
                 ) && <Text type="danger">Description is required.</Text>}
                 <Text className="block text-sm font-medium">Location:</Text>
                 <Select
-                  value={activity.locations}
-                  onChange={(value) =>
+                  labelInValue
+                  value={
+                    activity.locations
+                      ? {
+                          value: String(activity.locations),
+                          label:
+                            allFarms.find(
+                              (f) =>
+                                f.id.toString() ===
+                                activity.locations.toString()
+                            )?.farmName || "Unknown",
+                        }
+                      : undefined
+                  }
+                  onChange={(selected) =>
                     handleUpdateActivity(
                       dayIndex,
                       activityIndex,
                       "locations",
-                      value
+                      selected.value
                     )
                   }
                   className="w-full"
                   placeholder="Select a farm"
                   options={farms.map((farm) => ({
                     label: farm.farmName,
-                    value: farm.id,
+                    value: String(farm.id),
                   }))}
                 />
               </Card>

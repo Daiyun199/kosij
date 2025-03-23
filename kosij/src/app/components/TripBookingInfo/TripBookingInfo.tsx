@@ -22,7 +22,7 @@ const TripBookingInfo: React.FC<TripBookingInfoProps> = ({
   onUpdateTripBooking,
   PassengerList,
 }) => {
-  const allPassengersHaveVisa = PassengerList.every(
+  const atLeastOnePassengerHasVisa = PassengerList.some(
     (passenger) => passenger.hasVisa
   );
   const [outboundFile, setOutboundFile] = useState<File | null>(null);
@@ -205,7 +205,8 @@ const TripBookingInfo: React.FC<TripBookingInfoProps> = ({
 
       {!isManager &&
         (tripBooking.tripBookingStatus === "Deposited" ||
-          tripBooking.tripBookingStatus === "Paid") && (
+          tripBooking.tripBookingStatus === "Paid") &&
+        atLeastOnePassengerHasVisa && (
           <Button
             type="primary"
             className="mt-4"

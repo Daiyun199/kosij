@@ -138,7 +138,12 @@ export default function CreateTourStep1({
                 name="night"
                 rules={[{ required: true }]}
               >
-                <InputNumber min={1} className="w-full" value={night} />
+                <InputNumber
+                  min={1}
+                  className="w-full"
+                  value={night}
+                  onChange={(value) => setNight(value ?? 1)}
+                />
               </Form.Item>
               <Form.Item label="Days (Auto):" name="day">
                 <InputNumber className="w-full" readOnly disabled value={day} />

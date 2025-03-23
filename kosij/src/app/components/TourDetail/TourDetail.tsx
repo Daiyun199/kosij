@@ -51,9 +51,25 @@ const TourDetail = ({ data }: { data: TourData }) => {
           <Card title="Duration">{data.duration}</Card>
           <Card title="Type">{data.type}</Card>
           <Card title="Price">
-            <p>Adult: {data.price.adult}</p>
-            <p>Children (1 - 11 Years): {data.price.children1_11}</p>
-            <p>Children (Under 2 Years): {data.price.children12_plus}</p>
+            <p>
+              Adult:{" "}
+              {data.price.adult ? data.price.adult.toLocaleString() : "N/A"}{" "}
+              VNDVND
+            </p>
+            <p>
+              Children (1 - 11 Years):{" "}
+              {data.price.children1_11
+                ? data.price.children1_11.toLocaleString()
+                : "N/A"}{" "}
+              VND
+            </p>
+            <p>
+              Children (Under 2 Years):{" "}
+              {data.price.children12_plus
+                ? data.price.children12_plus.toLocaleString()
+                : "N/A"}{" "}
+              VND
+            </p>
           </Card>
           <Card title="Departure Points">{data.departurePoints}</Card>
           <Card title="Destination Points">{data.destinationPoints}</Card>

@@ -475,35 +475,13 @@ const CreateTripStep4: React.FC<CreateTourStep4Props> = ({
               description: any;
             }) => (
               <Card key={deposit.id} className="mb-4 relative">
-                <Button
-                  type="text"
-                  icon={<FiTrash size={16} className="text-red-500" />}
-                  className="absolute -top-1.5 -right-1.5"
-                  onClick={() => removeDeposit(Number(deposit.id))}
-                />
                 <div className="grid grid-cols-3 gap-4">
                   <Input
                     placeholder="Starting Point"
                     value={deposit.start}
-                    onChange={(e) =>
-                      handleDepositChange(
-                        Number(deposit.id),
-                        "start",
-                        e.target.value
-                      )
-                    }
+                    readOnly
                   />
-                  <Input
-                    placeholder="End Point"
-                    value={deposit.end}
-                    onChange={(e) =>
-                      handleDepositChange(
-                        Number(deposit.id),
-                        "end",
-                        e.target.value
-                      )
-                    }
-                  />
+                  <Input placeholder="End Point" value={deposit.end} readOnly />
                   <Input
                     placeholder="Pricing Rate (%)"
                     value={deposit.rate}
@@ -532,9 +510,56 @@ const CreateTripStep4: React.FC<CreateTourStep4Props> = ({
               </Card>
             )
           )}
-          <Button type="dashed" className="mt-4" onClick={addDeposit}>
-            + New Deposit
-          </Button>
+        </Card>
+        <Card title="Last Payment Policy" className="mb-6">
+          {lastPayments.map(
+            (lastPayment: {
+              id: Key | null | undefined;
+              from: any;
+              to: any;
+              discountRate: any;
+              description: any;
+            }) => (
+              <Card key={lastPayment.id} className="mb-4 relative">
+                <div className="grid grid-cols-3 gap-4">
+                  <Input
+                    placeholder="Starting Point"
+                    value={lastPayment.from}
+                    readOnly
+                  />
+                  <Input
+                    placeholder="End Point"
+                    value={lastPayment.to}
+                    readOnly
+                  />
+                  <Input
+                    placeholder="Penalty Rate (%)"
+                    value={lastPayment.discountRate}
+                    onChange={(e) =>
+                      handleLastPaymentChange(
+                        Number(lastPayment.id),
+                        "rate",
+                        e.target.value
+                      )
+                    }
+                  />
+                </div>
+                <Input.TextArea
+                  className="mt-4"
+                  placeholder="Description"
+                  rows={2}
+                  value={lastPayment.description}
+                  onChange={(e) =>
+                    handleLastPaymentChange(
+                      Number(lastPayment.id),
+                      "description",
+                      e.target.value
+                    )
+                  }
+                />
+              </Card>
+            )
+          )}
         </Card>
         <Card title="Promotion Policy" className="mb-6">
           {promotions.map((promotion: any) => (
@@ -589,78 +614,6 @@ const CreateTripStep4: React.FC<CreateTourStep4Props> = ({
           ))}
           <Button type="dashed" className="mt-4" onClick={addPromotion}>
             + New Promotion
-          </Button>
-        </Card>
-
-        <Card title="Last Payment Policy" className="mb-6">
-          {lastPayments.map(
-            (lastPayment: {
-              id: Key | null | undefined;
-              from: any;
-              to: any;
-              discountRate: any;
-              description: any;
-            }) => (
-              <Card key={lastPayment.id} className="mb-4 relative">
-                <Button
-                  type="text"
-                  icon={<FiTrash size={16} className="text-red-500" />}
-                  className="absolute -top-1.5 -right-1.5"
-                  onClick={() => removeLastPayment(Number(lastPayment.id))}
-                />
-                <div className="grid grid-cols-3 gap-4">
-                  <Input
-                    placeholder="Starting Point"
-                    value={lastPayment.from}
-                    onChange={(e) =>
-                      handleLastPaymentChange(
-                        Number(lastPayment.id),
-                        "start",
-                        e.target.value
-                      )
-                    }
-                  />
-                  <Input
-                    placeholder="End Point"
-                    value={lastPayment.to}
-                    onChange={(e) =>
-                      handleLastPaymentChange(
-                        Number(lastPayment.id),
-                        "end",
-                        e.target.value
-                      )
-                    }
-                  />
-                  <Input
-                    placeholder="Penalty Rate (%)"
-                    value={lastPayment.discountRate}
-                    onChange={(e) =>
-                      handleLastPaymentChange(
-                        Number(lastPayment.id),
-                        "rate",
-                        e.target.value
-                      )
-                    }
-                  />
-                </div>
-                <Input.TextArea
-                  className="mt-4"
-                  placeholder="Description"
-                  rows={2}
-                  value={lastPayment.description}
-                  onChange={(e) =>
-                    handleLastPaymentChange(
-                      Number(lastPayment.id),
-                      "description",
-                      e.target.value
-                    )
-                  }
-                />
-              </Card>
-            )
-          )}
-          <Button type="dashed" className="mt-4" onClick={addLastPayment}>
-            + New Policy
           </Button>
         </Card>
         <div className="flex justify-between mt-6">

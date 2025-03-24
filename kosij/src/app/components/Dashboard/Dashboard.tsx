@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 import React from "react";
 import { Bar } from "react-chartjs-2";
@@ -22,37 +23,41 @@ ChartJS.register(
 );
 
 interface DashboardProps {
-  metrics: Array<{
-    title: string;
+  title: string;
+  titles: string[];
+  metricsData: Array<{
     today: string | number;
     comparison: string;
   }>;
   selectedTime: string;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   chartData: any;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   chartOptions: any;
 }
 
 const Dashboard: React.FC<DashboardProps> = ({
-  metrics,
+  title,
+  titles,
+  metricsData,
   selectedTime,
   chartData,
   chartOptions,
 }) => {
   return (
     <div className="space-y-8">
+      <h2 className="text-2xl font-bold">{title}</h2>
+
       <div className="grid grid-cols-3 gap-6">
-        {metrics.map((metric, index) => (
+        {titles.map((metricTitle, index) => (
           <MetricCard
             key={index}
-            title={metric.title}
-            today={metric.today}
-            comparison={metric.comparison}
+            title={metricTitle}
+            today={metricsData[index]?.today}
+            comparison={metricsData[index]?.comparison}
             selectedTime={selectedTime}
           />
         ))}
       </div>
+
       <div className="p-4 bg-white rounded-lg shadow">
         <Bar data={chartData} options={chartOptions} />
       </div>

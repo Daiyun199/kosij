@@ -5,13 +5,22 @@ import ManagerLayout from "@/app/components/ManagerLayout/ManagerLayout";
 import TimeFilter from "@/app/components/TimeFilter/TimeFilter";
 
 function Page() {
-  const metrics = [
-    { title: "Tour Bookings", today: "1,200", comparison: "+5%" },
-    { title: "Total Revenue", today: "50,000,000", comparison: "+10%" },
-    { title: "Conversion Rate", today: "25%", comparison: "-2%" },
-    { title: "Cancellation Rate", today: "5%", comparison: "-5%" },
-    { title: "Customer Satisfaction", today: "4.5", comparison: "+0.2" },
-    { title: "Refund Rate", today: "2%", comparison: "+2%" },
+  const titles = [
+    "Tour Bookings",
+    "Total Revenue",
+    "Tour Capacity Utilization",
+    "Cancellation Rate",
+    "Customer Satisfaction",
+    "Refund Rate",
+  ];
+
+  const metricsData = [
+    { today: "1,200", comparison: "+5%" },
+    { today: "50,000,000", comparison: "+10%" },
+    { today: "25%", comparison: "-2%" },
+    { today: "5%", comparison: "-5%" },
+    { today: "4.5", comparison: "+0.2" },
+    { today: "2%", comparison: "+2%" },
   ];
 
   const [selectedTime, setSelectedTime] = useState("day");
@@ -89,19 +98,19 @@ function Page() {
   };
 
   return (
-    <div>
-      <ManagerLayout title="Tour">
-        <div className="p-6 bg-gray-100 min-h-screen">
-          <TimeFilter onChange={handleTimeChange} />
-          <Dashboard
-            metrics={metrics}
-            selectedTime={selectedTime}
-            chartData={getChartData()}
-            chartOptions={chartOptions}
-          />
-        </div>
-      </ManagerLayout>
-    </div>
+    <ManagerLayout title="Tour">
+      <div className="p-6 bg-gray-100 min-h-screen">
+        <TimeFilter onChange={handleTimeChange} />
+        <Dashboard
+          title="Dashboard Overview"
+          titles={titles}
+          metricsData={metricsData}
+          selectedTime={selectedTime}
+          chartData={getChartData()}
+          chartOptions={chartOptions}
+        />
+      </div>
+    </ManagerLayout>
   );
 }
 

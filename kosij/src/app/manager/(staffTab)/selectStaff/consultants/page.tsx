@@ -1,8 +1,9 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 "use client";
 export const dynamic = "force-dynamic";
 import React, { Suspense, useEffect, useState } from "react";
-import { Table, Button, message } from "antd";
+import { Table, Button, message, Modal, Input, Popconfirm } from "antd";
 import ManagerLayout from "@/app/components/ManagerLayout/ManagerLayout";
 import api from "@/config/axios.config";
 import { ConsultingStaff } from "@/model/ConsultantStaff";
@@ -19,7 +20,9 @@ function Page() {
   const [searchParams, setSearchParams] = useState<URLSearchParams | null>(
     null
   );
+  const [selectedStaffId, setSelectedStaffId] = useState<string | null>(null);
   const [customize, setCustomize] = useState<boolean | null>(false);
+  const [isConfirmVisible, setIsConfirmVisible] = useState(false);
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
 
@@ -27,7 +30,8 @@ function Page() {
     setCustomize(customizeParam === "true");
   }, []);
   const [tripId, setTripId] = useState<string | null>(null);
-
+  const [note, setNote] = useState<string>("");
+  const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   useEffect(() => {
     if (typeof window !== "undefined") {
       const params = new URLSearchParams(window.location.search);
@@ -57,7 +61,7 @@ function Page() {
       setLoading(false);
     }
   };
-  const handleAssignStaff = async (staffId: string) => {
+  const handleAssignStaff = async (staffId: string, note: string) => {
     if (!tripId) {
       toast.error("Trip ID is missing.");
       return;
@@ -66,26 +70,27 @@ function Page() {
     try {
       const response = await api.put(`/trip/${tripId}/staff-assigment`, {
         staffId,
+        note,
       });
 
       if (response.status === 200) {
-        toast.success(response.data.message || "Staff assigned successfully!");
+        toast.success(response.data.value || "Staff assigned successfully!");
         if (customize) {
           router.push(`/manager/requests/all`);
         } else {
           router.push(`/manager/tours`);
         }
       } else {
-        toast.error(response.data.message || "Failed to assign staff.");
+        toast.error(response.data.value || "Failed to assign staff.");
       }
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
       const errorMessage =
-        error.response?.data?.message ||
+        error.response?.data?.value ||
         "An error occurred while assigning staff.";
       toast.error(errorMessage);
     }
   };
+
   const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     setSearchValue(value);
@@ -96,6 +101,18 @@ function Page() {
         staff.area.toLowerCase().includes(value.toLowerCase())
     );
     setFilteredData(filtered);
+  };
+  const handleModalCancel = () => {
+    setIsModalOpen(false);
+    setIsConfirmVisible(false);
+  };
+  const showAssignModal = (staffId: string) => {
+    setSelectedStaffId(staffId);
+    setIsModalOpen(true);
+  };
+
+  const handleModalOk = () => {
+    setIsModalOpen(false);
   };
   const staffColumns = [
     {
@@ -147,7 +164,7 @@ function Page() {
         <div style={{ display: "flex", gap: "8px" }}>
           <Button
             type="primary"
-            onClick={() => handleAssignStaff(record.consultingStaffId)}
+            onClick={() => showAssignModal(record.consultingStaffId)}
           >
             Assign
           </Button>
@@ -169,6 +186,49 @@ function Page() {
         bordered
         pagination={{ pageSize: 5 }}
       />
+      <Modal
+        title="Assign Staff"
+        open={isModalOpen}
+        onCancel={handleModalCancel}
+        footer={[
+          <Button key="cancel" onClick={() => setIsModalOpen(false)}>
+            Cancel
+          </Button>,
+          <Popconfirm
+            key="assign"
+            title="Are you sure you want to assign this staff?"
+            open={isConfirmVisible}
+            onConfirm={() => {
+              if (selectedStaffId) {
+                handleAssignStaff(selectedStaffId, note);
+                setIsConfirmVisible(false);
+                setIsModalOpen(false);
+              } else {
+                toast.error("No staff selected.");
+              }
+            }}
+            onCancel={() => setIsConfirmVisible(false)}
+            okText="Yes"
+            cancelText="No"
+          >
+            <Button
+              type="primary"
+              loading={loading}
+              onClick={() => {
+                setIsConfirmVisible(true);
+              }}
+            >
+              Assign
+            </Button>
+          </Popconfirm>,
+        ]}
+      >
+        <p>Enter a note for staff assignment:</p>
+        <Input.TextArea
+          value={note}
+          onChange={(e) => setNote(e.target.value)}
+        />
+      </Modal>
     </ManagerLayout>
   );
 }

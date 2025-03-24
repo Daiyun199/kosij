@@ -5,13 +5,22 @@ import ManagerLayout from "@/app/components/ManagerLayout/ManagerLayout";
 import TimeFilter from "@/app/components/TimeFilter/TimeFilter";
 
 function Page() {
-  const metrics = [
-    { title: "Total Orders", today: "1,200", comparison: "+5%" },
-    { title: "Total Revenue", today: "50,000,000", comparison: "+10%" },
-    { title: "Canceled Orders", today: "25", comparison: "-2%" },
-    { title: "Average Order Value", today: "420,000", comparison: "-5%" },
-    { title: "Customer Satisfaction", today: "4.5", comparison: "+0.2" },
-    { title: "Average Delivery Time", today: "48h", comparison: "+2%" },
+  const titles = [
+    "Total Transactions",
+    "Successful Orders",
+    "Canceled Orders",
+    "Total Revenue",
+    "Commission Earned",
+    "Customer Satisfaction",
+  ];
+
+  const metricsData = [
+    { today: "1,200", comparison: "+5%" },
+    { today: "50,000,000", comparison: "+10%" },
+    { today: "25", comparison: "-2%" },
+    { today: "420,000", comparison: "-5%" },
+    { today: "4.5", comparison: "+0.2" },
+    { today: "48h", comparison: "+2%" },
   ];
 
   const [selectedTime, setSelectedTime] = useState("day");
@@ -89,19 +98,19 @@ function Page() {
   };
 
   return (
-    <div>
-      <ManagerLayout title="Order">
-        <div className="p-6 bg-gray-100 min-h-screen">
-          <TimeFilter onChange={handleTimeChange} />
-          <Dashboard
-            metrics={metrics}
-            selectedTime={selectedTime}
-            chartData={getChartData()}
-            chartOptions={chartOptions}
-          />
-        </div>
-      </ManagerLayout>
-    </div>
+    <ManagerLayout title="Order">
+      <div className="p-6 bg-gray-100 min-h-screen">
+        <TimeFilter onChange={handleTimeChange} />
+        <Dashboard
+          title="Dashboard Overview"
+          titles={titles}
+          metricsData={metricsData}
+          selectedTime={selectedTime}
+          chartData={getChartData()}
+          chartOptions={chartOptions}
+        />
+      </div>
+    </ManagerLayout>
   );
 }
 

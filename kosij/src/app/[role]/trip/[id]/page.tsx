@@ -152,7 +152,13 @@ function Page() {
         <div className="flex justify-between items-center mt-4">
           <Button
             size="large"
-            onClick={() => router.push(`/${role}/tours/${tourId}`)}
+            onClick={() =>
+              router.push(
+                role === "sale"
+                  ? "/sale/scheduled/trips"
+                  : `/${role}/tours/${tourId}`
+              )
+            }
           >
             Back
           </Button>

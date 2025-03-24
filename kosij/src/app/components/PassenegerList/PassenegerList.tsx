@@ -21,14 +21,20 @@ const PassengerList: React.FC<PassengerListProps> = ({
 
   const handleCheckVisa = async (passenger: Passenger) => {
     try {
+      const newVisaStatus = !passenger.hasVisa;
+
       await api.put(
         `/trip-booking/${passenger.tripBookingId}/passenger/${passenger.id}/has-visa`,
-        { hasVisa: true }
+        { hasVisa: newVisaStatus }
       );
 
-      toast.success(`Updated visa status for ${passenger.fullName}`);
+      toast.success(
+        `Updated visa status for ${passenger.fullName} to ${
+          newVisaStatus ? "Granted" : "Not Granted"
+        }`
+      );
 
-      onUpdatePassenger({ ...passenger, hasVisa: true });
+      onUpdatePassenger({ ...passenger, hasVisa: newVisaStatus });
     } catch (error: any) {
       console.error("Error updating visa status:", error);
       const errorMessage =
@@ -79,7 +85,6 @@ const PassengerList: React.FC<PassengerListProps> = ({
           </div>
 
           {["Drafted", "Deposited"].includes(passenger.tripBookingStatus) &&
-            !passenger.hasVisa &&
             role !== "manager" && (
               <Button
                 type="primary"

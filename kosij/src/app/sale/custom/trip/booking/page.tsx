@@ -41,6 +41,7 @@ export default function CreateTourStep0() {
   const searchParams = useSearchParams();
   const tripRequestId = searchParams.get("tripRequestId");
   const tripBookingId = searchParams.get("tripBookingId");
+  const [tripBookingStatus, setTripBookingStatus] = useState();
   const router = useRouter();
   useEffect(() => {
     const fetchPassengers = async () => {
@@ -74,11 +75,18 @@ export default function CreateTourStep0() {
           }));
           setPassengers(fetchedPassengers);
         }
+        const responseTripBooking = await api.get(
+          `trip-booking/${tripBookingId}`
+        );
+        if (responseTripBooking.data?.value) {
+          setTripBookingStatus(
+            responseTripBooking.data.value.tripBookingStatus
+          );
+        }
       } catch (error) {
         toast.error("There's are no passengers");
       }
     };
-
     fetchPassengers();
   }, []);
 
@@ -210,7 +218,8 @@ export default function CreateTourStep0() {
       }
     }
   };
-
+  const isEditable =
+    tripBookingStatus === "Drafted" || tripBookingStatus === "Deposited";
   const columns: ColumnsType<Passenger> = [
     {
       title: "Full Name",
@@ -219,6 +228,7 @@ export default function CreateTourStep0() {
         <Input
           value={record.fullName}
           onChange={(e) => updatePassenger(index, "fullName", e.target.value)}
+          disabled={!isEditable}
         />
       ),
     },
@@ -235,6 +245,7 @@ export default function CreateTourStep0() {
             { label: "Infant", value: "Infant" },
           ]}
           style={{ width: 120 }}
+          disabled={!isEditable}
         />
       ),
     },
@@ -245,6 +256,7 @@ export default function CreateTourStep0() {
         <DatePicker
           value={record.dateOfBirth}
           onChange={(date) => updatePassenger(index, "dateOfBirth", date)}
+          disabled={!isEditable}
         />
       ),
     },
@@ -259,6 +271,7 @@ export default function CreateTourStep0() {
             { value: "Male", label: "Male" },
             { value: "Female", label: "Female" },
           ]}
+          disabled={!isEditable}
         />
       ),
     },
@@ -271,6 +284,7 @@ export default function CreateTourStep0() {
           onChange={(e) =>
             updatePassenger(index, "nationality", e.target.value)
           }
+          disabled={!isEditable}
         />
       ),
     },
@@ -290,6 +304,7 @@ export default function CreateTourStep0() {
           <Input
             value={record.email}
             onChange={(e) => updatePassenger(index, "email", e.target.value)}
+            disabled={!isEditable}
           />
         </Form.Item>
       ),
@@ -313,11 +328,11 @@ export default function CreateTourStep0() {
             onChange={(e) =>
               updatePassenger(index, "phoneNumber", e.target.value)
             }
+            disabled={!isEditable}
           />
         </Form.Item>
       ),
     },
-
     {
       title: "Passport",
       dataIndex: "passport",
@@ -325,6 +340,7 @@ export default function CreateTourStep0() {
         <Input
           value={record.passport}
           onChange={(e) => updatePassenger(index, "passport", e.target.value)}
+          disabled={!isEditable}
         />
       ),
     },
@@ -338,6 +354,7 @@ export default function CreateTourStep0() {
           onChange={(e) =>
             updatePassenger(index, "isRepresentative", e.target.checked)
           }
+          disabled={!isEditable}
         />
       ),
     },
@@ -349,35 +366,37 @@ export default function CreateTourStep0() {
           type="checkbox"
           checked={record.hasVisa}
           onChange={(e) => updatePassenger(index, "hasVisa", e.target.checked)}
+          disabled={!isEditable}
         />
       ),
     },
     {
       title: "Actions",
       dataIndex: "actions",
-      render: (_, record) => (
-        <Popconfirm
-          title="Are you sure to delete this passenger?"
-          onConfirm={() => removePassenger(record.key)}
-          okText="Yes"
-          cancelText="No"
-        >
-          <AntButton
-            type="primary"
-            danger
-            icon={
-              <DeleteOutlined
-                style={{
-                  color: "red",
-                  background: "white",
-                  padding: 4,
-                  borderRadius: "50%",
-                }}
-              />
-            }
-          />
-        </Popconfirm>
-      ),
+      render: (_, record) =>
+        isEditable ? (
+          <Popconfirm
+            title="Are you sure to delete this passenger?"
+            onConfirm={() => removePassenger(record.key)}
+            okText="Yes"
+            cancelText="No"
+          >
+            <AntButton
+              type="primary"
+              danger
+              icon={
+                <DeleteOutlined
+                  style={{
+                    color: "red",
+                    background: "white",
+                    padding: 4,
+                    borderRadius: "50%",
+                  }}
+                />
+              }
+            />
+          </Popconfirm>
+        ) : null,
     },
   ];
 
@@ -387,7 +406,7 @@ export default function CreateTourStep0() {
         <h2 className="text-xl font-semibold mb-4">Trip Booking</h2>
         <Form form={form} layout="vertical" onFinish={handleSubmit}>
           <Form.Item name="note" label="Notes">
-            <Input.TextArea placeholder="Enter notes" />
+            <Input.TextArea placeholder="Enter notes" disabled={!isEditable} />
           </Form.Item>
 
           <div className="flex justify-between items-center mb-4">
@@ -396,6 +415,7 @@ export default function CreateTourStep0() {
               onClick={addPassenger}
               type="button"
               className="bg-blue-500 hover:bg-blue-600 text-white"
+              disabled={!isEditable}
             >
               <PlusOutlined /> Add Passenger
             </Button>
@@ -414,6 +434,7 @@ export default function CreateTourStep0() {
             <Button
               type="submit"
               className="bg-green-500 hover:bg-green-600 text-white"
+              disabled={!isEditable}
             >
               Submit
             </Button>

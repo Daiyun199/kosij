@@ -16,8 +16,6 @@ function Page() {
   const params = useParams() as { id: string };
   const router = useRouter();
   const id = params.id;
-  const searchParams = useSearchParams();
-  const tripBookingId = searchParams.get("tripBookingId");
   const { role } = useParams();
   const LayoutComponent = role === "manager" ? ManagerLayout : SaleStaffLayout;
 
@@ -30,9 +28,7 @@ function Page() {
 
     const fetchData = async () => {
       try {
-        const ordersResponse = await api.get(
-          `/trip-booking/${tripBookingId}/order/${id}`
-        );
+        const ordersResponse = await api.get(`/order/${id}`);
         setOrders(ordersResponse.data.value);
       } catch (error) {
         console.error("Lỗi tải dữ liệu:", error);

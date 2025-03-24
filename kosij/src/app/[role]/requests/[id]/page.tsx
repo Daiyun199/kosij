@@ -92,6 +92,30 @@ const TripRequestDetail = () => {
       toast.error(errorMessage);
     }
   };
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case "Pending":
+        return "orange";
+      case "Assigned":
+        return "blue";
+      case "Modification Requested":
+        return "gold";
+      case "Manager Rejected":
+        return "black";
+      case "Approved":
+        return "green";
+      case "Processing":
+        return "purple";
+      case "Customer Confirmed":
+        return "yellow";
+      case "Cancelled":
+        return "red";
+      case "Completed":
+        return "green";
+      default:
+        return "gray";
+    }
+  };
 
   return (
     <LayoutComponent title="Trip Request Detail">
@@ -127,6 +151,15 @@ const TripRequestDetail = () => {
           </Descriptions.Item>
           <Descriptions.Item label="Feedback">
             {trip.feedback || "No feedback provided"}
+          </Descriptions.Item>
+          <Descriptions.Item label="Status">
+            {trip.requestStatus ? (
+              <Tag color={getStatusColor(trip.requestStatus)}>
+                {trip.requestStatus}
+              </Tag>
+            ) : (
+              "No Status"
+            )}
           </Descriptions.Item>
           <Descriptions.Item label="Koi Variety">
             {trip?.tripRequestVariety && trip.tripRequestVariety.length > 0 ? (

@@ -138,7 +138,12 @@ export default function CreateTourStep1({
                 name="night"
                 rules={[{ required: true }]}
               >
-                <InputNumber min={1} className="w-full" value={night} />
+                <InputNumber
+                  min={1}
+                  className="w-full"
+                  value={night}
+                  onChange={(value) => setNight(value ?? 1)}
+                />
               </Form.Item>
               <Form.Item label="Days (Auto):" name="day">
                 <InputNumber className="w-full" readOnly disabled value={day} />
@@ -245,7 +250,10 @@ export default function CreateTourStep1({
               </Form.Item>
             </div>
 
-            <Form.Item label="Upload Tour Image:">
+            <Form.Item
+              label="Upload Tour Image:"
+              rules={[{ required: true, message: "Please upload an image!" }]}
+            >
               <Upload
                 beforeUpload={handleUpload}
                 showUploadList={false}
@@ -253,6 +261,9 @@ export default function CreateTourStep1({
               >
                 <Button icon={<UploadOutlined />}>Click to Upload</Button>
               </Upload>
+              {!img && (
+                <p className="text-red-500 mt-2">Please upload an image!</p>
+              )}
               {img && (
                 <Image
                   src={URL.createObjectURL(img)}

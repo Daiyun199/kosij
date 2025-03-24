@@ -6,7 +6,6 @@ import { UploadOutlined } from "@ant-design/icons";
 import { TripBookingProps } from "@/model/TripBookingProps";
 import { ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
 import Image from "next/image";
-import axios from "axios";
 import { storage } from "@/config/firebase";
 import api from "@/config/axios.config";
 import { toast } from "react-toastify";
@@ -23,7 +22,7 @@ const TripBookingInfo: React.FC<TripBookingInfoProps> = ({
   onUpdateTripBooking,
   PassengerList,
 }) => {
-  const allPassengersHaveVisa = PassengerList.every(
+  const atLeastOnePassengerHasVisa = PassengerList.some(
     (passenger) => passenger.hasVisa
   );
   const [outboundFile, setOutboundFile] = useState<File | null>(null);
@@ -70,33 +69,55 @@ const TripBookingInfo: React.FC<TripBookingInfoProps> = ({
   const handleUpload = async () => {
     try {
       setUploading(true);
-      let outboundUrl = tripBooking.outboundTicketUrl;
-      let inboundUrl = tripBooking.inboundTicketUrl;
 
-      if (outboundFile) {
-        outboundUrl = await uploadFileToFirebase(outboundFile);
+      if (tripBooking.tripBookingStatus === "Deposited") {
+        const updatedTripBooking = {
+          ...tripBooking,
+          tripBookingStatus: "Processing",
+        };
+
+        await updateTripBooking(tripBooking.id, updatedTripBooking);
+        onUpdateTripBooking(updatedTripBooking);
+        toast.success("Trip booking status updated to Processing.");
+        return;
       }
-      if (inboundFile) {
-        inboundUrl = await uploadFileToFirebase(inboundFile);
-      }
 
-      const allPassengersHaveVisa = PassengerList.every(
-        (passenger) => passenger.hasVisa
-      );
+      if (tripBooking.tripBookingStatus === "Paid") {
+        let outboundUrl = tripBooking.outboundTicketUrl;
+        let inboundUrl = tripBooking.inboundTicketUrl;
 
-      const updatedTripBooking = {
-        ...tripBooking,
-        outboundTicketUrl: outboundUrl,
-        inboundTicketUrl: inboundUrl,
-        note: "Updated ticket images",
-        tripBookingStatus:
-          outboundUrl && inboundUrl && allPassengersHaveVisa
+        if (outboundFile) {
+          outboundUrl = await uploadFileToFirebase(outboundFile);
+        }
+        if (inboundFile) {
+          inboundUrl = await uploadFileToFirebase(inboundFile);
+        }
+
+        if (!outboundUrl || !inboundUrl) {
+          toast.error(
+            "Please upload both outbound and inbound tickets before updating."
+          );
+          return;
+        }
+
+        const allPassengersHaveVisa = PassengerList.every(
+          (passenger) => passenger.hasVisa
+        );
+
+        const updatedTripBooking = {
+          ...tripBooking,
+          outboundTicketUrl: outboundUrl,
+          inboundTicketUrl: inboundUrl,
+          note: "Updated ticket images",
+          tripBookingStatus: allPassengersHaveVisa
             ? "Processing"
             : tripBooking.tripBookingStatus,
-      };
+        };
 
-      await updateTripBooking(tripBooking.id, updatedTripBooking);
-      onUpdateTripBooking(updatedTripBooking);
+        await updateTripBooking(tripBooking.id, updatedTripBooking);
+        onUpdateTripBooking(updatedTripBooking);
+        toast.success("Trip booking updated successfully!");
+      }
     } catch (error) {
       message.error("Failed to update trip booking.");
     } finally {
@@ -133,7 +154,6 @@ const TripBookingInfo: React.FC<TripBookingInfoProps> = ({
             {tripBooking.tripBookingStatus}
           </Text>
         </Descriptions.Item>
-
         <Descriptions.Item label="Outbound Ticket">
           {tripBooking.outboundTicketUrl && (
             <Image
@@ -144,7 +164,7 @@ const TripBookingInfo: React.FC<TripBookingInfoProps> = ({
               className="mb-2 rounded-lg shadow-md object-contain"
             />
           )}
-          {!isManager && (
+          {!isManager && tripBooking.tripBookingStatus === "Paid" && (
             <Upload
               beforeUpload={(file) => {
                 setOutboundFile(file);
@@ -168,7 +188,7 @@ const TripBookingInfo: React.FC<TripBookingInfoProps> = ({
               className="mb-2 rounded-lg shadow-md object-contain"
             />
           )}
-          {!isManager && (
+          {!isManager && tripBooking.tripBookingStatus === "Paid" && (
             <Upload
               beforeUpload={(file) => {
                 setInboundFile(file);
@@ -183,16 +203,19 @@ const TripBookingInfo: React.FC<TripBookingInfoProps> = ({
         </Descriptions.Item>
       </Descriptions>
 
-      {!isManager && allPassengersHaveVisa && (
-        <Button
-          type="primary"
-          className="mt-4"
-          onClick={handleUpload}
-          disabled={uploading}
-        >
-          {uploading ? "Uploading..." : "Update"}
-        </Button>
-      )}
+      {!isManager &&
+        (tripBooking.tripBookingStatus === "Deposited" ||
+          tripBooking.tripBookingStatus === "Paid") &&
+        atLeastOnePassengerHasVisa && (
+          <Button
+            type="primary"
+            className="mt-4"
+            onClick={handleUpload}
+            disabled={uploading}
+          >
+            {uploading ? "Uploading..." : "Update"}
+          </Button>
+        )}
     </Card>
   );
 };

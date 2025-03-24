@@ -1,5 +1,5 @@
 import React from "react";
-import { Card, Table, Descriptions, Collapse } from "antd";
+import { Card, Table, Descriptions, Collapse, Divider } from "antd";
 import { Button } from "@/components/ui/button";
 import Image from "next/image";
 import { BoxAllocation, OrderData, OrderDetail } from "@/model/OrderInfoProps";
@@ -16,7 +16,12 @@ const OrderInfo: React.FC<OrderInfoProps> = ({ data }) => {
   };
   return (
     <Card title={`Order #${data.id}`} className="shadow-md p-4">
-      <Descriptions bordered column={1} size="middle">
+      <Descriptions
+        title="Customer Information"
+        bordered
+        column={1}
+        size="middle"
+      >
         <Descriptions.Item label="Customer Name">
           {data.fullName}
         </Descriptions.Item>
@@ -26,23 +31,65 @@ const OrderInfo: React.FC<OrderInfoProps> = ({ data }) => {
         <Descriptions.Item label="Delivery Address">
           {data.deliveryAddress}
         </Descriptions.Item>
+      </Descriptions>
+
+      <Divider />
+
+      <Descriptions title="Order Details" bordered column={1} size="middle">
+        <Descriptions.Item label="Total Fish Value">
+          {data.totalFishAmount.toLocaleString()} VNĐ
+        </Descriptions.Item>
+        <Descriptions.Item label="Total Delivery Fee">
+          {data.totalDeliveringAmount.toLocaleString()} VNĐ
+        </Descriptions.Item>
         <Descriptions.Item label="Total Order Amount">
-          {data.totalOrderAmount} VNĐ
-        </Descriptions.Item>
-        <Descriptions.Item label="Paid Amount">
-          {data.paidAmount} VNĐ
-        </Descriptions.Item>
-        <Descriptions.Item label="Remaining Amount">
-          {data.remaining} VNĐ
-        </Descriptions.Item>
-        <Descriptions.Item label="Expected Delivery Date">
-          {new Date(data.expectedDeliveryDate).toLocaleString()}
+          {data.totalOrderAmount.toLocaleString()} VNĐ
         </Descriptions.Item>
         <Descriptions.Item label="Order Status">
           {data.orderStatus}
         </Descriptions.Item>
       </Descriptions>
 
+      <Divider />
+
+      <Descriptions
+        title="Payment Information"
+        bordered
+        column={1}
+        size="middle"
+      >
+        <Descriptions.Item label="Paid Amount">
+          {data.paidAmount.toLocaleString()} VNĐ
+        </Descriptions.Item>
+        <Descriptions.Item label="Remaining Amount">
+          {data.remaining.toLocaleString()} VNĐ
+        </Descriptions.Item>
+      </Descriptions>
+
+      <Divider />
+
+      <Descriptions
+        title="Delivery & Commission Information"
+        bordered
+        column={1}
+        size="middle"
+      >
+        <Descriptions.Item label="Commission Percentage">
+          {data.commissionPercentage}%
+        </Descriptions.Item>
+        <Descriptions.Item label="Total Commission">
+          {data.totalCommission.toLocaleString()} VNĐ
+        </Descriptions.Item>
+        <Descriptions.Item label="Total After Commission">
+          {data.totalAfterCommission.toLocaleString()} VNĐ
+        </Descriptions.Item>
+        <Descriptions.Item label="Expected Delivery Date">
+          {new Date(data.expectedDeliveryDate).toLocaleString()}
+        </Descriptions.Item>
+        <Descriptions.Item label="Delivery Staff">
+          {data.deliveryStaffName}
+        </Descriptions.Item>
+      </Descriptions>
       <Collapse defaultActiveKey={["1", "2"]} className="mt-4">
         <Collapse.Panel header="Order Details" key="1">
           <Table

@@ -3,7 +3,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 import { useState, useEffect, Key } from "react";
-import ManagerLayout from "@/app/components/ManagerLayout/ManagerLayout";
+import SaleStaffLayout from "@/app/components/ManagerLayout/ManagerLayout";
 import { FiArrowLeft, FiTrash } from "react-icons/fi";
 import api from "@/config/axios.config";
 import { Day } from "@/model/Day";
@@ -13,6 +13,8 @@ import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { storage } from "@/config/firebase";
 import { Button, Card, Input } from "antd";
 import { ValueType } from "rc-input/lib/interface";
+import { useRouter, useSearchParams } from "next/navigation";
+
 interface CreateTourStep4Props {
   onBack: () => void;
   setStep: (step: number) => void;
@@ -37,15 +39,18 @@ const CreateTourStep4: React.FC<CreateTourStep4Props> = ({
   setFormData,
   setStep,
   resetForm,
-
   tourData,
 }) => {
   const [policies, setPolicies] = useState(formData.policies || []);
   const [deposits, setDeposits] = useState(formData.deposits || []);
   const [promotions, setPromotions] = useState(formData.promotions || []);
+  const [lastPayments, setLastPayment] = useState(formData.lastPayments || []);
+  const router = useRouter();
+
   useEffect(() => {
-    setFormData({ ...formData, policies, deposits, promotions });
-  }, [policies, deposits, promotions]);
+    setFormData({ ...formData, policies, deposits, promotions, lastPayments });
+  }, [policies, deposits, promotions, lastPayments]);
+
   const handlePromotionChange = (id: number, field: string, value: string) => {
     setPromotions(
       promotions.map((promotion: { id: number }) =>
@@ -53,7 +58,17 @@ const CreateTourStep4: React.FC<CreateTourStep4Props> = ({
       )
     );
   };
-
+  const handleLastPaymentChange = (
+    id: number,
+    field: string,
+    value: string
+  ) => {
+    setLastPayment(
+      lastPayments.map((lastPayment: { id: number }) =>
+        lastPayment.id === id ? { ...lastPayment, [field]: value } : lastPayment
+      )
+    );
+  };
   const handlePolicyChange = (id: number, field: string, value: string) => {
     setPolicies(
       policies.map((policy: { id: number }) =>
@@ -61,6 +76,39 @@ const CreateTourStep4: React.FC<CreateTourStep4Props> = ({
       )
     );
   };
+
+  const handleDepositChange = (id: number, field: string, value: string) => {
+    setDeposits(
+      deposits.map((deposit: { id: number }) =>
+        deposit.id === id ? { ...deposit, [field]: value } : deposit
+      )
+    );
+  };
+  useEffect(() => {
+    api
+      .get("/config-templates/TourLastPayment")
+      .then((response) => {
+        if (response.data?.value) {
+          const fetchedLastPayment = response.data.value.map(
+            (lastPayment: any) => ({
+              id: lastPayment.id,
+              from: lastPayment.rangeStart.toString(),
+              to: lastPayment.rangeEnd.toString(),
+              discountRate: (lastPayment.rate * 100).toString(),
+              description: lastPayment.description,
+            })
+          );
+          setLastPayment(fetchedLastPayment);
+          setFormData((prev: any) => ({
+            ...prev,
+            lastPayments: fetchedLastPayment,
+          }));
+        }
+      })
+      .catch((error) => {
+        console.error("Error fetching last Payment Policy:", error);
+      });
+  }, []);
   useEffect(() => {
     api
       .get("/config-templates/TourGroupDiscount")
@@ -86,13 +134,6 @@ const CreateTourStep4: React.FC<CreateTourStep4Props> = ({
         console.error("Error fetching promotions:", error);
       });
   }, []);
-  const handleDepositChange = (id: number, field: string, value: string) => {
-    setDeposits(
-      deposits.map((deposit: { id: number }) =>
-        deposit.id === id ? { ...deposit, [field]: value } : deposit
-      )
-    );
-  };
   useEffect(() => {
     api
       .get("/config-templates/TourCancellationPolicy")
@@ -113,7 +154,26 @@ const CreateTourStep4: React.FC<CreateTourStep4Props> = ({
         console.error("Error fetching policies:", error);
       });
   }, []);
-
+  useEffect(() => {
+    api
+      .get("/config-templates/TourDepositRate")
+      .then((response) => {
+        if (response.data?.value) {
+          const fetchedDeposit = response.data.value.map((deposit: any) => ({
+            id: deposit.id,
+            start: deposit.rangeStart.toString(),
+            end: deposit.rangeEnd.toString(),
+            rate: (deposit.rate * 100).toString(),
+            description: deposit.description,
+          }));
+          setDeposits(fetchedDeposit);
+          setFormData((prev: any) => ({ ...prev, deposits: fetchedDeposit }));
+        }
+      })
+      .catch((error) => {
+        console.error("Error fetching deposits:", error);
+      });
+  }, []);
   const convertTimeToHourMinute = (timeString: string) => {
     const [hour, minute] = timeString.split(":").map(Number);
     return { hour, minute };
@@ -153,8 +213,9 @@ const CreateTourStep4: React.FC<CreateTourStep4Props> = ({
       } else {
         console.error("Invalid image file:", tourData.step1.img);
       }
-      console.log(tourData.step2);
       const requestBody = {
+        departureDate: tourData.step1.departureDate,
+        pricingRate: tourData.step1.pricingRate,
         imageUrl: imageUrl || "",
         tourName: tourData.step1.tourName || "",
         nights: tourData.step1.night || 0,
@@ -189,8 +250,8 @@ const CreateTourStep4: React.FC<CreateTourStep4Props> = ({
               pricingRate: price.rate / 100,
             })
           ) || [],
-        tourPaymentRequests:
-          formData.deposits?.map(
+        tourPaymentRequests: [
+          ...(formData.deposits?.map(
             (deposit: {
               start: any;
               end: any;
@@ -202,7 +263,23 @@ const CreateTourStep4: React.FC<CreateTourStep4Props> = ({
               description: deposit.description,
               depositRate: deposit.rate / 100,
             })
-          ) || [],
+          ) || []),
+
+          ...(formData.lastPayments?.map(
+            (lastPayment: {
+              from: any;
+              to: any;
+              description: any;
+              discountRate: number;
+            }) => ({
+              dayFrom: lastPayment.from,
+              dayTo: lastPayment.to,
+              description: lastPayment.description,
+              depositRate: lastPayment.discountRate / 100,
+            })
+          ) || []),
+        ],
+
         tourCancellationRequests:
           formData.policies?.map(
             (policy: {
@@ -251,27 +328,6 @@ const CreateTourStep4: React.FC<CreateTourStep4Props> = ({
     }
   };
 
-  useEffect(() => {
-    api
-      .get("/config-templates/TourDepositRate")
-      .then((response) => {
-        if (response.data?.value) {
-          const fetchedDeposit = response.data.value.map((deposit: any) => ({
-            id: deposit.id,
-            start: deposit.rangeStart.toString(),
-            end: deposit.rangeEnd.toString(),
-            rate: (deposit.rate * 100).toString(),
-            description: deposit.description,
-          }));
-          setDeposits(fetchedDeposit);
-          setFormData((prev: any) => ({ ...prev, deposits: fetchedDeposit }));
-        }
-      })
-      .catch((error) => {
-        console.error("Error fetching deposits:", error);
-      });
-  }, []);
-
   const addPolicy = () => {
     setPolicies([
       ...policies,
@@ -288,6 +344,12 @@ const CreateTourStep4: React.FC<CreateTourStep4Props> = ({
   const addPromotion = () => {
     setPromotions([
       ...promotions,
+      { id: Date.now(), from: "", to: "", discountRate: "", description: "" },
+    ]);
+  };
+  const addLastPayment = () => {
+    setLastPayment([
+      ...lastPayments,
       { id: Date.now(), from: "", to: "", discountRate: "", description: "" },
     ]);
   };
@@ -314,8 +376,15 @@ const CreateTourStep4: React.FC<CreateTourStep4Props> = ({
       );
     }
   };
+  const removeLastPayment = (id: number) => {
+    if (confirm("Are you sure you want to delete this last Payment Policy ?")) {
+      setLastPayment(
+        lastPayments.filter((promotion: { id: number }) => promotion.id !== id)
+      );
+    }
+  };
   return (
-    <ManagerLayout title="Create Tour">
+    <SaleStaffLayout title="Create Tour">
       <div className="p-6 bg-white shadow-md rounded-lg w-full max-w-4xl mx-auto">
         <h2 className="text-2xl font-bold text-center mb-6 uppercase">
           Tour Information Form
@@ -403,35 +472,13 @@ const CreateTourStep4: React.FC<CreateTourStep4Props> = ({
               description: any;
             }) => (
               <Card key={deposit.id} className="mb-4 relative">
-                <Button
-                  type="text"
-                  icon={<FiTrash size={16} className="text-red-500" />}
-                  className="absolute -top-1.5 -right-1.5"
-                  onClick={() => removeDeposit(Number(deposit.id))}
-                />
                 <div className="grid grid-cols-3 gap-4">
                   <Input
                     placeholder="Starting Point"
                     value={deposit.start}
-                    onChange={(e) =>
-                      handleDepositChange(
-                        Number(deposit.id),
-                        "start",
-                        e.target.value
-                      )
-                    }
+                    readOnly
                   />
-                  <Input
-                    placeholder="End Point"
-                    value={deposit.end}
-                    onChange={(e) =>
-                      handleDepositChange(
-                        Number(deposit.id),
-                        "end",
-                        e.target.value
-                      )
-                    }
-                  />
+                  <Input placeholder="End Point" value={deposit.end} readOnly />
                   <Input
                     placeholder="Pricing Rate (%)"
                     value={deposit.rate}
@@ -460,9 +507,56 @@ const CreateTourStep4: React.FC<CreateTourStep4Props> = ({
               </Card>
             )
           )}
-          <Button type="dashed" className="mt-4" onClick={addDeposit}>
-            + New Deposit
-          </Button>
+        </Card>
+        <Card title="Last Payment Policy" className="mb-6">
+          {lastPayments.map(
+            (lastPayment: {
+              id: Key | null | undefined;
+              from: any;
+              to: any;
+              discountRate: any;
+              description: any;
+            }) => (
+              <Card key={lastPayment.id} className="mb-4 relative">
+                <div className="grid grid-cols-3 gap-4">
+                  <Input
+                    placeholder="Starting Point"
+                    value={lastPayment.from}
+                    readOnly
+                  />
+                  <Input
+                    placeholder="End Point"
+                    value={lastPayment.to}
+                    readOnly
+                  />
+                  <Input
+                    placeholder="Penalty Rate (%)"
+                    value={lastPayment.discountRate}
+                    onChange={(e) =>
+                      handleLastPaymentChange(
+                        Number(lastPayment.id),
+                        "rate",
+                        e.target.value
+                      )
+                    }
+                  />
+                </div>
+                <Input.TextArea
+                  className="mt-4"
+                  placeholder="Description"
+                  rows={2}
+                  value={lastPayment.description}
+                  onChange={(e) =>
+                    handleLastPaymentChange(
+                      Number(lastPayment.id),
+                      "description",
+                      e.target.value
+                    )
+                  }
+                />
+              </Card>
+            )
+          )}
         </Card>
         <Card title="Promotion Policy" className="mb-6">
           {promotions.map((promotion: any) => (
@@ -528,7 +622,7 @@ const CreateTourStep4: React.FC<CreateTourStep4Props> = ({
           </Button>
         </div>
       </div>
-    </ManagerLayout>
+    </SaleStaffLayout>
   );
 };
 

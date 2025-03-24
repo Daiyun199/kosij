@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 "use client";
 import React, { useState } from "react";
 import Dashboard from "@/app/components/Dashboard/Dashboard";
@@ -90,7 +91,7 @@ function Page() {
 
   return (
     <div>
-      <ManagerLayout title="Finance">
+      {/* <ManagerLayout title="Finance">
         <div className="p-6 bg-gray-100 min-h-screen">
           <TimeFilter onChange={handleTimeChange} />
           <Dashboard
@@ -100,7 +101,7 @@ function Page() {
             chartOptions={chartOptions}
           />
         </div>
-      </ManagerLayout>
+      </ManagerLayout> */}
     </div>
   );
 }

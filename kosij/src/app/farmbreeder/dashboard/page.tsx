@@ -29,6 +29,10 @@ const statusColors: Record<string, { color: string; background: string }> = {
   Refunded: { color: "#722ed1", background: "#f9f0ff" },
 };
 
+const formatNumber = (num: { toString: () => string }) => {
+  return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+};
+
 const columns: ColumnsType<Order> = [
   {
     title: "Order ID",
@@ -43,9 +47,9 @@ const columns: ColumnsType<Order> = [
   },
   {
     title: "Amount",
-    dataIndex: "totalAmount",
+    dataIndex: "totalOrderAmount",
     key: "amount",
-    render: (amount?: number) => (amount ? `${amount} VND` : "-"),
+    render: (amount?: number) => (amount ? `${formatNumber(amount)} VND` : "-"),
   },
   {
     title: "Status",

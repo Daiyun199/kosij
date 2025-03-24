@@ -2,7 +2,16 @@
 
 import ClickableArea from "@/app/components/ClickableArea";
 import { PageContainer } from "@ant-design/pro-layout";
-import { Avatar, Button, List, Progress, Rate, Space, Statistic, Typography } from "antd";
+import {
+  Avatar,
+  Button,
+  List,
+  Progress,
+  Rate,
+  Space,
+  Statistic,
+  Typography,
+} from "antd";
 import {
   ArrowDownOutlined,
   ArrowUpOutlined,
@@ -10,45 +19,86 @@ import {
   WechatOutlined,
 } from "@ant-design/icons";
 import { cn } from "@/lib/utils/cn.util";
+import { getAuthToken } from "@/lib/utils/auth.utils";
+import api from "@/config/axios.config";
+import { useQuery } from "@tanstack/react-query";
+import {
+  ReactElement,
+  JSXElementConstructor,
+  ReactNode,
+  ReactPortal,
+  AwaitedReactNode,
+} from "react";
+import { fetchRecentReviews } from "@/features/farmbreeder/api/feedback/all.api";
 
-const ratings = [
-  { label: "5 stars", percent: 75 },
-  { label: "4 stars", percent: 15 },
-  { label: "3 stars", percent: 6 },
-  { label: "2 stars", percent: 3 },
-  { label: "1 star", percent: 1 },
-];
+// const ratings = [
+//   { label: "5 stars", percent: 75 },
+//   { label: "4 stars", percent: 15 },
+//   { label: "3 stars", percent: 6 },
+//   { label: "2 stars", percent: 3 },
+//   { label: "1 star", percent: 1 },
+// ];
 
 const { Text } = Typography;
 
-const reviews = [
-  {
-    name: "Sarah Johnson",
-    avatar: "/avatar1.png",
-    rating: 5,
-    review:
-      "Excellent service! The customer support team was incredibly helpful and resolved my issue quickly. Would definitely recommend.",
-    time: "2 hours ago",
-  },
-  {
-    name: "Michael Chen",
-    avatar: "/avatar2.png",
-    rating: 4,
-    review:
-      "Good product overall, but there's room for improvement in the delivery process. Looking forward to seeing updates.",
-    time: "5 hours ago",
-  },
-  {
-    name: "Emily Rodriguez",
-    avatar: "/avatar3.png",
-    rating: 5,
-    review:
-      "Amazing experience from start to finish. The interface is intuitive and the features are exactly what I needed. Great job!",
-    time: "1 day ago",
-  },
-];
+// const reviews = [
+//   {
+//     name: "Sarah Johnson",
+//     avatar: "/avatar1.png",
+//     rating: 5,
+//     review:
+//       "Excellent service! The customer support team was incredibly helpful and resolved my issue quickly. Would definitely recommend.",
+//     time: "2 hours ago",
+//   },
+//   {
+//     name: "Michael Chen",
+//     avatar: "/avatar2.png",
+//     rating: 4,
+//     review:
+//       "Good product overall, but there's room for improvement in the delivery process. Looking forward to seeing updates.",
+//     time: "5 hours ago",
+//   },
+//   {
+//     name: "Emily Rodriguez",
+//     avatar: "/avatar3.png",
+//     rating: 5,
+//     review:
+//       "Amazing experience from start to finish. The interface is intuitive and the features are exactly what I needed. Great job!",
+//     time: "1 day ago",
+//   },
+// ];
 
 function Page() {
+  const fetchStatistics = async () => {
+    const token = getAuthToken();
+    const response = await api.get("/farm-variety/statistics/current-farm", {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        Accept: "text/plain",
+      },
+    });
+    console.log("API Response:", response.data.value);
+
+    return response.data.value;
+  };
+
+  const { data, isLoading, isError } = useQuery({
+    queryKey: ["farmStatistics"],
+    queryFn: fetchStatistics,
+  });
+
+  const {
+    data: reviews,
+    isLoading: loadingReviews,
+    isError: errorReviews,
+  } = useQuery({
+    queryKey: ["recentReviews"],
+    queryFn: fetchRecentReviews,
+  });
+
+  if (isLoading) return <div>Loading...</div>;
+  if (isError) return <div>Error fetching data</div>;
+
   return (
     <PageContainer
       title="Ratings & Reviews"
@@ -80,7 +130,7 @@ function Page() {
               title={
                 <span className="text-lg font-normal">Average Rating</span>
               }
-              value="4.8/5.0"
+              value={`${data.averageRating}/5.0`}
               valueStyle={{ fontSize: "1.5rem", fontWeight: "bold" }}
             />
             <StarFilled className="text-yellow-500 text-2xl cursor-pointer" />
@@ -96,7 +146,7 @@ function Page() {
           <div className="flex items-start justify-between">
             <Statistic
               title={<span className="text-lg font-normal">Total Reviews</span>}
-              value={2.847}
+              value={data.totalFeedbacks}
               valueStyle={{ fontSize: "1.5rem", fontWeight: "bold" }}
             />
             <WechatOutlined className="text-blue-700 text-2xl cursor-pointer" />
@@ -109,52 +159,93 @@ function Page() {
           />
         </ClickableArea>
       </section>
-      <section className=" mt-8 p-4 bg-white rounded-lg shadow-md">
+      <section className="mt-8 p-4 bg-white rounded-lg shadow-md">
         <h3 className="font-bold mb-2">Rating Distribution</h3>
-        {ratings.map((rating) => (
-          <div key={rating.label} className="flex items-center gap-4 mb-2">
-            <span className="w-16 text-gray-700">{rating.label}</span>
-            <Progress
-              percent={rating.percent}
-              showInfo={false}
-              strokeColor="#FFD700"
-              trailColor="#f0f0f0"
-              strokeWidth={12}
-            />
-            <span className="text-gray-700">{rating.percent}%</span>
-          </div>
-        ))}
+        {data.feedbackStatistics.map(
+          (rating: {
+            star:
+              | string
+              | number
+              | bigint
+              | boolean
+              | ReactElement<unknown, string | JSXElementConstructor<unknown>>
+              | Iterable<ReactNode>
+              | ReactPortal
+              | Promise<AwaitedReactNode>
+              | null
+              | undefined;
+            percentage: number | undefined;
+            count:
+              | string
+              | number
+              | bigint
+              | boolean
+              | ReactElement<unknown, string | JSXElementConstructor<unknown>>
+              | Iterable<ReactNode>
+              | ReactPortal
+              | Promise<AwaitedReactNode>
+              | null
+              | undefined;
+          }) => (
+            <div
+              key={`star-${rating.star}`}
+              className="flex items-center gap-4 mb-2"
+            >
+              <span className="w-16 text-gray-700">{rating.star} stars</span>
+              <Progress
+                percent={rating.percentage}
+                showInfo={false}
+                strokeColor="#FFD700"
+                trailColor="#f0f0f0"
+                strokeWidth={12}
+              />
+              <span className="text-gray-700">{rating.percentage}%</span>
+            </div>
+          )
+        )}
       </section>
+
       <section className="mt-5">
         <div className="bg-white p-6 rounded-lg shadow-md">
           <h3 className="font-bold text-lg mb-4">Recent Reviews</h3>
-          <List
-            itemLayout="horizontal"
-            dataSource={reviews}
-            renderItem={(item) => (
-              <List.Item>
-                <List.Item.Meta
-                  avatar={<Avatar src={item.avatar} />}
-                  title={
-                    <div className="flex justify-between items-center">
-                      <Text strong>{item.name}</Text>
-                      <Text type="secondary">{item.time}</Text>
-                    </div>
-                  }
-                  description={
-                    <>
-                      <Rate
-                        disabled
-                        defaultValue={item.rating}
-                        className="mb-1"
+          {loadingReviews ? (
+            <div>Loading reviews...</div>
+          ) : errorReviews ? (
+            <div>Error fetching reviews.</div>
+          ) : (
+            <List
+              itemLayout="horizontal"
+              dataSource={reviews}
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
+              renderItem={(item: any) => (
+                <List.Item>
+                  <List.Item.Meta
+                    avatar={
+                      <Avatar
+                        src={item.customerAvatar || "/default-avatar.png"}
                       />
-                      <p className="text-gray-600">{item.review}</p>
-                    </>
-                  }
-                />
-              </List.Item>
-            )}
-          />
+                    }
+                    title={
+                      <div className="flex justify-between items-center">
+                        <Text strong>{item.customerName}</Text>
+                        <Text type="secondary">{item.postedDay}</Text>
+                      </div>
+                    }
+                    description={
+                      <>
+                        <Rate
+                          disabled
+                          defaultValue={item.rating}
+                          className="mb-1"
+                        />
+                        <p className="text-gray-600">{item.review}</p>
+                      </>
+                    }
+                  />
+                </List.Item>
+              )}
+            />
+          )}
           <Button type="link" className="block mx-auto mt-4">
             Load More Reviews
           </Button>

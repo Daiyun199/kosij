@@ -23,7 +23,7 @@ export interface OrderDetailImage {
     deliveryAddress: string;
     paidAmount: number;
     remaining: number;
-    totalAmount: number;
+    totalOrderAmount: number;
     note: string;
     expectedDeliveryDate: string;
     orderStatus: string;

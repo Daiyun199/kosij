@@ -97,11 +97,11 @@ function Page() {
     },
     {
       title: "Total",
-      dataIndex: "totalAmount",
-      key: "totalAmount",
+      dataIndex: "totalOrderAmount",
+      key: "totalOrderAmount",
       align: "right",
       render: (_, record: Order) =>
-        `${record.totalAmount.toLocaleString()} VND`,
+        `${record.totalOrderAmount.toLocaleString()} VND`,
     },
     {
       title: "Paid",

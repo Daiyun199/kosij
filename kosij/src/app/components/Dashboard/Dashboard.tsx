@@ -57,7 +57,6 @@ const Dashboard: React.FC<DashboardProps> = ({
           />
         ))}
       </div>
-
       <div className="p-4 bg-white rounded-lg shadow">
         <Bar data={chartData} options={chartOptions} />
       </div>

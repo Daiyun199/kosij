@@ -66,6 +66,28 @@ function Page() {
       };
     }
   };
+  const getPreviousDateRange = () => {
+    const today = dayjs(selectedValue);
+    if (selectedTime === "day") {
+      const previousDay = today.subtract(1, "day");
+      return {
+        startDate: previousDay.format("YYYY-MM-DD"),
+        endDate: previousDay.format("YYYY-MM-DD"),
+      };
+    } else if (selectedTime === "month") {
+      const previousMonth = today.subtract(1, "month");
+      return {
+        startDate: previousMonth.startOf("month").format("YYYY-MM-DD"),
+        endDate: previousMonth.endOf("month").format("YYYY-MM-DD"),
+      };
+    } else {
+      const previousYear = today.subtract(1, "year");
+      return {
+        startDate: previousYear.startOf("year").format("YYYY-MM-DD"),
+        endDate: previousYear.endOf("year").format("YYYY-MM-DD"),
+      };
+    }
+  };
 
   useEffect(() => {
     const fetchDashboardData = async (startDate: string, endDate: string) => {
@@ -80,35 +102,65 @@ function Page() {
       }
     };
 
+    const calculateComparison = (current: number, previous: number) => {
+      if (previous === 0) {
+        return current === 0 ? "0%" : "-100%";
+      }
+      return `${(((current - previous) / previous) * 100).toFixed(2)}%`;
+    };
+
     const fetchData = async () => {
       setLoading(true);
       const { startDate, endDate } = getDateRange();
-      const currentData = await fetchDashboardData(startDate, endDate);
+      const { startDate: prevStart, endDate: prevEnd } = getPreviousDateRange();
+
+      const [currentData, previousData] = await Promise.all([
+        fetchDashboardData(startDate, endDate),
+        fetchDashboardData(prevStart, prevEnd),
+      ]);
 
       setMetricsData({
         "Total Tour Bookings": {
           today: currentData?.value.totalTourBookings ?? 0,
-          comparison: "0%",
+          comparison: calculateComparison(
+            currentData?.value.totalTourBookings ?? 0,
+            previousData?.value.totalTourBookings ?? 0
+          ),
         },
         "Total Revenue": {
           today: currentData?.value.totalRevenue ?? 0,
-          comparison: "0%",
+          comparison: calculateComparison(
+            currentData?.value.totalRevenue ?? 0,
+            previousData?.value.totalRevenue ?? 0
+          ),
         },
         "Tour Capacity Utilization": {
           today: currentData?.value.tourCapacityUtilization ?? 0,
-          comparison: "0%",
+          comparison: calculateComparison(
+            currentData?.value.tourCapacityUtilization ?? 0,
+            previousData?.value.tourCapacityUtilization ?? 0
+          ),
         },
         "Cancellation Rate": {
           today: currentData?.value.cancellationRate ?? 0,
-          comparison: "0%",
+          comparison: calculateComparison(
+            currentData?.value.cancellationRate ?? 0,
+            previousData?.value.cancellationRate ?? 0
+          ),
         },
         "Customer Satisfaction": {
           today: currentData?.value.customerSatisfaction ?? 0,
-          comparison: "0%",
+          comparison: calculateComparison(
+            currentData?.value.customerSatisfaction ?? 0,
+            previousData?.value.customerSatisfaction ?? 0
+          ),
         },
         "Refund Rate": {
           today: currentData?.value.refundRate ?? 0,
-          comparison: "0%",
+          comparison: calculateComparison(
+            currentData?.value.refundRate ?? 0,
+            previousData?.value.refundRate ?? 0
+          ),
         },
       });
 
@@ -123,6 +175,15 @@ function Page() {
               currentData?.value.customerSatisfaction ?? 0,
             ],
             backgroundColor: "rgba(54, 162, 235, 0.6)",
+          },
+          {
+            label: "Previous Period",
+            data: [
+              previousData?.value.totalTourBookings ?? 0,
+              previousData?.value.totalRevenue ?? 0,
+              previousData?.value.customerSatisfaction ?? 0,
+            ],
+            backgroundColor: "rgba(255, 99, 132, 0.6)",
           },
         ],
       });

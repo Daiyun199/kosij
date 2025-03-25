@@ -66,49 +66,101 @@ function Page() {
       };
     }
   };
+  const getPreviousDateRange = () => {
+    const today = dayjs(selectedValue);
+    if (selectedTime === "day") {
+      const previousDay = today.subtract(1, "day");
+      return {
+        startDate: previousDay.format("YYYY-MM-DD"),
+        endDate: previousDay.format("YYYY-MM-DD"),
+      };
+    } else if (selectedTime === "month") {
+      const previousMonth = today.subtract(1, "month");
+      return {
+        startDate: previousMonth.startOf("month").format("YYYY-MM-DD"),
+        endDate: previousMonth.endOf("month").format("YYYY-MM-DD"),
+      };
+    } else {
+      const previousYear = today.subtract(1, "year");
+      return {
+        startDate: previousYear.startOf("year").format("YYYY-MM-DD"),
+        endDate: previousYear.endOf("year").format("YYYY-MM-DD"),
+      };
+    }
+  };
+
+  const fetchDashboardData = async (startDate: string, endDate: string) => {
+    try {
+      const res = await api.get(
+        `/orders/dashboard?startDate=${startDate}&endDate=${endDate}`
+      );
+      return res.data || {};
+    } catch (error: any) {
+      console.error("Error fetching data:", error.message);
+      return {};
+    }
+  };
+
+  const calculateComparison = (current: number, previous: number) => {
+    if (previous === 0) {
+      return current === 0 ? "0%" : "-100%";
+    }
+    return `${(((current - previous) / previous) * 100).toFixed(2)}%`;
+  };
 
   useEffect(() => {
-    const fetchDashboardData = async (startDate: string, endDate: string) => {
-      try {
-        const res = await api.get(
-          `/orders/dashboard?startDate=${startDate}&endDate=${endDate}`
-        );
-        return res.data || {};
-      } catch (error: any) {
-        console.error("Error fetching data:", error.message);
-        return {};
-      }
-    };
-
     const fetchData = async () => {
       setLoading(true);
       const { startDate, endDate } = getDateRange();
-      const currentData = await fetchDashboardData(startDate, endDate);
+      const { startDate: prevStart, endDate: prevEnd } = getPreviousDateRange();
+
+      const [currentData, previousData] = await Promise.all([
+        fetchDashboardData(startDate, endDate),
+        fetchDashboardData(prevStart, prevEnd),
+      ]);
 
       setMetricsData({
         "Total Transactions": {
           today: currentData?.value.totalTransactions ?? 0,
-          comparison: "0%",
+          comparison: calculateComparison(
+            currentData?.value.totalTransactions ?? 0,
+            previousData?.value.totalTransactions ?? 0
+          ),
         },
         "Successful Orders": {
           today: currentData?.value.successfulOrders ?? 0,
-          comparison: "0%",
+          comparison: calculateComparison(
+            currentData?.value.successfulOrders ?? 0,
+            previousData?.value.successfulOrders ?? 0
+          ),
         },
         "Canceled Orders": {
           today: currentData?.value.cancelledOrders ?? 0,
-          comparison: "0%",
+          comparison: calculateComparison(
+            currentData?.value.cancelledOrders ?? 0,
+            previousData?.value.cancelledOrders ?? 0
+          ),
         },
         "Total Revenue": {
           today: currentData?.value.totalRevenue ?? 0,
-          comparison: "0%",
+          comparison: calculateComparison(
+            currentData?.value.totalRevenue ?? 0,
+            previousData?.value.totalRevenue ?? 0
+          ),
         },
         "Commission Earned": {
           today: currentData?.value.commissionEarned ?? 0,
-          comparison: "0%",
+          comparison: calculateComparison(
+            currentData?.value.commissionEarned ?? 0,
+            previousData?.value.commissionEarned ?? 0
+          ),
         },
         "Customer Satisfaction": {
           today: currentData?.value.customerSatisfaction ?? 0,
-          comparison: "0%",
+          comparison: calculateComparison(
+            currentData?.value.customerSatisfaction ?? 0,
+            previousData?.value.customerSatisfaction ?? 0
+          ),
         },
       });
 
@@ -132,7 +184,6 @@ function Page() {
 
     fetchData();
   }, [selectedTime, selectedValue]);
-
   return (
     <ManagerLayout title="Order">
       <div className="p-6 bg-gray-100 min-h-screen">

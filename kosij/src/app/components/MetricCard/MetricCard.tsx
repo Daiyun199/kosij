@@ -36,15 +36,15 @@ const MetricCard: React.FC<MetricCardProps> = ({
           <p className="text-3xl font-bold text-gray-900">
             {new Intl.NumberFormat("vi-VN").format(Number(today))}
           </p>
-          {comparison.startsWith("+") ? (
-            <FaArrowUp className="text-green-500 text-xl" />
-          ) : (
+          {comparison.startsWith("-") ? (
             <FaArrowDown className="text-red-500 text-xl" />
+          ) : (
+            <FaArrowUp className="text-green-500 text-xl" />
           )}
         </div>
         <p
           className={`text-sm font-medium ${
-            comparison.startsWith("+") ? "text-green-500" : "text-red-500"
+            comparison.startsWith("-") ? "text-red-500" : "text-green-500"
           }`}
         >
           {comparisonText}{" "}

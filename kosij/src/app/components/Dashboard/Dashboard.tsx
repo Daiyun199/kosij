@@ -22,13 +22,14 @@ ChartJS.register(
   Legend
 );
 
+interface MetricsData {
+  today: string | number;
+  comparison: string;
+}
+
 interface DashboardProps {
   title: string;
-  titles: string[];
-  metricsData: Array<{
-    today: string | number;
-    comparison: string;
-  }>;
+  metricsData: Record<string, MetricsData>;
   selectedTime: string;
   chartData: any;
   chartOptions: any;
@@ -36,7 +37,6 @@ interface DashboardProps {
 
 const Dashboard: React.FC<DashboardProps> = ({
   title,
-  titles,
   metricsData,
   selectedTime,
   chartData,
@@ -47,12 +47,12 @@ const Dashboard: React.FC<DashboardProps> = ({
       <h2 className="text-2xl font-bold">{title}</h2>
 
       <div className="grid grid-cols-3 gap-6">
-        {titles.map((metricTitle, index) => (
+        {Object.entries(metricsData).map(([metricTitle, data]) => (
           <MetricCard
-            key={index}
+            key={metricTitle}
             title={metricTitle}
-            today={metricsData[index]?.today}
-            comparison={metricsData[index]?.comparison}
+            today={data.today}
+            comparison={data.comparison}
             selectedTime={selectedTime}
           />
         ))}

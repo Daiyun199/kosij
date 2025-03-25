@@ -33,7 +33,9 @@ const MetricCard: React.FC<MetricCardProps> = ({
       </CardHeader>
       <CardContent className="text-center space-y-4 w-full">
         <div className="flex items-center justify-center space-x-4">
-          <p className="text-3xl font-bold text-gray-900">{today}</p>
+          <p className="text-3xl font-bold text-gray-900">
+            {new Intl.NumberFormat("vi-VN").format(Number(today))}
+          </p>
           {comparison.startsWith("+") ? (
             <FaArrowUp className="text-green-500 text-xl" />
           ) : (

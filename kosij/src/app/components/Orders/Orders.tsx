@@ -143,7 +143,7 @@ const OrderInfo: React.FC<OrderInfoProps> = ({ data }) => {
           />
         </Collapse.Panel>
       </Collapse>
-      {role === "manager" && (
+      {role === "manager" && data.orderStatus === "Packed" && (
         <div className="mt-4 flex justify-end">
           <Button variant="outline" onClick={handleAssign}>
             Assign

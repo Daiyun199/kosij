@@ -157,7 +157,7 @@ function Page() {
       <div className="p-6 max-w-5xl mx-auto">
         <TripDetail data={tripData} role={role as string} custom={true} />
 
-        <div className="flex justify-between mt-4 ">
+        <div className="flex justify-between mt-4 pl-6 pr-6">
           {role === "sale" && tripRequestStatus === "ManagerRejected" && (
             <Button
               type="default"

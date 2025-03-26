@@ -208,29 +208,6 @@ const TourUpdatePage: React.FC = () => {
       setLoading(true);
       const response = await api.get(`/staff/trip/${id}`);
       const data = response.data.value;
-      console.log("API Response:", data);
-
-      const adultPrice =
-        data.tripPrice?.find((price: any) => price.ageGroup === "Adult")
-          ?.price || 0;
-      const adultPricing = data.tourResponse.tourPriceResponse?.find(
-        (price: any) => price.ageFrom === 12 && price.ageTo === 99
-      );
-      const adultPricingRate = adultPricing?.pricingRate || 1;
-
-      const globalPricingRate = data.pricingRate || 1;
-
-      const denominator = adultPricingRate * globalPricingRate;
-      const standardPrice =
-        denominator !== 0 ? adultPrice / denominator : adultPrice;
-
-      console.log("Price Calculation:", {
-        adultPrice,
-        adultPricingRate,
-        globalPricingRate,
-        denominator,
-        standardPrice,
-      });
 
       const formattedData = {
         tourName: data.tourResponse.tourName,
@@ -238,12 +215,12 @@ const TourUpdatePage: React.FC = () => {
         nights: data.tourResponse.nights,
         departurePoint: data.tourResponse.departurePoint,
         destinationPoint: data.tourResponse.destinationPoint,
-        departureDate: dayjs(data.tourResponse.departureDate),
+        departureDate: dayjs(data.departureDate),
         tourPriceInclude: data.tourResponse.tourPriceInclude,
         tourPriceNotInclude: data.tourResponse.tourPriceNotInclude,
         registrationDaysBefore: data.tourResponse.registrationDaysBefore,
         registrationConditions: data.tourResponse.registrationConditions,
-        standardPrice,
+        standardPrice: data.standardPrice,
         visaFee: data.tourResponse.visaFee,
         pricingRate: data.pricingRate,
 
@@ -321,7 +298,7 @@ const TourUpdatePage: React.FC = () => {
 
       console.log("Request Body:", requestBody);
 
-      await api.put(`/trip/${id}/customized2`, requestBody);
+      await api.put(`/trip/${id}/customized`, requestBody);
       toast.success("Tour updated successfully");
       router.push("/sale/rejected");
     } catch (error: any) {
@@ -613,6 +590,46 @@ const TourUpdatePage: React.FC = () => {
                                               required: true,
                                               message: "Please select time",
                                             },
+                                            {
+                                              validator: (_, value) => {
+                                                if (!value)
+                                                  return Promise.resolve();
+
+                                                const allActivities =
+                                                  form.getFieldValue([
+                                                    "tourDetailsRequests",
+                                                    name,
+                                                    "itineraryDetails",
+                                                  ]);
+
+                                                const currentIndex =
+                                                  subField.name;
+                                                const prevActivity =
+                                                  allActivities?.[
+                                                    currentIndex - 1
+                                                  ];
+
+                                                if (prevActivity?.time) {
+                                                  const prevTime = dayjs(
+                                                    prevActivity.time
+                                                  );
+                                                  const currentTime =
+                                                    dayjs(value);
+
+                                                  if (
+                                                    currentTime.isBefore(
+                                                      prevTime.add(1, "minute")
+                                                    )
+                                                  ) {
+                                                    return Promise.reject(
+                                                      "Time must be after the previous activity's time"
+                                                    );
+                                                  }
+                                                }
+
+                                                return Promise.resolve();
+                                              },
+                                            },
                                           ]}
                                         >
                                           <TimePicker
@@ -667,9 +684,31 @@ const TourUpdatePage: React.FC = () => {
                                                 )
                                             }
                                             placeholder="Select farm"
-                                            disabled={getSelectedFarmIds().includes(
-                                              subField.key
-                                            )}
+                                            disabled={
+                                              getSelectedFarmIds().includes(
+                                                form.getFieldValue([
+                                                  "tourDetailsRequests",
+                                                  name,
+                                                  "itineraryDetails",
+                                                  subField.name,
+                                                  "farmId",
+                                                ])
+                                              ) &&
+                                              form.getFieldValue([
+                                                "tourDetailsRequests",
+                                                name,
+                                                "itineraryDetails",
+                                                subField.name,
+                                                "farmId",
+                                              ]) !==
+                                                form.getFieldValue([
+                                                  "tourDetailsRequests",
+                                                  name,
+                                                  "itineraryDetails",
+                                                  subField.name,
+                                                  "farmId",
+                                                ])
+                                            }
                                           >
                                             {farms.map((farm) => (
                                               <Select.Option
@@ -744,7 +783,37 @@ const TourUpdatePage: React.FC = () => {
 
                                 <Button
                                   type="dashed"
-                                  onClick={() => subOpt.add()}
+                                  onClick={() => {
+                                    const currentActivities =
+                                      form.getFieldValue([
+                                        "tourDetailsRequests",
+                                        name,
+                                        "itineraryDetails",
+                                      ]);
+                                    let newTime = null;
+
+                                    if (
+                                      currentActivities &&
+                                      currentActivities.length > 0
+                                    ) {
+                                      const lastActivity =
+                                        currentActivities[
+                                          currentActivities.length - 1
+                                        ];
+                                      const lastTime = lastActivity?.time;
+                                      if (lastTime) {
+                                        newTime = dayjs(lastTime).add(
+                                          15,
+                                          "minute"
+                                        );
+                                      }
+                                    }
+                                    subOpt.add({
+                                      time: newTime,
+                                      farmId: undefined,
+                                      description: "",
+                                    });
+                                  }}
                                   icon={<PlusOutlined />}
                                   className="w-full"
                                 >
@@ -781,7 +850,7 @@ const TourUpdatePage: React.FC = () => {
                               },
                             ]}
                           >
-                            <InputNumber min={0} className="w-full" />
+                            <InputNumber disabled min={0} className="w-full" />
                           </Form.Item>
                         </Col>
                         <Col span={4}>
@@ -796,7 +865,7 @@ const TourUpdatePage: React.FC = () => {
                               },
                             ]}
                           >
-                            <InputNumber min={0} className="w-full" />
+                            <InputNumber disabled min={0} className="w-full" />
                           </Form.Item>
                         </Col>
                         <Col span={6}>
@@ -873,7 +942,7 @@ const TourUpdatePage: React.FC = () => {
                               },
                             ]}
                           >
-                            <InputNumber min={0} className="w-full" />
+                            <InputNumber disabled min={0} className="w-full" />
                           </Form.Item>
                         </Col>
                         <Col span={4}>
@@ -888,7 +957,7 @@ const TourUpdatePage: React.FC = () => {
                               },
                             ]}
                           >
-                            <InputNumber min={0} className="w-full" />
+                            <InputNumber disabled min={0} className="w-full" />
                           </Form.Item>
                         </Col>
                         <Col span={6}>

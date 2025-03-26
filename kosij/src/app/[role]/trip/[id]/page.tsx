@@ -169,7 +169,7 @@ function Page() {
     <LayoutComponent title="Trip Detail">
       <div className="p-6 max-w-5xl mx-auto">
         <TripDetail data={tripData} role={role as string} custom={false} />
-        <div className="flex justify-between items-center mt-4">
+        <div className="flex justify-between items-center mt-4 pl-6 pr-6">
           <Button
             size="large"
             onClick={() =>
@@ -182,7 +182,7 @@ function Page() {
           >
             Back
           </Button>
-          {role === "manager" && (
+          {role === "manager" && tripData.tripType !== "Customized" && (
             <Button type="primary" size="large" onClick={handleSelectStaff}>
               Assign
             </Button>

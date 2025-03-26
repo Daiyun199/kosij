@@ -6,6 +6,7 @@ import { useState, useEffect } from "react";
 import { UploadOutlined } from "@ant-design/icons";
 import Image from "next/image";
 import { toast } from "react-toastify";
+
 interface Step1Props {
   onNext: () => void;
   data: {
@@ -30,48 +31,25 @@ export default function CreateTourStep1({
 }: Step1Props) {
   const [loading, setLoading] = useState(true);
   const [form] = Form.useForm();
-  const [tourName, setTourName] = useState(data.tourName || "");
-  const [night, setNight] = useState(data.night || 1);
-  const [day, setDay] = useState((data.night || 0) + 1);
-  const [departure, setDeparture] = useState(data.departure || "");
-  const [destination, setDestination] = useState(data.destination || "");
-  const [registrationDaysBefore, setRegistrationDaysBefore] = useState(
-    data.registrationDaysBefore || 1
-  );
-  const [registrationConditions, setRegistrationConditions] = useState(
-    data.registrationConditions || ""
-  );
-  const [standardPrice, setStandardPrice] = useState(data.standardPrice || 0);
-  const [visaFee, setVisaFee] = useState(data.visaFee || 0);
   const [img, setImg] = useState<File | null>(data.img || null);
+
   useEffect(() => {
-    setDay(night + 1);
-  }, [night]);
-  useEffect(() => {
-    form.setFieldsValue({
-      tourName,
-      night,
-      day,
-      departure,
-      destination,
-      registrationDaysBefore,
-      registrationConditions,
-      standardPrice,
-      visaFee,
-    });
+    const initialValues = {
+      ...data,
+      night: data.night || 1,
+      day: (data.night || 1) + 1,
+    };
+    form.setFieldsValue(initialValues);
     setLoading(false);
-  }, [
-    form,
-    tourName,
-    night,
-    day,
-    departure,
-    destination,
-    registrationDaysBefore,
-    registrationConditions,
-    standardPrice,
-    visaFee,
-  ]);
+  }, [data, form]);
+
+  const handleNightChange = (value: number | null) => {
+    const nights = value ?? 1;
+    form.setFieldsValue({
+      night: nights,
+      day: nights + 1,
+    });
+  };
 
   const handleNext = () => {
     form.validateFields().then((values) => {
@@ -79,8 +57,6 @@ export default function CreateTourStep1({
         ...values,
         img,
       };
-
-      console.log("Step 1 - New Data Before Update:", newData);
       updateData(newData);
       onNext();
     });
@@ -91,20 +67,17 @@ export default function CreateTourStep1({
     return false;
   };
 
-  useEffect(() => {
-    if (!data || Object.keys(data).length === 0) {
-      setTourName("");
-      setNight(1);
-      setDay(2);
-      setDeparture("");
-      setDestination("");
-      setRegistrationDaysBefore(1);
-      setRegistrationConditions("");
-      setStandardPrice(0);
-      setVisaFee(0);
-      setImg(null);
+  const currencyFormatter = (value?: number | string): string => {
+    if (typeof value === "number") {
+      return value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
     }
-  }, [data]);
+    return value ? value.replace(/\B(?=(\d{3})+(?!\d))/g, ",") : "0";
+  };
+
+  const currencyParser = (displayValue?: string): number => {
+    return Number(displayValue?.replace(/,/g, "") || "0");
+  };
+
   if (loading) {
     return (
       <ManagerLayout title="Tour Create">
@@ -114,6 +87,7 @@ export default function CreateTourStep1({
       </ManagerLayout>
     );
   }
+
   return (
     <ManagerLayout title="Tour Create">
       <div className="flex justify-center p-6">
@@ -121,7 +95,7 @@ export default function CreateTourStep1({
           <h2 className="text-2xl font-bold text-center mb-4">
             TOUR INFORMATION FORM
           </h2>
-          <Form layout="vertical" form={form} initialValues={data}>
+          <Form layout="vertical" form={form}>
             <Form.Item
               label="Tour Name:"
               name="tourName"
@@ -129,7 +103,7 @@ export default function CreateTourStep1({
                 { required: true, message: "Please input the Tour name!!!" },
               ]}
             >
-              <Input placeholder="Enter tour name" value={tourName} />
+              <Input placeholder="Enter tour name" />
             </Form.Item>
 
             <div className="grid grid-cols-2 gap-4">
@@ -141,12 +115,11 @@ export default function CreateTourStep1({
                 <InputNumber
                   min={1}
                   className="w-full"
-                  value={night}
-                  onChange={(value) => setNight(value ?? 1)}
+                  onChange={handleNightChange}
                 />
               </Form.Item>
               <Form.Item label="Days (Auto):" name="day">
-                <InputNumber className="w-full" readOnly disabled value={day} />
+                <InputNumber className="w-full" readOnly disabled />
               </Form.Item>
             </div>
 
@@ -180,10 +153,7 @@ export default function CreateTourStep1({
                 },
               ]}
             >
-              <Input
-                placeholder="Enter destination points"
-                value={destination}
-              />
+              <Input placeholder="Enter destination points" />
             </Form.Item>
 
             <div className="grid grid-cols-2 gap-4">
@@ -197,11 +167,7 @@ export default function CreateTourStep1({
                   },
                 ]}
               >
-                <InputNumber
-                  min={1}
-                  className="w-full"
-                  value={registrationDaysBefore}
-                />
+                <InputNumber min={1} className="w-full" />
               </Form.Item>
               <Form.Item
                 label="Registration Conditions:"
@@ -213,10 +179,7 @@ export default function CreateTourStep1({
                   },
                 ]}
               >
-                <Input
-                  placeholder="Enter registration conditions"
-                  value={registrationConditions}
-                />
+                <Input placeholder="Enter registration conditions" />
               </Form.Item>
             </div>
 
@@ -225,13 +188,8 @@ export default function CreateTourStep1({
                 <InputNumber
                   min={0}
                   className="w-full"
-                  value={standardPrice}
-                  formatter={(value) =>
-                    value
-                      ? value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")
-                      : "0"
-                  }
-                  parser={(value) => Number(value?.replace(/,/g, "") || "0")}
+                  formatter={(value) => currencyFormatter(value as number)}
+                  parser={currencyParser}
                 />
               </Form.Item>
 
@@ -239,13 +197,8 @@ export default function CreateTourStep1({
                 <InputNumber
                   min={0}
                   className="w-full"
-                  value={visaFee}
-                  formatter={(value) =>
-                    value
-                      ? value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")
-                      : "0"
-                  }
-                  parser={(value) => Number(value?.replace(/,/g, "") || "0")}
+                  formatter={(value) => currencyFormatter(value as number)}
+                  parser={currencyParser}
                 />
               </Form.Item>
             </div>

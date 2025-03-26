@@ -42,6 +42,7 @@ export default function CreateTourStep0() {
   const tripRequestId = searchParams.get("tripRequestId");
   const tripBookingId = searchParams.get("tripBookingId");
   const [tripBookingStatus, setTripBookingStatus] = useState();
+  const [tripRequestStatus, setTripRequestStatus] = useState();
   const router = useRouter();
   useEffect(() => {
     const fetchPassengers = async () => {
@@ -78,10 +79,18 @@ export default function CreateTourStep0() {
         const responseTripBooking = await api.get(
           `trip-booking/${tripBookingId}`
         );
+
         if (responseTripBooking.data?.value) {
           setTripBookingStatus(
             responseTripBooking.data.value.tripBookingStatus
           );
+        }
+        const responseTripRequest = await api.get(
+          `staff/trip-request/${tripRequestId}`
+        );
+
+        if (responseTripRequest.data?.value) {
+          setTripRequestStatus(responseTripRequest.data.value.requestStatus);
         }
       } catch (error) {
         toast.error("There's are no passengers");
@@ -219,7 +228,8 @@ export default function CreateTourStep0() {
     }
   };
   const isEditable =
-    tripBookingStatus === "Drafted" || tripBookingStatus === "Deposited";
+    (tripBookingStatus === "Drafted" || tripBookingStatus === "Deposited") &&
+    tripRequestStatus !== "Processing";
   const columns: ColumnsType<Passenger> = [
     {
       title: "Full Name",

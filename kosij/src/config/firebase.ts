@@ -21,4 +21,4 @@ const auth = getAuth();
 const googleProvider = new GoogleAuthProvider();
 const facebookProvider = new FacebookAuthProvider();
 
-export { storage, googleProvider, auth, facebookProvider };
+export { storage, googleProvider, auth, facebookProvider, app };

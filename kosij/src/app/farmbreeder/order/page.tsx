@@ -3,11 +3,12 @@
 import { ProColumns, ProTable } from "@ant-design/pro-components";
 import { PageContainer } from "@ant-design/pro-layout";
 import { Button, Space, Tag, Dropdown, Menu } from "antd";
-import { EditOutlined, EyeOutlined } from "@ant-design/icons";
+import { EyeOutlined } from "@ant-design/icons";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { fetchCurrentFarmOrders } from "@/features/farmbreeder/api/order/all.api";
 import { updateOrderStatus } from "@/features/farmbreeder/api/order/update.api";
 import { Order } from "@/lib/domain/Order/Order.dto";
+import dayjs from "dayjs";
 
 const statusColors: { [key in Order["orderStatus"]]: string } = {
   Pending: "default",
@@ -15,7 +16,7 @@ const statusColors: { [key in Order["orderStatus"]]: string } = {
   Packed: "blue",
   Shipping: "gold",
   Completed: "green",
-  Canceled: "red",
+  Cancelled: "red",
 };
 
 function Page() {
@@ -62,11 +63,19 @@ function Page() {
       title: "Order Date",
       dataIndex: "createdTime",
       key: "createdTime",
+      render: (_, record) =>
+        record.createdTime
+          ? dayjs(record.createdTime).format("DD-MM-YYYY")
+          : "N/A",
     },
     {
       title: "Delivery Date (Expected)",
       dataIndex: "expectedDeliveryDate",
       key: "expectedDeliveryDate",
+      render: (_, record) =>
+        record.createdTime
+          ? dayjs(record.createdTime).format("DD-MM-YYYY")
+          : "N/A",
     },
     {
       title: "Status",
@@ -83,8 +92,8 @@ function Page() {
                 )
               }
             >
-                <Menu.Item >Deposited</Menu.Item>
-                <Menu.Item >Packed</Menu.Item>
+              <Menu.Item>Deposited</Menu.Item>
+              <Menu.Item>Packed</Menu.Item>
             </Menu>
           }
           trigger={["click"]}
@@ -131,7 +140,6 @@ function Page() {
       render: () => (
         <Space>
           <Button icon={<EyeOutlined />} />
-          <Button icon={<EditOutlined />} />
         </Space>
       ),
     },
@@ -145,7 +153,10 @@ function Page() {
           dataSource={data}
           rowKey="orderId"
           search={false}
-          pagination={{ pageSize: 5 }}
+          pagination={{
+            pageSize: 5,
+            showTotal: (total) => `Total ${total} record(s)`,
+          }}
           loading={isLoading}
         />
       </section>

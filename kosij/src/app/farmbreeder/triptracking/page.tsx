@@ -44,7 +44,6 @@ const columns: ProColumns<TripItem>[] = [
   {
     title: "Trip Name",
     dataIndex: "tourName",
-    copyable: true,
     ellipsis: true,
     valueType: "text",
   },
@@ -147,6 +146,10 @@ export default function Page() {
           cardBordered
           loading={isLoading}
           search={false}
+          pagination={{
+            pageSize: 10,
+            showTotal: (total) => `Total ${total} record(s)`,
+          }}
         />
       </section>
     </PageContainer>

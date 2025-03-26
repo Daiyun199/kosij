@@ -1,16 +1,13 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 import { Modal, Input, Button, Form, Upload, App } from "antd";
 import {
   ArrowLeftOutlined,
   ArrowRightOutlined,
   UploadOutlined,
 } from "@ant-design/icons";
-import api from "@/config/axios.config";
 import { Image } from "antd";
-import { getDownloadURL, getStorage, ref, uploadBytes } from "firebase/storage";
-import { app as firebaseApp } from "@/config/firebase";
 
-interface UpdateVarietyModalProps {
+interface CreateVarietyModalProps {
   visible: boolean;
   onCancel: () => void;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -18,73 +15,13 @@ interface UpdateVarietyModalProps {
   varietyId?: number;
 }
 
-function UpdateVarietyModal({
+function CreateVarietyModal({
   visible,
   onCancel,
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   onSubmit,
-  varietyId,
-}: UpdateVarietyModalProps) {
+}: CreateVarietyModalProps) {
   const [form] = Form.useForm();
-  const [loading, setLoading] = useState(false);
-  const [imageFile, setImageFile] = useState<File | null>(null);
-  const { message } = App.useApp();
-
-  const uploadImageToFirebase = async (file: File) => {
-    const storage = getStorage(firebaseApp);
-    const storageRef = ref(
-      storage,
-      `variety_images/${file.name}-${Date.now()}`
-    );
-
-    try {
-      const snapshot = await uploadBytes(storageRef, file);
-      return await getDownloadURL(snapshot.ref);
-    } catch (error) {
-      console.error("Error uploading image:", error);
-      message.error("Failed to upload image.");
-      return null;
-    }
-  };
-
-  const handleSubmit = async (values: { description: string }) => {
-    if (!varietyId) {
-      message.error("Variety ID is missing!");
-      return;
-    }
-
-    setLoading(true);
-
-    try {
-      let imageUrl = form.getFieldValue("imageUrl");
-      if (imageFile) {
-        imageUrl = await uploadImageToFirebase(imageFile);
-        if (!imageUrl) {
-          throw new Error("Image upload failed");
-        }
-      }
-
-      await api.put(`/farm-variety/variety/${varietyId}/current-farm`, {
-        description: values.description,
-        imageUrl, // Send the Firebase URL
-      });
-
-      message.success("Variety updated successfully!");
-      onCancel();
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    } catch (error) {
-      message.error("Failed to update variety.");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    if (visible) {
-      form.resetFields();
-    }
-  }, [visible, form]);
-
   return (
     <App>
       <Modal
@@ -103,7 +40,6 @@ function UpdateVarietyModal({
           layout="vertical"
           onFinish={(values) => {
             console.log("Submitting form...", values);
-            handleSubmit(values);
           }}
         >
           {/* Description */}
@@ -117,15 +53,7 @@ function UpdateVarietyModal({
 
           {/* Image Upload */}
           <Form.Item label="Image">
-            <Upload
-              accept=".jpg,.jpeg,.png"
-              showUploadList={false}
-              beforeUpload={(file) => {
-                setImageFile(file);
-                form.setFieldsValue({ imageUrl: URL.createObjectURL(file) });
-                return false;
-              }}
-            >
+            <Upload accept=".jpg,.jpeg,.png" showUploadList={false}>
               <Button icon={<UploadOutlined />}>Upload Image</Button>
             </Upload>
 
@@ -158,10 +86,9 @@ function UpdateVarietyModal({
             <Button
               type="primary"
               icon={<ArrowRightOutlined />}
-              loading={loading}
               onClick={() => form.submit()}
             >
-              Update Variety
+              Create Variety
             </Button>
           </div>
         </Form>
@@ -170,4 +97,4 @@ function UpdateVarietyModal({
   );
 }
 
-export default UpdateVarietyModal;
+export default CreateVarietyModal;

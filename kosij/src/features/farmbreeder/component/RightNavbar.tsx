@@ -38,16 +38,16 @@ function RightNavbar({ children }: PropsWithChildren) {
       }}
       token={{
         sider: {
-          colorTextMenuTitle: "#fff",
+          colorTextMenuTitle: "#ffffff",
           colorMenuBackground: "#002fa7",
-          colorTextMenu: "#fff",
+          colorTextMenu: "#ffffff",
           colorTextMenuSelected: "#ffffff",
           colorBgMenuItemSelected: "#afbee4",
           colorBgMenuItemHover: "#afbee4",
-          colorMenuItemDivider: "#fff",
+          colorMenuItemDivider: "#ffffff",
           colorTextMenuSecondary: "#ffffff",
-          colorTextMenuItemHover: "#fff",
-          colorTextSubMenuSelected: "#fff",
+          colorTextMenuItemHover: "#ffffff",
+          colorTextSubMenuSelected: "#ffffff",
         },
       }}
       bgLayoutImgList={[
@@ -133,7 +133,7 @@ function RightNavbar({ children }: PropsWithChildren) {
         routes: [
           {
             key: "general",
-            name: "General",
+            name: <span style={{ color: "white" }}>General</span>,
             children: [
               {
                 key: "dashboard",
@@ -163,7 +163,7 @@ function RightNavbar({ children }: PropsWithChildren) {
           },
           {
             key: "data management",
-            name: "Management",
+            name: <span style={{ color: "white" }}>Management</span>,
             children: [
               {
                 key: "tracking",

@@ -12,6 +12,7 @@ import { VarietyDto } from "@/lib/domain/Variety/Variety.dto";
 import { useEffect, useState } from "react";
 import api from "@/config/axios.config";
 import UpdateVarietyModal from "@/features/farmbreeder/component/UpdateVariety.modal";
+import CreateVarietyModal from "@/features/farmbreeder/component/CreateVariety.modal";
 
 function Page() {
   const [varieties, setVarieties] = useState<VarietyDto[]>([]);
@@ -24,7 +25,7 @@ function Page() {
     try {
       const response = await api.get("/farm-variety/varieties/current-farm");
       setVarieties(response.data.value || []);
-      setSelectedVariety(response.data.value?.[0]);
+      setSelectedVarietyFarm(response.data.value?.[0]);
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (error) {
       message.error("Failed to load varieties!");
@@ -38,28 +39,40 @@ function Page() {
     fetchVarietyList();
   }, []);
 
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isUpdateModalOpen, setIsUpdateModalOpen] = useState(false);
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  const [selectedVarietyFarm, setSelectedVarietyFarm] =
+    useState<VarietyDto | null>(null);
 
-  const [selectedVariety, setSelectedVariety] = useState<VarietyDto | null>(
-    null
-  );
-
-  const handleOpen = (variety: VarietyDto) => {
-    setSelectedVariety(variety);
-    setIsModalOpen(true);
+  const handleUpdatedOpen = (variety: VarietyDto) => {
+    setSelectedVarietyFarm(variety);
+    setIsUpdateModalOpen(true);
     setTimeout(() => {
       console.log("Updated selectedVariety:", variety.varietyId);
     }, 0);
   };
-  const handleClose = () => {
-    setIsModalOpen(false);
-    setSelectedVariety(null);
+  const handleUpdatedClose = () => {
+    setIsUpdateModalOpen(false);
+    setSelectedVarietyFarm(null);
   };
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const handleSubmit = (values: any) => {
+  const handleUpdatedSubmit = (values: any) => {
     console.log("Form Submitted:", values);
-    setIsModalOpen(false);
+    setIsUpdateModalOpen(false);
     fetchVarietyList();
+  };
+
+  const handleCreatedOpen = () => {
+    // eslint-disable-next-line @typescript-eslint/no-unused-expressions
+    setIsCreateModalOpen(true);
+  };
+
+  const handleCreatedClose = () => {
+    setIsCreateModalOpen(false);
+  };
+
+  const handleCreatedSubmit = () => {
+    setIsCreateModalOpen(false);
   };
   return (
     <PageContainer
@@ -94,6 +107,7 @@ function Page() {
             fontWeight: "normal",
           }}
           icon={<PlusCircleOutlined />}
+          onClick={() => handleCreatedOpen}
         >
           Add Variety
         </Button>
@@ -113,7 +127,7 @@ function Page() {
                 <div className="absolute top-3 right-3 flex gap-2">
                   <EditOutlined
                     className="text-gray-600 hover:text-gray-800 cursor-pointer"
-                    onClick={() => handleOpen(variety)}
+                    onClick={() => handleUpdatedOpen(variety)}
                   />
                   <MinusCircleOutlined className="text-gray-600 hover:text-gray-800 cursor-pointer" />
                 </div>
@@ -141,10 +155,15 @@ function Page() {
           : !loading && !error && <p>No varieties available</p>}
       </section>
       <UpdateVarietyModal
-        visible={isModalOpen}
-        onCancel={handleClose}
-        onSubmit={handleSubmit}
-        varietyId={selectedVariety?.varietyId}
+        visible={isUpdateModalOpen}
+        onCancel={handleUpdatedClose}
+        onSubmit={handleUpdatedSubmit}
+        varietyId={selectedVarietyFarm?.varietyId}
+      />
+      <CreateVarietyModal
+        visible={isCreateModalOpen}
+        onCancel={handleCreatedClose}
+        onSubmit={handleCreatedSubmit}
       />
     </PageContainer>
   );

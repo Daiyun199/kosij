@@ -19,8 +19,6 @@ import {
   WechatOutlined,
 } from "@ant-design/icons";
 import { cn } from "@/lib/utils/cn.util";
-import { getAuthToken } from "@/lib/utils/auth.utils";
-import api from "@/config/axios.config";
 import { useQuery } from "@tanstack/react-query";
 import {
   ReactElement,
@@ -30,6 +28,7 @@ import {
   AwaitedReactNode,
 } from "react";
 import { fetchRecentReviews } from "@/features/farmbreeder/api/feedback/all.api";
+import { fetchStatistics } from "@/features/farmbreeder/api/dashboard/all.api";
 
 // const ratings = [
 //   { label: "5 stars", percent: 75 },
@@ -69,19 +68,6 @@ const { Text } = Typography;
 // ];
 
 function Page() {
-  const fetchStatistics = async () => {
-    const token = getAuthToken();
-    const response = await api.get("/farm-variety/statistics/current-farm", {
-      headers: {
-        Authorization: `Bearer ${token}`,
-        Accept: "text/plain",
-      },
-    });
-    console.log("API Response:", response.data.value);
-
-    return response.data.value;
-  };
-
   const { data, isLoading, isError } = useQuery({
     queryKey: ["farmStatistics"],
     queryFn: fetchStatistics,

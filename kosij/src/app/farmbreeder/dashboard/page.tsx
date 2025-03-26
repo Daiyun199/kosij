@@ -12,12 +12,11 @@ import {
   TeamOutlined,
   WalletOutlined,
 } from "@ant-design/icons";
-import api from "@/config/axios.config";
 import { useQuery } from "@tanstack/react-query";
 import { Order } from "@/lib/domain/Order/Order.dto";
 import { ColumnsType } from "antd/es/table";
-import { getAuthToken } from "@/lib/utils/auth.utils";
 import { fetchRecentOrders } from "@/features/farmbreeder/api/order/recent.api";
+import { fetchStatistics } from "@/features/farmbreeder/api/dashboard/all.api";
 
 const statusColors: Record<string, { color: string; background: string }> = {
   Cancelled: { color: "#cf1322", background: "#fff1f0" },
@@ -77,18 +76,6 @@ const columns: ColumnsType<Order> = [
   },
 ];
 
-const fetchStatistics = async () => {
-  const token = getAuthToken();
-  const response = await api.get("/farm-variety/statistics/current-farm", {
-    headers: {
-      Authorization: `Bearer ${token}`,
-      Accept: "text/plain",
-    },
-  });
-  console.log("API Response:", response.data.value);
-
-  return response.data.value;
-};
 
 function Page() {
   const { data, isLoading, isError } = useQuery({

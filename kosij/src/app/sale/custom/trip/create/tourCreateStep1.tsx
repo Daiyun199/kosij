@@ -1,21 +1,36 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 "use client";
 
-import { Button, Card, Form, Input, InputNumber, Select, Upload } from "antd";
+import {
+  Button,
+  Card,
+  Form,
+  Input,
+  InputNumber,
+  Select,
+  Upload,
+  DatePicker,
+} from "antd";
 import { useState, useEffect } from "react";
 import { UploadOutlined } from "@ant-design/icons";
 import Image from "next/image";
 import { toast } from "react-toastify";
 import SaleStaffLayout from "@/app/components/SaleStaffLayout/SaleStaffLayout";
+import dayjs from "dayjs";
+import api from "@/config/axios.config";
 
 interface Step1Props {
   onNext: () => void;
+  tripRequestId?: any;
+  onBack: () => void;
   data: {
     tourName?: string;
     night?: number;
     day?: number;
     departure?: string;
     destination?: string;
+    departureDate?: string;
     registrationDaysBefore?: number;
     registrationConditions?: string;
     standardPrice?: number;
@@ -29,20 +44,52 @@ export default function CreateTripStep1({
   onNext,
   data,
   updateData,
+  tripRequestId,
+  onBack,
 }: Step1Props) {
   const [loading, setLoading] = useState(true);
   const [form] = Form.useForm();
   const [img, setImg] = useState<File | null>(data.img || null);
 
   useEffect(() => {
-    const initialValues = {
-      ...data,
-      night: data.night || 1,
-      day: (data.night || 1) + 1,
+    const fetchData = async () => {
+      try {
+        if (tripRequestId) {
+          const response = await api.get(
+            `/staff/trip-request/${tripRequestId}`
+          );
+          const apiData = response.data.value;
+
+          const initialValues = {
+            ...data,
+            night: apiData.nights || data.night || 1,
+            day: (apiData.nights || data.night || 1) + 1,
+            departureDate: apiData.departureDate
+              ? dayjs(apiData.departureDate, "DD-MM-YYYY HH:mm:ss")
+              : data.departureDate,
+            departure: apiData.departurePoint || data.departure,
+            destination: apiData.destination || data.destination,
+            tourName: apiData.tourName || data.tourName,
+          };
+
+          form.setFieldsValue(initialValues);
+        } else {
+          const initialValues = {
+            ...data,
+            night: data.night || 1,
+            day: (data.night || 1) + 1,
+          };
+          form.setFieldsValue(initialValues);
+        }
+        setLoading(false);
+      } catch (error) {
+        console.error("Error fetching data:", error);
+        setLoading(false);
+      }
     };
-    form.setFieldsValue(initialValues);
-    setLoading(false);
-  }, [data, form]);
+
+    fetchData();
+  }, [tripRequestId, data, form]);
 
   const handleNightChange = (value: number | null) => {
     const nights = value ?? 1;
@@ -156,6 +203,45 @@ export default function CreateTripStep1({
             >
               <Input placeholder="Enter destination points" />
             </Form.Item>
+            <div className="grid grid-cols-2 gap-4">
+              <Form.Item
+                label="Departure Date:"
+                name="departureDate"
+                rules={[
+                  {
+                    required: true,
+                    message: "Please select the Departure Date!!!",
+                  },
+                ]}
+              >
+                <DatePicker
+                  style={{ width: "100%" }}
+                  format="YYYY-MM-DD"
+                  placeholder="Select departure date"
+                />
+              </Form.Item>
+              <Form.Item
+                label="Pricing Rate"
+                name="pricingRate"
+                rules={[
+                  { required: true, message: "Please enter a pricing rate!" },
+                  ({ getFieldValue }) => ({
+                    validator(_, value) {
+                      if (!value || (value >= 1 && value <= 3)) {
+                        return Promise.resolve();
+                      }
+                      return Promise.reject(
+                        new Error("Pricing rate must be between 1 and 3!")
+                      );
+                    },
+                  }),
+                ]}
+              >
+                <div className="w-full">
+                  <InputNumber className="w-full" min={1} max={3} step={0.1} />
+                </div>
+              </Form.Item>
+            </div>
 
             <div className="grid grid-cols-2 gap-4">
               <Form.Item
@@ -229,7 +315,8 @@ export default function CreateTripStep1({
               )}
             </Form.Item>
 
-            <div className="flex justify-end">
+            <div className="flex justify-between">
+              <Button onClick={onBack}>Back</Button>
               <Button type="primary" onClick={handleNext}>
                 Next ➜
               </Button>

@@ -21,7 +21,7 @@ function Page() {
   const tripRequestId = searchParams.get("requestId");
   const [tripData, setTripData] = useState<TripData | null>(null);
   const [loading, setLoading] = useState(true);
-
+  const [tripRequestStatus, setTripRequestStatus] = useState();
   useEffect(() => {
     if (!id) return;
 
@@ -29,7 +29,13 @@ function Page() {
       try {
         const response = await api.get(`/staff/trip/${id}`);
         const data = response.data.value;
-
+        if (tripRequestId) {
+          const tripRequestResponse = await api.get(
+            `/staff/trip-request/${tripRequestId}`
+          );
+          const dataTripRequest = tripRequestResponse.data.value;
+          setTripRequestStatus(dataTripRequest.requestStatus);
+        }
         if (!data) throw new Error("No data returned from API");
         console.log(data);
         setTripData({
@@ -150,19 +156,32 @@ function Page() {
     <LayoutComponent title="Trip Detail">
       <div className="p-6 max-w-5xl mx-auto">
         <TripDetail data={tripData} role={role as string} custom={true} />
-        <Button
-          type="default"
-          className="bg-blue-500 hover:bg-blue-600 text-white"
-          onClick={() =>
-            router.push(
-              role === "manager"
-                ? `/manager/requests/${tripRequestId}`
-                : `/sale/requests/${tripRequestId}`
-            )
-          }
-        >
-          Back
-        </Button>
+
+        <div className="flex justify-between mt-4 ">
+          {role === "sale" && tripRequestStatus === "ManagerRejected" && (
+            <Button
+              type="default"
+              className="bg-green-500 hover:bg-green-600 text-white"
+              onClick={() => router.push(`/sale/rejected/update/${id}`)}
+            >
+              Update
+            </Button>
+          )}
+
+          <Button
+            type="default"
+            className="bg-blue-500 hover:bg-blue-600 text-white"
+            onClick={() =>
+              router.push(
+                role === "manager"
+                  ? `/manager/requests/${tripRequestId}`
+                  : `/sale/requests/${tripRequestId}`
+              )
+            }
+          >
+            Back
+          </Button>
+        </div>
       </div>
     </LayoutComponent>
   );

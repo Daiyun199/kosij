@@ -52,6 +52,11 @@ const SaleStaffLayout: React.FC<SaleStaffLayoutProps> = ({
           icon: "fa-solid fa-map-marked-alt",
           path: "/sale/custom/trips",
         },
+        {
+          label: "Rejected Trip",
+          icon: "fa-solid fa-clipboard-list",
+          path: "/sale/rejected",
+        },
       ],
     },
   ];

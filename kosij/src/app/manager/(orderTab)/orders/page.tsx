@@ -44,13 +44,10 @@ const OrdersPage = () => {
   const statusFilters = [
     { text: "Pending", value: "Pending" },
     { text: "Deposited", value: "Deposited" },
-    {
-      text: "Packed",
-      value: "Order has been packed and is ready for shipment",
-    },
-    { text: "Delivering", value: "Order is in transit" },
-    { text: "Delivered", value: "Order has been successfully delivered" },
-    { text: "Cancelled", value: "Order has been cancelled" },
+    { text: "Packaged", value: "Packaged" },
+    { text: "Delivering", value: "Delivering" },
+    { text: "Delivered", value: "Delivered" },
+    { text: "Cancelled", value: "Cancelled" },
     { text: "Refunded", value: "Refunded" },
   ];
 

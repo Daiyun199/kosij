@@ -11,22 +11,13 @@ function Page() {
   const [tripRequests, setTripRequests] = useState<TripRequest[]>([]);
   const [loading, setLoading] = useState(true);
   const router = useRouter();
-  const statusFilters = [
-    { text: "Pending", value: "Pending" },
-    { text: "Assigned", value: "Assigned" },
-    { text: "Modification Requested", value: "ModificationRequested" },
-    { text: "Manager Rejected", value: "ManagerRejected" },
-    { text: "Approved", value: "Approved" },
-    { text: "Processing", value: "Processing" },
-    { text: "Customer Confirmed", value: "Confirmed" },
-    { text: "Cancelled", value: "Cancelled" },
-    { text: "Completed", value: "Completed" },
-  ];
 
   useEffect(() => {
     const fetchTripRequests = async () => {
       try {
-        const response = await api.get("/trip-requests");
+        const response = await api.get(
+          "/trip-requests?requestStatus=ManagerRejected"
+        );
         setTripRequests(
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
           response.data.value.map((request: any) => ({
@@ -73,8 +64,6 @@ function Page() {
       title: "Request Status",
       dataIndex: "requestStatus",
       key: "requestStatus",
-      filters: statusFilters,
-      onFilter: (value, record) => record.requestStatus === value,
     },
     {
       title: "Actions",

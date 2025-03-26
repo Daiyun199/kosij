@@ -20,6 +20,7 @@ function Page() {
   const searchParams = useSearchParams();
   const tourId = searchParams.get("tourId");
   const LayoutComponent = role === "manager" ? ManagerLayout : SaleStaffLayout;
+
   useEffect(() => {
     if (!id) return;
 
@@ -27,11 +28,30 @@ function Page() {
       try {
         const response = await api.get(`/staff/trip/${id}`);
         const data = response.data.value;
-
+        let data2: any[] = [];
+        if (role === "manager") {
+          const responseHistoryStaff = await api.get(
+            `/staff-assignment-history?tripId=${id}`
+          );
+          data2 = responseHistoryStaff.data.value;
+        }
         if (!data) throw new Error("No data returned from API");
 
         setTripData({
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          staffHistory:
+            role === "manager"
+              ? data2.map((history) => ({
+                  id: history.id,
+                  staffId: history.staffId,
+                  staffName: history.staffName,
+                  taskId: history.taskId,
+                  taskType: history.taskType,
+                  workStartTime: history.workStartTime,
+                  workEndTime: history.workEndTime,
+                  note: history.note,
+                  role: history.role,
+                }))
+              : [],
           customers: data.tripBookingsResponse.map((customer: any) => ({
             tripBookingId: customer.tripBookingId,
             customerName: customer.customerName,
@@ -39,7 +59,7 @@ function Page() {
             email: customer.email,
           })),
           id: data.id,
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+
           notes: data.notes.map((note: any) => ({
             userName: note.userName,
             note: note.note,
@@ -149,7 +169,7 @@ function Page() {
     <LayoutComponent title="Trip Detail">
       <div className="p-6 max-w-5xl mx-auto">
         <TripDetail data={tripData} role={role as string} custom={false} />
-        <div className="flex justify-between items-center mt-4">
+        <div className="flex justify-between items-center mt-4 pl-6 pr-6">
           <Button
             size="large"
             onClick={() =>
@@ -162,7 +182,7 @@ function Page() {
           >
             Back
           </Button>
-          {role === "manager" && (
+          {role === "manager" && tripData.tripType !== "Customized" && (
             <Button type="primary" size="large" onClick={handleSelectStaff}>
               Assign
             </Button>

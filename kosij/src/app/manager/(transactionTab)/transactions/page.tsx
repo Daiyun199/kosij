@@ -64,9 +64,9 @@ const TransactionsTable = () => {
 
   const columns: ColumnsType<Transaction> = [
     {
-      title: "ID",
-      dataIndex: "id",
-      key: "id",
+      title: "STT",
+      key: "stt",
+      render: (_, __, index) => index + 1, // Hiển thị số thứ tự bắt đầu từ 1
     },
     {
       title: "Transaction Type",
@@ -84,6 +84,7 @@ const TransactionsTable = () => {
       title: "Amount",
       dataIndex: "amount",
       key: "amount",
+      sorter: (a, b) => a.amount - b.amount, // Thêm sắp xếp cho cột Amount
       render: (amount: number) => `$${amount.toFixed(2)}`,
     },
     {
@@ -101,6 +102,8 @@ const TransactionsTable = () => {
       title: "Created Time",
       dataIndex: "createdTime",
       key: "createdTime",
+      sorter: (a, b) =>
+        new Date(a.createdTime).getTime() - new Date(b.createdTime).getTime(),
       render: (createdTime: string) => new Date(createdTime).toLocaleString(),
     },
   ];

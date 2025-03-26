@@ -16,7 +16,6 @@ const TripDetail = ({
   custom: boolean;
 }) => {
   const router = useRouter();
-  console.log(data.id);
   const handleViewDetail = (tripBookingId: number) => {
     const basePath =
       role === "sale" ? "/sale/passengers" : "/manager/passengers";
@@ -238,6 +237,72 @@ const TripDetail = ({
             ))}
           </Collapse>
         </div>
+        {role === "manager" && (
+          <Card className="mt-4 border border-gray-200 shadow-sm p-4">
+            <h3 className="font-semibold text-lg mb-3">
+              Staff Assignment History
+            </h3>
+
+            {data.staffHistory && data.staffHistory.length > 0 ? (
+              <div className="space-y-6">
+                {["SalesStaff", "ConsultingStaff"].map((role) => {
+                  const staffByRole = data.staffHistory
+                    .filter((staff: any) => staff.role === role)
+                    .sort(
+                      (a: any, b: any) =>
+                        new Date(a.workStartTime).getTime() -
+                        new Date(b.workStartTime).getTime()
+                    );
+
+                  return (
+                    staffByRole.length > 0 && (
+                      <div key={role}>
+                        <h4 className="font-semibold text-md mb-2">
+                          {role === "SalesStaff"
+                            ? "Sales Staff"
+                            : "Consulting Staff"}
+                        </h4>
+                        <div className="border border-gray-200 rounded-md overflow-hidden">
+                          <table className="w-full text-left text-sm table-fixed">
+                            <thead className="bg-gray-100">
+                              <tr>
+                                <th className="p-2 border w-1/4">Staff Name</th>
+                                <th className="p-2 border w-1/4">Work Start</th>
+                                <th className="p-2 border w-1/4">Work End</th>
+                                <th className="p-2 border w-1/4">Note</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              {staffByRole.map((staff: any, index: number) => (
+                                <tr key={index} className="border-t">
+                                  <td className="p-2 border">
+                                    {staff.staffName}
+                                  </td>
+                                  <td className="p-2 border">
+                                    {staff.workStartTime}
+                                  </td>
+                                  <td className="p-2 border">
+                                    {staff.workEndTime}
+                                  </td>
+                                  <td className="p-2 border text-gray-600">
+                                    {staff.note || "-"}
+                                  </td>
+                                </tr>
+                              ))}
+                            </tbody>
+                          </table>
+                        </div>
+                      </div>
+                    )
+                  );
+                })}
+              </div>
+            ) : (
+              <p>No staff history available</p>
+            )}
+          </Card>
+        )}
+
         <div className="mt-4">
           <h3 className="font-semibold text-lg mb-4">Customer List</h3>
           {data.customers && data.customers.length > 0 ? (

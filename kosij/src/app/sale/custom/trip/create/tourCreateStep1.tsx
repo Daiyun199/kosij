@@ -1,134 +1,103 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 "use client";
-import SaleStaffLayout from "@/app/components/ManagerLayout/ManagerLayout";
+
 import {
   Button,
   Card,
-  DatePicker,
   Form,
   Input,
   InputNumber,
   Select,
   Upload,
+  DatePicker,
 } from "antd";
-import timezone from "dayjs/plugin/timezone";
-import utc from "dayjs/plugin/utc";
-import dayjs from "dayjs";
-dayjs.extend(timezone);
-dayjs.extend(utc);
 import { useState, useEffect } from "react";
 import { UploadOutlined } from "@ant-design/icons";
 import Image from "next/image";
 import { toast } from "react-toastify";
-import { FiArrowLeft } from "react-icons/fi";
-import { useRouter } from "next/navigation";
-import { TripRequestScpeacial } from "@/model/TripRequestSpeacial";
+import SaleStaffLayout from "@/app/components/SaleStaffLayout/SaleStaffLayout";
+import dayjs from "dayjs";
 import api from "@/config/axios.config";
+
 interface Step1Props {
+  onNext: () => void;
   tripRequestId?: any;
   onBack: () => void;
-  onNext: () => void;
   data: {
-    departureDate?: any;
     tourName?: string;
     night?: number;
     day?: number;
     departure?: string;
     destination?: string;
+    departureDate?: string;
     registrationDaysBefore?: number;
     registrationConditions?: string;
     standardPrice?: number;
     visaFee?: number;
     img?: File | null;
-    pricingRate?: any;
   };
   updateData: (data: object) => void;
 }
 
 export default function CreateTripStep1({
-  onBack,
   onNext,
   data,
   updateData,
   tripRequestId,
+  onBack,
 }: Step1Props) {
   const [loading, setLoading] = useState(true);
   const [form] = Form.useForm();
-  const [tourName, setTourName] = useState(data.tourName || "");
-  const [night, setNight] = useState(data.night || 1);
-  const [day, setDay] = useState((data.night || 0) + 1);
-  const [departure, setDeparture] = useState(data.departure || "");
-  const [destination, setDestination] = useState(data.destination || "");
-  const [registrationDaysBefore, setRegistrationDaysBefore] = useState(
-    data.registrationDaysBefore || 1
-  );
-
-  const [pricingRate, setPricingRate] = useState(data.pricingRate || 1);
-  const [departureDate, setDepartureDate] = useState(data.departureDate || "");
-  const [registrationConditions, setRegistrationConditions] = useState(
-    data.registrationConditions || ""
-  );
-  const [standardPrice, setStandardPrice] = useState(data.standardPrice || 0);
-  const [visaFee, setVisaFee] = useState(data.visaFee || 0);
   const [img, setImg] = useState<File | null>(data.img || null);
-  const router = useRouter();
-  const [trip, setTrip] = useState<TripRequestScpeacial | null>(null);
+
   useEffect(() => {
-    api
-      .get(`/staff/trip-request/${tripRequestId}`)
-      .then((response) => {
-        const data = response.data.value;
+    const fetchData = async () => {
+      try {
+        if (tripRequestId) {
+          const response = await api.get(
+            `/staff/trip-request/${tripRequestId}`
+          );
+          const apiData = response.data.value;
 
-        console.log("API Response:", data);
+          const initialValues = {
+            ...data,
+            night: apiData.nights || data.night || 1,
+            day: (apiData.nights || data.night || 1) + 1,
+            departureDate: apiData.departureDate
+              ? dayjs(apiData.departureDate, "DD-MM-YYYY HH:mm:ss")
+              : data.departureDate,
+            departure: apiData.departurePoint || data.departure,
+            destination: apiData.destination || data.destination,
+            tourName: apiData.tourName || data.tourName,
+          };
 
-        if (data.departureDate) {
-          const parsedDate = dayjs(data.departureDate, "DD-MM-YYYY HH:mm:ss");
-
-          console.log("Parsed Date:", parsedDate.format("YYYY-MM-DD"));
-
-          setDepartureDate(parsedDate);
+          form.setFieldsValue(initialValues);
+        } else {
+          const initialValues = {
+            ...data,
+            night: data.night || 1,
+            day: (data.night || 1) + 1,
+          };
+          form.setFieldsValue(initialValues);
         }
+        setLoading(false);
+      } catch (error) {
+        console.error("Error fetching data:", error);
+        setLoading(false);
+      }
+    };
 
-        setTrip(data);
-        setNight(data.nights);
-        setDeparture(data.departurePoint);
-      })
-      .catch((error) => console.error("Error fetching data:", error));
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-  useEffect(() => {
-    setDay(night + 1);
-  }, [night]);
-  useEffect(() => {
+    fetchData();
+  }, [tripRequestId, data, form]);
+
+  const handleNightChange = (value: number | null) => {
+    const nights = value ?? 1;
     form.setFieldsValue({
-      departureDate,
-      tourName,
-      night,
-      day,
-      departure,
-      destination,
-      registrationDaysBefore,
-      registrationConditions,
-      standardPrice,
-      visaFee,
-      pricingRate,
+      night: nights,
+      day: nights + 1,
     });
-    setLoading(false);
-  }, [
-    departureDate,
-    form,
-    tourName,
-    night,
-    day,
-    departure,
-    destination,
-    registrationDaysBefore,
-    registrationConditions,
-    standardPrice,
-    visaFee,
-    pricingRate,
-  ]);
+  };
 
   const handleNext = () => {
     form.validateFields().then((values) => {
@@ -136,35 +105,27 @@ export default function CreateTripStep1({
         ...values,
         img,
       };
-
-      console.log("Step 1 - New Data Before Update:", newData);
       updateData(newData);
       onNext();
     });
   };
-  const handleBack = () => {
-    router.push(`/sale/requests/${tripRequestId}`);
-  };
+
   const handleUpload = (file: File) => {
     setImg(file);
     return false;
   };
 
-  useEffect(() => {
-    if (!data || Object.keys(data).length === 0) {
-      setDepartureDate("");
-      setTourName("");
-      setNight(1);
-      setDay(2);
-      setDeparture("");
-      setDestination("");
-      setRegistrationDaysBefore(1);
-      setRegistrationConditions("");
-      setStandardPrice(0);
-      setVisaFee(0);
-      setImg(null);
+  const currencyFormatter = (value?: number | string): string => {
+    if (typeof value === "number") {
+      return value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
     }
-  }, [data]);
+    return value ? value.replace(/\B(?=(\d{3})+(?!\d))/g, ",") : "0";
+  };
+
+  const currencyParser = (displayValue?: string): number => {
+    return Number(displayValue?.replace(/,/g, "") || "0");
+  };
+
   if (loading) {
     return (
       <SaleStaffLayout title="Tour Create">
@@ -174,14 +135,15 @@ export default function CreateTripStep1({
       </SaleStaffLayout>
     );
   }
+
   return (
     <SaleStaffLayout title="Tour Create">
       <div className="flex justify-center p-6">
         <Card className="p-6 w-full max-w-3xl">
           <h2 className="text-2xl font-bold text-center mb-4">
-            TRIP INFORMATION FORM
+            TOUR INFORMATION FORM
           </h2>
-          <Form layout="vertical" form={form} initialValues={data}>
+          <Form layout="vertical" form={form}>
             <Form.Item
               label="Tour Name:"
               name="tourName"
@@ -189,7 +151,7 @@ export default function CreateTripStep1({
                 { required: true, message: "Please input the Tour name!!!" },
               ]}
             >
-              <Input placeholder="Enter tour name" value={tourName} />
+              <Input placeholder="Enter tour name" />
             </Form.Item>
 
             <div className="grid grid-cols-2 gap-4">
@@ -201,12 +163,11 @@ export default function CreateTripStep1({
                 <InputNumber
                   min={1}
                   className="w-full"
-                  value={night}
-                  onChange={(value) => setNight(value ?? 1)}
+                  onChange={handleNightChange}
                 />
               </Form.Item>
               <Form.Item label="Days (Auto):" name="day">
-                <InputNumber className="w-full" readOnly disabled value={day} />
+                <InputNumber className="w-full" readOnly disabled />
               </Form.Item>
             </div>
 
@@ -240,46 +201,8 @@ export default function CreateTripStep1({
                 },
               ]}
             >
-              <Input
-                placeholder="Enter destination points"
-                value={destination}
-              />
+              <Input placeholder="Enter destination points" />
             </Form.Item>
-
-            <div className="grid grid-cols-2 gap-4">
-              <Form.Item
-                label="Registration Days Before:"
-                name="registrationDaysBefore"
-                rules={[
-                  {
-                    required: true,
-                    message: "Please input the Registration Days Before!!!",
-                  },
-                ]}
-              >
-                <InputNumber
-                  min={1}
-                  className="w-full"
-                  value={registrationDaysBefore}
-                />
-              </Form.Item>
-
-              <Form.Item
-                label="Registration Conditions:"
-                name="registrationConditions"
-                rules={[
-                  {
-                    required: true,
-                    message: "Please input the Registration Conditions!!!",
-                  },
-                ]}
-              >
-                <Input
-                  placeholder="Enter registration conditions"
-                  value={registrationConditions}
-                />
-              </Form.Item>
-            </div>
             <div className="grid grid-cols-2 gap-4">
               <Form.Item
                 label="Departure Date:"
@@ -287,15 +210,14 @@ export default function CreateTripStep1({
                 rules={[
                   {
                     required: true,
-                    message: "Please select the departure date!",
+                    message: "Please select the Departure Date!!!",
                   },
                 ]}
               >
                 <DatePicker
-                  className="w-full"
-                  value={departureDate ? dayjs(departureDate) : null}
-                  onChange={(date, dateString) => setDepartureDate(dateString)}
+                  style={{ width: "100%" }}
                   format="YYYY-MM-DD"
+                  placeholder="Select departure date"
                 />
               </Form.Item>
               <Form.Item
@@ -322,17 +244,39 @@ export default function CreateTripStep1({
             </div>
 
             <div className="grid grid-cols-2 gap-4">
+              <Form.Item
+                label="Registration Days Before:"
+                name="registrationDaysBefore"
+                rules={[
+                  {
+                    required: true,
+                    message: "Please input the Registration Days Before!!!",
+                  },
+                ]}
+              >
+                <InputNumber min={1} className="w-full" />
+              </Form.Item>
+              <Form.Item
+                label="Registration Conditions:"
+                name="registrationConditions"
+                rules={[
+                  {
+                    required: true,
+                    message: "Please input the Registration Conditions!!!",
+                  },
+                ]}
+              >
+                <Input placeholder="Enter registration conditions" />
+              </Form.Item>
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
               <Form.Item label="Standard Price (VND):" name="standardPrice">
                 <InputNumber
                   min={0}
                   className="w-full"
-                  value={standardPrice}
-                  formatter={(value) =>
-                    value
-                      ? value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")
-                      : "0"
-                  }
-                  parser={(value) => Number(value?.replace(/,/g, "") || "0")}
+                  formatter={(value) => currencyFormatter(value as number)}
+                  parser={currencyParser}
                 />
               </Form.Item>
 
@@ -340,13 +284,8 @@ export default function CreateTripStep1({
                 <InputNumber
                   min={0}
                   className="w-full"
-                  value={visaFee}
-                  formatter={(value) =>
-                    value
-                      ? value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")
-                      : "0"
-                  }
-                  parser={(value) => Number(value?.replace(/,/g, "") || "0")}
+                  formatter={(value) => currencyFormatter(value as number)}
+                  parser={currencyParser}
                 />
               </Form.Item>
             </div>
@@ -376,14 +315,8 @@ export default function CreateTripStep1({
               )}
             </Form.Item>
 
-            <div className="flex justify-between mt-6">
-              <Button
-                type="default"
-                icon={<FiArrowLeft />}
-                onClick={handleBack}
-              >
-                Back
-              </Button>
+            <div className="flex justify-between">
+              <Button onClick={onBack}>Back</Button>
               <Button type="primary" onClick={handleNext}>
                 Next ➜
               </Button>

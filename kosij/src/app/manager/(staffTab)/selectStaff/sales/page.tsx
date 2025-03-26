@@ -3,7 +3,7 @@
 "use client";
 export const dynamic = "force-dynamic";
 import React, { Suspense, useEffect, useState } from "react";
-import { Table, Button, message } from "antd";
+import { Table, Button, message, Input, Popconfirm, Modal } from "antd";
 import ManagerLayout from "@/app/components/ManagerLayout/ManagerLayout";
 import api from "@/config/axios.config";
 import { SalesStaff } from "@/model/SalesStaff";
@@ -19,7 +19,10 @@ function Page() {
   const router = useRouter();
   const [tripId, setTripId] = useState<string | null>(null);
   const [requestId, setRequestId] = useState<string | null>(null);
-
+  const [note, setNote] = useState<string>("");
+  const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
+  const [isConfirmVisible, setIsConfirmVisible] = useState(false);
+  const [selectedStaffId, setSelectedStaffId] = useState<string | null>(null);
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     setTripId(params.get("tripId"));
@@ -45,6 +48,14 @@ function Page() {
       setLoading(false);
     }
   };
+  const handleModalCancel = () => {
+    setIsModalOpen(false);
+    setIsConfirmVisible(false);
+  };
+  const showAssignModal = (staffId: string) => {
+    setSelectedStaffId(staffId);
+    setIsModalOpen(true);
+  };
 
   const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
@@ -57,7 +68,7 @@ function Page() {
     );
     setFilteredData(filtered);
   };
-  const handleAssignStaff = async (staffId: string) => {
+  const handleAssignStaff = async (staffId: string, note: string) => {
     if (!tripId && !requestId) {
       toast.error("Trip ID or Request ID is missing.");
       return;
@@ -68,7 +79,7 @@ function Page() {
       : `/trip-request/${requestId}/staff-assigment`;
 
     try {
-      const response = await api.put(endpoint, { staffId });
+      const response = await api.put(endpoint, { staffId, note });
 
       if (response.status === 200) {
         toast.success(response.data.message || "Staff assigned successfully!");
@@ -138,7 +149,7 @@ function Page() {
         <div style={{ display: "flex", gap: "8px" }}>
           <Button
             type="primary"
-            onClick={() => handleAssignStaff(record.salesStaffId)}
+            onClick={() => showAssignModal(record.salesStaffId)}
           >
             Assign
           </Button>
@@ -160,6 +171,49 @@ function Page() {
         bordered
         pagination={{ pageSize: 5 }}
       />
+      <Modal
+        title="Assign Staff"
+        open={isModalOpen}
+        onCancel={handleModalCancel}
+        footer={[
+          <Button key="cancel" onClick={() => setIsModalOpen(false)}>
+            Cancel
+          </Button>,
+          <Popconfirm
+            key="assign"
+            title="Are you sure you want to assign this staff?"
+            open={isConfirmVisible}
+            onConfirm={() => {
+              if (selectedStaffId) {
+                handleAssignStaff(selectedStaffId, note);
+                setIsConfirmVisible(false);
+                setIsModalOpen(false);
+              } else {
+                toast.error("No staff selected.");
+              }
+            }}
+            onCancel={() => setIsConfirmVisible(false)}
+            okText="Yes"
+            cancelText="No"
+          >
+            <Button
+              type="primary"
+              loading={loading}
+              onClick={() => {
+                setIsConfirmVisible(true);
+              }}
+            >
+              Assign
+            </Button>
+          </Popconfirm>,
+        ]}
+      >
+        <p>Enter a note for staff assignment:</p>
+        <Input.TextArea
+          value={note}
+          onChange={(e) => setNote(e.target.value)}
+        />
+      </Modal>
     </ManagerLayout>
   );
 }

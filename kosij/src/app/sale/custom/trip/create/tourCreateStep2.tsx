@@ -9,6 +9,7 @@ import { Select, Input, Button, Card, Typography, TimePicker } from "antd";
 import dayjs from "dayjs";
 import api from "@/config/axios.config";
 import SaleStaffLayout from "@/app/components/SaleStaffLayout/SaleStaffLayout";
+import { toast } from "react-toastify";
 
 const { TextArea } = Input;
 const { Title, Text } = Typography;
@@ -65,7 +66,69 @@ export default function CreateTripStep2({
     if (!time) return;
 
     const formattedTime = time.format("HH:mm");
+
+    if (activityIndex > 0) {
+      const prevActivityTime = dayjs(
+        days[dayIndex].activities[activityIndex - 1].time,
+        "HH:mm"
+      );
+      const currentTime = dayjs(formattedTime, "HH:mm");
+
+      if (currentTime.isBefore(prevActivityTime.add(15, "minute"))) {
+        toast.error(
+          "The time must be at least 15 minutes before the next activity"
+        );
+        return;
+      }
+    }
+
+    if (activityIndex < days[dayIndex].activities.length - 1) {
+      const nextActivityTime = dayjs(
+        days[dayIndex].activities[activityIndex + 1].time,
+        "HH:mm"
+      );
+      const currentTime = dayjs(formattedTime, "HH:mm");
+
+      if (nextActivityTime.isBefore(currentTime.add(15, "minute"))) {
+        toast.error(
+          "The time must be at least 15 minutes before the next activity"
+        );
+        return;
+      }
+    }
+
     handleUpdateActivity(dayIndex, activityIndex, "time", formattedTime);
+  };
+
+  const handleAddActivity = (dayIndex: number) => {
+    setDays((prevDays) => {
+      return prevDays.map((day, idx) => {
+        if (idx !== dayIndex) return day;
+
+        const activities = [...day.activities];
+
+        let newTime = "07:00";
+        if (activities.length > 0) {
+          const lastActivityTime = activities[activities.length - 1].time;
+          if (lastActivityTime) {
+            const lastTime = dayjs(lastActivityTime, "HH:mm").add(15, "minute");
+            newTime = lastTime.format("HH:mm");
+          }
+        }
+
+        return {
+          ...day,
+          activities: [
+            ...activities,
+            {
+              time: newTime,
+              description: "",
+              locations: "",
+            },
+          ],
+        };
+      });
+    });
   };
 
   const [errors, setErrors] = useState<
@@ -94,6 +157,10 @@ export default function CreateTripStep2({
     return newErrors.length === 0;
   };
   const handleNext = () => {
+    if (!validateForm() || !validateTimeOrder()) {
+      return;
+    }
+
     const updatedDays = days.map((day) => ({
       ...day,
       activities: day.activities.map((activity) => ({
@@ -187,43 +254,33 @@ export default function CreateTripStep2({
     }
   };
 
-  const handleAddActivity = (dayIndex: number) => {
-    setDays((prevDays) => {
-      return prevDays.map((day, idx) => {
-        if (idx !== dayIndex) return day;
-
-        const activities = [...day.activities];
-
-        let newTime = "07:00";
-        if (activities.length > 0) {
-          const lastActivityTime = activities[activities.length - 1].time;
-          if (lastActivityTime) {
-            const lastTime = dayjs(lastActivityTime, "HH:mm").add(15, "minute");
-            newTime = lastTime.format("HH:mm");
-          }
-        }
-
-        return {
-          ...day,
-          activities: [
-            ...activities,
-            {
-              time: newTime,
-              description: "",
-              locations: "",
-            },
-          ],
-        };
-      });
-    });
-  };
-
   const handleDeleteActivity = (dayIndex: number, activityIndex: number) => {
     const updatedDays = [...days];
     updatedDays[dayIndex].activities.splice(activityIndex, 1);
     setDays(updatedDays);
   };
+  const validateTimeOrder = () => {
+    let isValid = true;
 
+    days.forEach((day, dayIndex) => {
+      for (let i = 0; i < day.activities.length - 1; i++) {
+        const currentTime = dayjs(day.activities[i].time, "HH:mm");
+        const nextTime = dayjs(day.activities[i + 1].time, "HH:mm");
+
+        if (nextTime.isBefore(currentTime.add(15, "minute"))) {
+          toast.error(
+            `Day ${dayIndex + 1}: Activity ${
+              i + 2
+            } must be at least 15 minutes after Activity ${i + 1}`
+          );
+
+          isValid = false;
+        }
+      }
+    });
+
+    return isValid;
+  };
   return (
     <SaleStaffLayout title="Tour Create">
       <div className="p-6 bg-white shadow-lg rounded-lg max-w-3xl mx-auto">

@@ -53,7 +53,6 @@ function Page() {
           setOrders(ordersResponse.data.value);
         }
       } catch (error) {
-        console.error("Lỗi tải dữ liệu:", error);
       } finally {
         setLoading(false);
       }
@@ -183,9 +182,11 @@ function Page() {
             </Collapse>
           </div>
         ) : (
-          <Card className="flex justify-center items-center h-40">
-            <Empty description="No orders found" />
-          </Card>
+          <div className="mt-6">
+            <Card className="flex justify-center items-center h-40">
+              <Empty description="No orders found" />
+            </Card>
+          </div>
         )}
       </div>
     </LayoutComponent>

@@ -19,7 +19,7 @@ interface Tour {
 function Page() {
   const [tourData, setTourData] = useState<Tour[]>([]);
   const [loading, setLoading] = useState(true);
-  const router = useRouter(); // Khai báo useRouter
+  const router = useRouter();
 
   useEffect(() => {
     const fetchTours = async () => {
@@ -59,14 +59,16 @@ function Page() {
       dataIndex: "standardPrice",
       key: "standardPrice",
       sorter: (a, b) => a.standardPrice - b.standardPrice,
-      render: (value) => new Intl.NumberFormat("en-US").format(value),
+      render: (amount: number) =>
+        new Intl.NumberFormat("vi-VN").format(amount) + " VND",
     },
     {
       title: "Visa Fee",
       dataIndex: "visaFee",
       key: "visaFee",
       sorter: (a, b) => a.visaFee - b.visaFee,
-      render: (value) => new Intl.NumberFormat("en-US").format(value),
+      render: (amount: number) =>
+        new Intl.NumberFormat("vi-VN").format(amount) + " VND",
     },
     {
       title: "Tour Status",

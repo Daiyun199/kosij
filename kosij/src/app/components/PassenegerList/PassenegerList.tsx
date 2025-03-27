@@ -18,10 +18,13 @@ const PassengerList: React.FC<PassengerListProps> = ({
   onUpdatePassenger,
 }) => {
   const { role } = useParams();
+  const [checkedPassengers, setCheckedPassengers] = useState<Set<string>>(
+    new Set()
+  );
 
   const handleCheckVisa = async (passenger: Passenger) => {
     try {
-      const newVisaStatus = !passenger.hasVisa;
+      const newVisaStatus = passenger.hasVisa === true ? false : true;
 
       await api.put(
         `/trip-booking/${passenger.tripBookingId}/passenger/${passenger.id}/has-visa`,
@@ -32,6 +35,10 @@ const PassengerList: React.FC<PassengerListProps> = ({
         `Updated visa status for ${passenger.fullName} to ${
           newVisaStatus ? "Granted" : "Not Granted"
         }`
+      );
+
+      setCheckedPassengers((prev) =>
+        new Set(prev).add(passenger.id.toString())
       );
 
       onUpdatePassenger({ ...passenger, hasVisa: newVisaStatus });
@@ -85,7 +92,8 @@ const PassengerList: React.FC<PassengerListProps> = ({
           </div>
 
           {["Drafted", "Deposited"].includes(passenger.tripBookingStatus) &&
-            role !== "manager" && (
+            role !== "manager" &&
+            !checkedPassengers.has(passenger.id.toString()) && (
               <Button
                 type="primary"
                 className="mt-4"

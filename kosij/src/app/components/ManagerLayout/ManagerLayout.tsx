@@ -136,7 +136,7 @@ const ManagerLayout: React.FC<ManagerLayoutProps> = ({ title, children }) => {
         },
         {
           label: "Withdraws",
-          icon: "fa-solid fa-shopping-cart",
+          icon: "fa-solid fa-wallet",
           path: "/manager/withdrawals",
         },
       ],

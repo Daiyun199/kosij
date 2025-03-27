@@ -29,7 +29,7 @@ const transactionStatuses = [
 ];
 
 const formatTransactionType = (type: string) => {
-  return type.replace(/([a-z])([A-Z])/g, "$1 $2"); // Add space before uppercase letters
+  return type.replace(/([a-z])([A-Z])/g, "$1 $2");
 };
 
 const TransactionsTable = () => {
@@ -66,7 +66,7 @@ const TransactionsTable = () => {
     {
       title: "STT",
       key: "stt",
-      render: (_, __, index) => index + 1, // Hiển thị số thứ tự bắt đầu từ 1
+      render: (_, __, index) => index + 1,
     },
     {
       title: "Transaction Type",
@@ -84,8 +84,9 @@ const TransactionsTable = () => {
       title: "Amount",
       dataIndex: "amount",
       key: "amount",
-      sorter: (a, b) => a.amount - b.amount, // Thêm sắp xếp cho cột Amount
-      render: (amount: number) => `$${amount.toFixed(2)}`,
+      sorter: (a, b) => a.amount - b.amount,
+      render: (amount: number) =>
+        new Intl.NumberFormat("vi-VN").format(amount) + " VND",
     },
     {
       title: "Transaction Status",

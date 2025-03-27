@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 import React, { useState, useEffect, Suspense } from "react";
 import { Input, Button, Form, Card, Typography, Spin } from "antd";
@@ -17,12 +18,14 @@ const { Title } = Typography;
 const CreateTripPage: React.FC = () => {
   const searchParams = useSearchParams();
   const tourId = searchParams.get("tourId");
+  // Set default departureDate to 22 days from now and format it correctly
+  const defaultDate = new Date(Date.now() + 22 * 24 * 60 * 60 * 1000);
+  const formattedDefaultDate = defaultDate.toISOString();
   const initialTripData = {
-    tripType: "Scheduled",
-    departureDate: "",
+    departureDate: formattedDefaultDate,
     minGroupSize: 1,
     maxGroupSize: 1,
-    pricingRate: 0,
+    pricingRate: 1.0,
     tourId: tourId,
   };
   const [tripData, setTripData] = useState(initialTripData);
@@ -33,16 +36,22 @@ const CreateTripPage: React.FC = () => {
     setTimeout(() => setLoading(false), 1000);
   }, []);
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const handleChange = (name: string, value: any) => {
+    if (name === "departureDate") {
+      // Convert the datetime-local input to ISO format
+      const date = new Date(value);
+      value = date.toISOString();
+    } else if (
+      name === "minGroupSize" ||
+      name === "maxGroupSize" ||
+      name === "pricingRate"
+    ) {
+      value = Number(value);
+    }
+
     setTripData((prev) => ({
       ...prev,
-      [name]:
-        name === "minGroupSize" ||
-        name === "maxGroupSize" ||
-        name === "pricingRate"
-          ? Number(value)
-          : value,
+      [name]: value,
     }));
   };
 
@@ -53,15 +62,25 @@ const CreateTripPage: React.FC = () => {
       toast.success("Trip created successfully!");
       setErrors({});
       setTripData(initialTripData);
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
       console.error("Error creating trip:", error);
-      if (error.response && error.response.data && error.response.data.errors) {
+      if (error.response?.data?.errors) {
         setErrors(error.response.data.errors);
       } else {
         toast.error("Failed to create trip.");
       }
     }
+  };
+
+  // Convert ISO date to datetime-local format for the input
+  const getInputDateValue = (isoDate: string) => {
+    const date = new Date(isoDate);
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    const day = String(date.getDate()).padStart(2, "0");
+    const hours = String(date.getHours()).padStart(2, "0");
+    const minutes = String(date.getMinutes()).padStart(2, "0");
+    return `${year}-${month}-${day}T${hours}:${minutes}`;
   };
 
   return (
@@ -102,16 +121,18 @@ const CreateTripPage: React.FC = () => {
                 required
                 validateStatus={errors.DepartureDate ? "error" : ""}
                 help={errors.DepartureDate?.join(", ")}
+                rules={[
+                  { required: true, message: "Please select departure date!" },
+                ]}
               >
                 <Input
                   type="datetime-local"
-                  min={new Date(Date.now() + 22 * 24 * 60 * 60 * 1000)
-                    .toISOString()
-                    .slice(0, 16)}
-                  value={tripData.departureDate}
+                  min={getInputDateValue(formattedDefaultDate)}
+                  value={getInputDateValue(tripData.departureDate)}
                   onChange={(e) =>
                     handleChange("departureDate", e.target.value)
                   }
+                  required
                 />
               </Form.Item>
 
@@ -120,12 +141,19 @@ const CreateTripPage: React.FC = () => {
                 required
                 validateStatus={errors.MinGroupSize ? "error" : ""}
                 help={errors.MinGroupSize?.join(", ")}
+                rules={[
+                  {
+                    required: true,
+                    message: "Please enter minimum group size!",
+                  },
+                ]}
               >
                 <Input
                   type="number"
                   min={1}
                   value={tripData.minGroupSize}
                   onChange={(e) => handleChange("minGroupSize", e.target.value)}
+                  required
                 />
               </Form.Item>
 
@@ -134,12 +162,25 @@ const CreateTripPage: React.FC = () => {
                 required
                 validateStatus={errors.MaxGroupSize ? "error" : ""}
                 help={errors.MaxGroupSize?.join(", ")}
+                rules={[
+                  {
+                    required: true,
+                    message: "Please enter maximum group size!",
+                    validator: (_, value) =>
+                      value >= tripData.minGroupSize
+                        ? Promise.resolve()
+                        : Promise.reject(
+                            "Max group size must be greater than or equal to min group size"
+                          ),
+                  },
+                ]}
               >
                 <Input
                   type="number"
-                  min={1}
+                  min={tripData.minGroupSize + 1}
                   value={tripData.maxGroupSize}
                   onChange={(e) => handleChange("maxGroupSize", e.target.value)}
+                  required
                 />
               </Form.Item>
 
@@ -148,6 +189,15 @@ const CreateTripPage: React.FC = () => {
                 required
                 validateStatus={errors.PricingRate ? "error" : ""}
                 help={errors.PricingRate?.join(", ")}
+                rules={[
+                  {
+                    required: true,
+                    message: "Please enter pricing rate!",
+                    type: "number",
+                    min: 1,
+                    max: 3,
+                  },
+                ]}
               >
                 <Input
                   type="number"
@@ -156,16 +206,6 @@ const CreateTripPage: React.FC = () => {
                   step="0.1"
                   value={tripData.pricingRate}
                   onChange={(e) => handleChange("pricingRate", e.target.value)}
-                  onInvalid={(e) => {
-                    const input = e.target as HTMLInputElement;
-                    input.setCustomValidity(
-                      "Please enter a value less than or equal to 3."
-                    );
-                  }}
-                  onInput={(e) => {
-                    const input = e.target as HTMLInputElement;
-                    input.setCustomValidity("");
-                  }}
                   required
                 />
               </Form.Item>

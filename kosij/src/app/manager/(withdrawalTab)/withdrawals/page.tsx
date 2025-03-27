@@ -102,6 +102,8 @@ const WithdrawalsTable: React.FC = () => {
       dataIndex: "amount",
       key: "amount",
       sorter: (a, b) => a.amount - b.amount,
+      render: (amount: number) =>
+        new Intl.NumberFormat("vi-VN").format(amount) + " VND",
     },
     {
       title: "Bank Name",

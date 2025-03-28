@@ -302,7 +302,8 @@ const TripRequestDetail = () => {
         )}
         {role === "sale" &&
           (trip.requestStatus === "Assigned" ||
-            trip.requestStatus === "ManagerRejected") && (
+            trip.requestStatus === "ManagerRejected" ||
+            trip.requestStatus === "ModificationRequested") && (
             <Popconfirm
               title="Cancel this trip request?"
               description="Are you sure you want to cancel this trip request?"

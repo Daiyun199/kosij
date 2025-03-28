@@ -479,9 +479,9 @@ const CreateTripStep4: React.FC<CreateTourStep4Props> = ({
                   <Input
                     placeholder="Starting Point"
                     value={deposit.start}
-                    readOnly
+                    disabled
                   />
-                  <Input placeholder="End Point" value={deposit.end} readOnly />
+                  <Input placeholder="End Point" value={deposit.end} disabled />
                   <Input
                     placeholder="Pricing Rate (%)"
                     value={deposit.rate}
@@ -525,12 +525,12 @@ const CreateTripStep4: React.FC<CreateTourStep4Props> = ({
                   <Input
                     placeholder="Starting Point"
                     value={lastPayment.from}
-                    readOnly
+                    disabled
                   />
                   <Input
                     placeholder="End Point"
                     value={lastPayment.to}
-                    readOnly
+                    disabled
                   />
                   <Input
                     placeholder="Penalty Rate (%)"

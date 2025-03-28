@@ -167,7 +167,7 @@ export default function CreateTourStep1({
                   },
                 ]}
               >
-                <InputNumber min={1} className="w-full" />
+                <InputNumber min={21} className="w-full" />
               </Form.Item>
               <Form.Item
                 label="Registration Conditions:"

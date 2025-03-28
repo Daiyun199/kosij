@@ -53,7 +53,6 @@ export default function CreateTour() {
       {step === 1 && (
         <CreateTripStep1
           tripRequestId={tripRequestId}
-          onBack={() => setStep(0)}
           onNext={() => setStep(2)}
           data={tourData.step1}
           updateData={(data) => updateStepData("step1", data)}

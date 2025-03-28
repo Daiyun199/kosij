@@ -19,11 +19,12 @@ import { toast } from "react-toastify";
 import SaleStaffLayout from "@/app/components/SaleStaffLayout/SaleStaffLayout";
 import dayjs from "dayjs";
 import api from "@/config/axios.config";
+import { useRouter } from "next/navigation";
 
 interface Step1Props {
   onNext: () => void;
   tripRequestId?: any;
-  onBack: () => void;
+
   data: {
     tourName?: string;
     night?: number;
@@ -45,12 +46,11 @@ export default function CreateTripStep1({
   data,
   updateData,
   tripRequestId,
-  onBack,
 }: Step1Props) {
   const [loading, setLoading] = useState(true);
   const [form] = Form.useForm();
   const [img, setImg] = useState<File | null>(data.img || null);
-
+  const router = useRouter();
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -254,7 +254,7 @@ export default function CreateTripStep1({
                   },
                 ]}
               >
-                <InputNumber min={1} className="w-full" />
+                <InputNumber min={21} className="w-full" />
               </Form.Item>
               <Form.Item
                 label="Registration Conditions:"
@@ -316,7 +316,11 @@ export default function CreateTripStep1({
             </Form.Item>
 
             <div className="flex justify-between">
-              <Button onClick={onBack}>Back</Button>
+              <Button
+                onClick={() => router.push(`/sale/requests/tripRequestId}`)}
+              >
+                Back
+              </Button>
               <Button type="primary" onClick={handleNext}>
                 Next ➜
               </Button>

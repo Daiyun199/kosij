@@ -228,7 +228,9 @@ export default function CreateTourStep0() {
     }
   };
   const isEditable =
-    (tripBookingStatus === "Drafted" || tripBookingStatus === "Deposited") &&
+    (tripBookingStatus === "Drafted" ||
+      tripBookingStatus === null ||
+      tripBookingStatus === undefined) &&
     tripRequestStatus !== "Processing";
   const columns: ColumnsType<Passenger> = [
     {

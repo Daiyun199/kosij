@@ -52,12 +52,25 @@ export default function CreateTripStep2({
     Record<number, Record<number, Farm>>
   >({});
 
-  console.log(days);
   useEffect(() => {
     updateData(days);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [days]);
+  const validateAtLeastOneFarm = () => {
+    let hasFarmSelected = false;
 
+    for (const day of days) {
+      for (const activity of day.activities) {
+        if (activity.locations && activity.locations.trim() !== "") {
+          hasFarmSelected = true;
+          break;
+        }
+      }
+      if (hasFarmSelected) break;
+    }
+
+    return hasFarmSelected;
+  };
   const handleTimeChange = (
     dayIndex: number,
     activityIndex: number,
@@ -154,6 +167,10 @@ export default function CreateTripStep2({
     });
 
     setErrors(newErrors);
+    if (!validateAtLeastOneFarm()) {
+      toast.error("Please select at least one farm location");
+      return false;
+    }
     return newErrors.length === 0;
   };
   const handleNext = () => {

@@ -237,7 +237,9 @@ export default function CreateTourStep0() {
     (tripBookingStatus === "Drafted" ||
       tripBookingStatus === null ||
       tripBookingStatus === undefined) &&
-    tripRequestStatus !== "Processing";
+    (tripRequestStatus === "Assigned" ||
+      tripRequestStatus === "ModificationRequested" ||
+      tripRequestStatus === "ManagerRejected");
   const columns: ColumnsType<Passenger> = [
     {
       title: "Full Name",

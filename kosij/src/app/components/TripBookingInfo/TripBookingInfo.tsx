@@ -17,7 +17,7 @@ import Image from "next/image";
 import { storage } from "@/config/firebase";
 import api from "@/config/axios.config";
 import { toast } from "react-toastify";
-import { useParams } from "next/navigation";
+import { useParams, useSearchParams } from "next/navigation";
 import { Passenger } from "@/model/Passenger";
 
 const { Title, Text } = Typography;
@@ -40,7 +40,9 @@ const TripBookingInfo: React.FC<TripBookingInfoProps> = ({
   const [uploading, setUploading] = useState(false);
   const { role } = useParams();
   const isManager = role === "manager";
-
+  const searchParams = useSearchParams();
+  const custom = searchParams.get("custom") === "true";
+  const tripRequestId = searchParams.get("requestId");
   const uploadFileToFirebase = async (file: File) => {
     return new Promise<string>((resolve, reject) => {
       const storageRef = ref(storage, `trip-tickets/${file.name}`);
@@ -51,16 +53,14 @@ const TripBookingInfo: React.FC<TripBookingInfoProps> = ({
         (snapshot) => {
           const progress =
             (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-          console.log(`Uploading: ${progress}%`);
         },
         (error) => {
-          console.error("Error uploading:", error);
           setUploading(false);
           reject(error);
         },
         async () => {
           const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
-          console.log("Image uploaded successfully:", downloadURL);
+
           resolve(downloadURL);
         }
       );
@@ -70,7 +70,6 @@ const TripBookingInfo: React.FC<TripBookingInfoProps> = ({
   const updateTripBooking = async (tripBookingId: string, data: any) => {
     try {
       await api.put(`/trip-booking/${tripBookingId}`, data);
-      toast.success("Trip booking updated successfully!");
     } catch (error) {
       console.error("Failed to update trip booking:", error);
       toast.error("Failed to update trip booking.");
@@ -81,6 +80,25 @@ const TripBookingInfo: React.FC<TripBookingInfoProps> = ({
     try {
       setUploading(true);
       await onSaveChanges();
+      const representativeWithoutVisa = PassengerList.find(
+        (p) => p.isRepresentative && !p.hasVisa
+      );
+
+      if (representativeWithoutVisa) {
+        await api.put(`/trip-booking/${tripBooking.id}/cancel`, {
+          cancellationReason: "Representative does not have a Visa.",
+        });
+        const updatedTripBooking = {
+          ...tripBooking,
+          tripBookingStatus: "Cancelled",
+        };
+        onUpdateTripBooking(updatedTripBooking);
+        toast.success(
+          "Trip booking has been cancelled because the representative doesn't have a visa"
+        );
+
+        return;
+      }
       if (tripBooking.tripBookingStatus === "Deposited") {
         const updatedTripBooking = {
           ...tripBooking,
@@ -209,8 +227,7 @@ const TripBookingInfo: React.FC<TripBookingInfoProps> = ({
 
       {!isManager &&
         (tripBooking.tripBookingStatus === "Deposited" ||
-          tripBooking.tripBookingStatus === "Paid") &&
-        atLeastOnePassengerHasVisa && (
+          tripBooking.tripBookingStatus === "Paid") && (
           <div className="flex justify-end mt-4">
             <Popconfirm
               title="Are you sure you want to update?"

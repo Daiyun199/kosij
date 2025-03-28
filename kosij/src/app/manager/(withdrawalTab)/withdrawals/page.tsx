@@ -152,13 +152,16 @@ const WithdrawalsTable: React.FC = () => {
         <>
           {record.withdrawStatus === "Pending" && (
             <>
-              <Button
-                type="primary"
-                onClick={() => handleApprove(record.id)} // Vẫn truyền ID
-                className="mr-2"
+              <Popconfirm
+                title="Are you sure you want to approve this?"
+                onConfirm={() => handleApprove(record.id)}
+                okText="Yes"
+                cancelText="No"
               >
-                Approve
-              </Button>
+                <Button type="primary" className="mr-2">
+                  Approve
+                </Button>
+              </Popconfirm>
               <Button danger onClick={() => handleDenyClick(record.id)}>
                 Deny
               </Button>

@@ -5,6 +5,7 @@ import { Card, Button, Popconfirm } from "antd";
 import { Passenger } from "@/model/Passenger";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "react-toastify";
+import { useSearchParams } from "next/navigation";
 
 interface PassengerListProps {
   passengers: Passenger[];
@@ -19,11 +20,15 @@ const PassengerList: React.FC<PassengerListProps> = ({
   tripBookingStatus,
   role,
 }) => {
+  const [checkedPassengers, setCheckedPassengers] = useState<number[]>([]);
+
   const handleCheckVisa = (passenger: Passenger) => {
     const newVisaStatus = !passenger.hasVisa;
     onUpdatePassenger({ ...passenger, hasVisa: newVisaStatus });
+
+    setCheckedPassengers((prev) => [...prev, passenger.id]);
     toast.success(
-      `Temporarily updated visa status for ${passenger.fullName} to ${
+      `Updated visa status for ${passenger.fullName} to ${
         newVisaStatus ? "Granted" : "Not Granted"
       }`
     );
@@ -71,7 +76,8 @@ const PassengerList: React.FC<PassengerListProps> = ({
           </div>
 
           {["Drafted", "Deposited"].includes(tripBookingStatus) &&
-            role !== "manager" && (
+            role !== "manager" &&
+            !checkedPassengers.includes(passenger.id) && (
               <Popconfirm
                 title="Are you sure you want to change the visa status?"
                 okText="Yes"

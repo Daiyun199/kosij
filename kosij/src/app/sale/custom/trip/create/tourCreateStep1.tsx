@@ -32,8 +32,7 @@ interface Step1Props {
     departure?: string;
     destination?: string;
     departureDate?: string;
-    registrationDaysBefore?: number;
-    registrationConditions?: string;
+
     standardPrice?: number;
     visaFee?: number;
     img?: File | null;
@@ -240,33 +239,6 @@ export default function CreateTripStep1({
                 <div className="w-full">
                   <InputNumber className="w-full" min={1} max={3} step={0.1} />
                 </div>
-              </Form.Item>
-            </div>
-
-            <div className="grid grid-cols-2 gap-4">
-              <Form.Item
-                label="Registration Days Before:"
-                name="registrationDaysBefore"
-                rules={[
-                  {
-                    required: true,
-                    message: "Please input the Registration Days Before!!!",
-                  },
-                ]}
-              >
-                <InputNumber min={21} className="w-full" />
-              </Form.Item>
-              <Form.Item
-                label="Registration Conditions:"
-                name="registrationConditions"
-                rules={[
-                  {
-                    required: true,
-                    message: "Please input the Registration Conditions!!!",
-                  },
-                ]}
-              >
-                <Input placeholder="Enter registration conditions" />
               </Form.Item>
             </div>
 

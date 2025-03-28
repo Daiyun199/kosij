@@ -238,8 +238,7 @@ const CreateTripStep4: React.FC<CreateTourStep4Props> = ({
         })),
         tourPriceInclude: tourData.step3.includes || "",
         tourPriceNotInclude: tourData.step3.notIncludes || "",
-        registrationDaysBefore: tourData.step1.registrationDaysBefore || 0,
-        registrationConditions: tourData.step1.registrationConditions || "",
+
         tourPriceRequests:
           tourData.step3.price?.map(
             (price: {

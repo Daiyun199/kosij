@@ -75,6 +75,12 @@ export default function CreateTourStep0() {
             hasVisa: p.hasVisa,
           }));
           setPassengers(fetchedPassengers);
+          form.setFieldsValue({
+            passengers: fetchedPassengers.map((p: any) => ({
+              email: p.email,
+              phoneNumber: p.phoneNumber,
+            })),
+          });
         }
         const responseTripBooking = await api.get(
           `trip-booking/${tripBookingId}`
@@ -177,7 +183,7 @@ export default function CreateTourStep0() {
           phoneNumber: p.phoneNumber,
           passport: p.passport,
           isRepresentative: p.isRepresentative,
-          hasVisa: p.hasVisa,
+          hasVisa: p.hasVisa ? true : null,
         };
       });
 

@@ -56,6 +56,22 @@ const TripRequestDetail = () => {
       `/sale/custom/trip/booking?tripRequestId=${id}&tripBookingId=${trip?.tripBookingId}`
     );
   };
+
+  const handleCancel = async () => {
+    try {
+      await api.put(`/staff/trip-request/${id}/cancel`, {
+        requestStatus: "Cancelled",
+      });
+
+      toast.success("Trip request cancelled successfully!");
+      router.refresh();
+    } catch (error: any) {
+      console.error("Error cancelling trip request:", error);
+      const errorMessage =
+        error.response?.data?.value || "Failed to cancel trip request.";
+      toast.error(errorMessage);
+    }
+  };
   if (!trip) return <p>Loading...</p>;
   const handleSubmit = async () => {
     if (!actionType) return;
@@ -284,6 +300,25 @@ const TripRequestDetail = () => {
             Trip
           </Button>
         )}
+        {role === "sale" &&
+          (trip.requestStatus === "Assigned" ||
+            trip.requestStatus === "ManagerRejected") && (
+            <Popconfirm
+              title="Cancel this trip request?"
+              description="Are you sure you want to cancel this trip request?"
+              onConfirm={handleCancel}
+              okText="Yes"
+              cancelText="No"
+              okButtonProps={{ danger: true }}
+            >
+              <Button
+                type="default"
+                className="bg-gray-500 hover:bg-gray-600 text-white"
+              >
+                Cancel
+              </Button>
+            </Popconfirm>
+          )}
         {role === "manager" && trip.requestStatus === "Processing" && (
           <>
             <Button

@@ -97,8 +97,7 @@ interface TourData {
   departureDate: string;
   tourPriceInclude: string;
   tourPriceNotInclude: string;
-  registrationDaysBefore: number;
-  registrationConditions: string;
+
   tourDetailsRequests: TourDetail[];
   standardPrice: number;
   visaFee: number;
@@ -119,13 +118,7 @@ const TourUpdatePage: React.FC = () => {
   const [imageUrl, setImageUrl] = useState<string>("");
   const [uploading, setUploading] = useState(false);
   const nights = Form.useWatch("nights", form);
-  const [activeKeys, setActiveKeys] = useState<Record<string, string[]>>({
-    "1": [],
-    "2": [],
-    "3": [],
-    "4": [],
-    "5": [],
-  });
+
   useEffect(() => {
     if (nights !== undefined && nights !== null) {
       const daysCount = nights + 1;
@@ -218,8 +211,7 @@ const TourUpdatePage: React.FC = () => {
         departureDate: dayjs(data.departureDate),
         tourPriceInclude: data.tourResponse.tourPriceInclude,
         tourPriceNotInclude: data.tourResponse.tourPriceNotInclude,
-        registrationDaysBefore: data.tourResponse.registrationDaysBefore,
-        registrationConditions: data.tourResponse.registrationConditions,
+
         standardPrice: data.standardPrice,
         visaFee: data.tourResponse.visaFee,
         pricingRate: data.pricingRate,
@@ -284,8 +276,7 @@ const TourUpdatePage: React.FC = () => {
         departureDate: formattedDepartureDate,
         tourPriceInclude: values.tourPriceInclude,
         tourPriceNotInclude: values.tourPriceNotInclude,
-        registrationDaysBefore: values.registrationDaysBefore,
-        registrationConditions: values.registrationConditions,
+
         standardPrice: values.standardPrice,
         visaFee: values.visaFee,
         pricingRate: values.pricingRate,
@@ -434,20 +425,6 @@ const TourUpdatePage: React.FC = () => {
                   <DatePicker showTime className="w-full" />
                 </Form.Item>
               </Col>
-              <Col span={12}>
-                <Form.Item
-                  label="Registration Days Before"
-                  name="registrationDaysBefore"
-                  rules={[
-                    {
-                      required: true,
-                      message: "Please enter registration days before",
-                    },
-                  ]}
-                >
-                  <InputNumber min={0} className="w-full" />
-                </Form.Item>
-              </Col>
             </Row>
 
             <Row gutter={16}>
@@ -480,19 +457,6 @@ const TourUpdatePage: React.FC = () => {
                 </Form.Item>
               </Col>
             </Row>
-
-            <Form.Item
-              label="Registration Conditions"
-              name="registrationConditions"
-              rules={[
-                {
-                  required: true,
-                  message: "Please enter registration conditions",
-                },
-              ]}
-            >
-              <TextArea rows={3} placeholder="Enter registration conditions" />
-            </Form.Item>
           </Card>
           <Card title="Pricing Information" className="mb-6">
             <Row gutter={16}>

@@ -1,53 +1,32 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { useState } from "react";
-import { Card, Button } from "antd";
+import { Card, Button, Popconfirm } from "antd";
 import { Passenger } from "@/model/Passenger";
 import { Badge } from "@/components/ui/badge";
-import api from "@/config/axios.config";
 import { toast } from "react-toastify";
-import { useParams } from "next/navigation";
 
 interface PassengerListProps {
   passengers: Passenger[];
   onUpdatePassenger: (updatedPassenger: Passenger) => void;
+  tripBookingStatus: string;
+  role?: string;
 }
 
 const PassengerList: React.FC<PassengerListProps> = ({
   passengers,
   onUpdatePassenger,
+  tripBookingStatus,
+  role,
 }) => {
-  const { role } = useParams();
-  const [checkedPassengers, setCheckedPassengers] = useState<Set<string>>(
-    new Set()
-  );
-
-  const handleCheckVisa = async (passenger: Passenger) => {
-    try {
-      const newVisaStatus = passenger.hasVisa === true ? false : true;
-
-      await api.put(
-        `/trip-booking/${passenger.tripBookingId}/passenger/${passenger.id}/has-visa`,
-        { hasVisa: newVisaStatus }
-      );
-
-      toast.success(
-        `Updated visa status for ${passenger.fullName} to ${
-          newVisaStatus ? "Granted" : "Not Granted"
-        }`
-      );
-
-      setCheckedPassengers((prev) =>
-        new Set(prev).add(passenger.id.toString())
-      );
-
-      onUpdatePassenger({ ...passenger, hasVisa: newVisaStatus });
-    } catch (error: any) {
-      console.error("Error updating visa status:", error);
-      const errorMessage =
-        error.response?.data?.value || "Failed to update visa status";
-      toast.error(`Error for ${passenger.fullName}: ${errorMessage}`);
-    }
+  const handleCheckVisa = (passenger: Passenger) => {
+    const newVisaStatus = !passenger.hasVisa;
+    onUpdatePassenger({ ...passenger, hasVisa: newVisaStatus });
+    toast.success(
+      `Temporarily updated visa status for ${passenger.fullName} to ${
+        newVisaStatus ? "Granted" : "Not Granted"
+      }`
+    );
   };
 
   return (
@@ -91,16 +70,18 @@ const PassengerList: React.FC<PassengerListProps> = ({
             </Badge>
           </div>
 
-          {["Drafted", "Deposited"].includes(passenger.tripBookingStatus) &&
-            role !== "manager" &&
-            !checkedPassengers.has(passenger.id.toString()) && (
-              <Button
-                type="primary"
-                className="mt-4"
-                onClick={() => handleCheckVisa(passenger)}
+          {["Drafted", "Deposited"].includes(tripBookingStatus) &&
+            role !== "manager" && (
+              <Popconfirm
+                title="Are you sure you want to change the visa status?"
+                okText="Yes"
+                cancelText="No"
+                onConfirm={() => handleCheckVisa(passenger)}
               >
-                Check
-              </Button>
+                <Button type="primary" className="mt-4">
+                  Check
+                </Button>
+              </Popconfirm>
             )}
         </Card>
       ))}

@@ -1,7 +1,15 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { useState } from "react";
-import { Card, Descriptions, Typography, Upload, Button, message } from "antd";
+import {
+  Card,
+  Descriptions,
+  Typography,
+  Upload,
+  Button,
+  message,
+  Popconfirm,
+} from "antd";
 import { UploadOutlined } from "@ant-design/icons";
 import { TripBookingProps } from "@/model/TripBookingProps";
 import { ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
@@ -16,11 +24,13 @@ const { Title, Text } = Typography;
 interface TripBookingInfoProps extends TripBookingProps {
   onUpdateTripBooking: (updatedTripBooking: any) => void;
   PassengerList: Passenger[];
+  onSaveChanges: () => Promise<void>;
 }
 const TripBookingInfo: React.FC<TripBookingInfoProps> = ({
   tripBooking,
   onUpdateTripBooking,
   PassengerList,
+  onSaveChanges,
 }) => {
   const atLeastOnePassengerHasVisa = PassengerList.some(
     (passenger) => passenger.hasVisa
@@ -30,6 +40,7 @@ const TripBookingInfo: React.FC<TripBookingInfoProps> = ({
   const [uploading, setUploading] = useState(false);
   const { role } = useParams();
   const isManager = role === "manager";
+
   const uploadFileToFirebase = async (file: File) => {
     return new Promise<string>((resolve, reject) => {
       const storageRef = ref(storage, `trip-tickets/${file.name}`);
@@ -69,7 +80,7 @@ const TripBookingInfo: React.FC<TripBookingInfoProps> = ({
   const handleUpload = async () => {
     try {
       setUploading(true);
-
+      await onSaveChanges();
       if (tripBooking.tripBookingStatus === "Deposited") {
         const updatedTripBooking = {
           ...tripBooking,
@@ -100,18 +111,11 @@ const TripBookingInfo: React.FC<TripBookingInfoProps> = ({
           return;
         }
 
-        const allPassengersHaveVisa = PassengerList.every(
-          (passenger) => passenger.hasVisa
-        );
-
         const updatedTripBooking = {
           ...tripBooking,
           outboundTicketUrl: outboundUrl,
           inboundTicketUrl: inboundUrl,
           note: "Updated ticket images",
-          tripBookingStatus: allPassengersHaveVisa
-            ? "Processing"
-            : tripBooking.tripBookingStatus,
         };
 
         await updateTripBooking(tripBooking.id, updatedTripBooking);
@@ -207,14 +211,18 @@ const TripBookingInfo: React.FC<TripBookingInfoProps> = ({
         (tripBooking.tripBookingStatus === "Deposited" ||
           tripBooking.tripBookingStatus === "Paid") &&
         atLeastOnePassengerHasVisa && (
-          <Button
-            type="primary"
-            className="mt-4"
-            onClick={handleUpload}
-            disabled={uploading}
-          >
-            {uploading ? "Uploading..." : "Update"}
-          </Button>
+          <div className="flex justify-end mt-4">
+            <Popconfirm
+              title="Are you sure you want to update?"
+              okText="Yes"
+              cancelText="No"
+              onConfirm={handleUpload}
+            >
+              <Button type="primary" disabled={uploading} loading={uploading}>
+                {uploading ? "Processing..." : "Update"}
+              </Button>
+            </Popconfirm>
+          </div>
         )}
     </Card>
   );

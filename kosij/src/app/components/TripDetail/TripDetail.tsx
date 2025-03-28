@@ -66,9 +66,22 @@ const TripDetail = ({
           <Card title="Available Slots">{data.availableSlot}</Card>
 
           <Card title="Pricing">
-            <p>Adult: {data.price.adult}</p>
-            <p>Children (1 - 11 Years): {data.price.children1_11}</p>
-            <p>Children (12+ Years): {data.price.children12_plus}</p>
+            <p>
+              Adult: {new Intl.NumberFormat("vi-VN").format(data.price.adult)}{" "}
+              VND
+            </p>
+            <p>
+              Children (1 - 11 Years):{" "}
+              {new Intl.NumberFormat("vi-VN").format(data.price.children1_11)}{" "}
+              VND
+            </p>
+            <p>
+              Children (12+ Years):{" "}
+              {new Intl.NumberFormat("vi-VN").format(
+                data.price.children12_plus
+              )}{" "}
+              VND
+            </p>
           </Card>
           <Card title="Departure Point">{data.tour.departurePoint}</Card>
           <Card title="Destination Point">{data.tour.destinationPoint}</Card>

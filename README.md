@@ -53,6 +53,6 @@ The **Koi Ordering System in Japan (KOSIJ)** is a specialized web platform desig
 
 ### Installation
 ```bash
-git clone https://github.com/your-repo/kosij-web.git
+git clone https://github.com/Daiyun199/kosij.git
 cd kosij-web
 npm install

@@ -12,6 +12,7 @@ import { Button, Card, Collapse, Empty } from "antd";
 import Image from "next/image";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
 import React, { useEffect, useState } from "react";
+import { toast } from "react-toastify";
 const { Panel } = Collapse;
 function Page() {
   const params = useParams() as { id: string };
@@ -22,11 +23,15 @@ function Page() {
   const { role } = useParams();
   const LayoutComponent = role === "manager" ? ManagerLayout : SaleStaffLayout;
   const [passengerData, setPassengerData] = useState<Passenger[]>([]);
+  const [originalPassengerData, setOriginalPassengerData] = useState<
+    Passenger[]
+  >([]);
   const tripRequestId = searchParams.get("requestId");
   const [loading, setLoading] = useState(true);
-  const [tripBooking, setTripBooking] = useState(null);
+  const [tripBooking, setTripBooking] = useState<any | null>(null);
   const [orders, setOrders] = useState<any[]>([]);
   const custom = searchParams.get("custom") === "true";
+
   useEffect(() => {
     if (!id) return;
 
@@ -48,6 +53,7 @@ function Page() {
           })
         );
         setPassengerData(passengers);
+        setOriginalPassengerData(passengers);
         if (role === "manager") {
           const ordersResponse = await api.get(`/trip-booking/${id}/orders`);
           setOrders(ordersResponse.data.value);
@@ -64,6 +70,7 @@ function Page() {
   const handleViewMore = (orderId: string) => {
     router.push(`/${role}/orders/${orderId}`);
   };
+
   const handleUpdatePassenger = (updatedPassenger: Passenger) => {
     setPassengerData((prevPassengers) =>
       prevPassengers.map((p) =>
@@ -71,15 +78,48 @@ function Page() {
       )
     );
   };
+
   const handleBack = () => {
     router.push(`/${role}/custom/trip/${tripId}?requestId=${tripRequestId}`);
   };
+
   const handleSelectStaff = () => {
     router.push(`/manager/selectStaff?tripId=${id}`);
   };
+
   const handleUpdateTripBooking = (updatedTripBooking: any) => {
     setTripBooking(updatedTripBooking);
   };
+  const handleSaveChanges = async () => {
+    try {
+      const modifiedPassengers = passengerData.filter((passenger, index) => {
+        const originalPassenger = originalPassengerData.find(
+          (p) => p.id === passenger.id
+        );
+        return (
+          originalPassenger && passenger.hasVisa !== originalPassenger.hasVisa
+        );
+      });
+
+      if (modifiedPassengers.length === 0) {
+        return;
+      }
+
+      for (const passenger of modifiedPassengers) {
+        await api.put(
+          `/trip-booking/${passenger.tripBookingId}/passenger/${passenger.id}/has-visa?hasVisa=${passenger.hasVisa}`,
+          { hasVisa: passenger.hasVisa }
+        );
+      }
+
+      setOriginalPassengerData(passengerData);
+      toast.success("Passenger visa statuses updated successfully!");
+    } catch (error) {
+      console.error("Error updating passenger visa statuses:", error);
+      toast.error("Failed to update passenger visa statuses.");
+    }
+  };
+
   if (loading) return <p>Loading...</p>;
 
   return (
@@ -90,6 +130,7 @@ function Page() {
             tripBooking={tripBooking}
             onUpdateTripBooking={handleUpdateTripBooking}
             PassengerList={passengerData}
+            onSaveChanges={handleSaveChanges}
           />
         )}
 
@@ -97,6 +138,8 @@ function Page() {
           <PassengerList
             passengers={passengerData}
             onUpdatePassenger={handleUpdatePassenger}
+            tripBookingStatus={tripBooking?.tripBookingStatus}
+            role={Array.isArray(role) ? role[0] : role || ""}
           />
         ) : (
           <Card className="flex justify-center items-center h-40">

@@ -13,18 +13,21 @@ The **Koi Ordering System in Japan (KOSIJ)** is a specialized web platform desig
 ## Role-Based Features
 
 ### 👨‍💼 **Manager**
+
 - Create/manage standard farm visit itineraries
 - User access control (staff/farm accounts)
 - System-wide category management
 - Global configuration and policy settings
 
 ### 💼 **Sales Staff**
+
 - Process custom trip requests
 - Design personalized buyer itineraries
 - Generate and route quotations
 - Customer communication center
 
 ### 🐟 **Koi Breeder**
+
 - Manage Koi inventory (CRUD operations)
 - Update farm profiles and policies
 - Configure commission structures
@@ -34,6 +37,7 @@ The **Koi Ordering System in Japan (KOSIJ)** is a specialized web platform desig
 ## Technology Stack
 
 ### Frontend
+
 - Next.js 14 (App Router)
 - TypeScript
 - Tailwind CSS + CSS Modules
@@ -41,18 +45,21 @@ The **Koi Ordering System in Japan (KOSIJ)** is a specialized web platform desig
 - TanStack Query
 
 ### Backend Integration
-- Firebase Storage (Image hosting)
 
+- Firebase Storage (Image hosting)
 
 ## Getting Started
 
 ### Prerequisites
+
 - Node.js v18+
 - npm/yarn
 - Firebase project (for image storage)
 
 ### Installation
+
 ```bash
 git clone https://github.com/Daiyun199/kosij.git
 cd kosij-web
 npm install
+```

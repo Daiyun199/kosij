@@ -17,6 +17,7 @@ import { Order } from "@/lib/domain/Order/Order.dto";
 import { ColumnsType } from "antd/es/table";
 import { fetchRecentOrders } from "@/features/farmbreeder/api/order/recent.api";
 import { fetchStatistics } from "@/features/farmbreeder/api/dashboard/all.api";
+import ProtectedRoute from "@/app/ProtectedRoute";
 
 const statusColors: Record<string, { color: string; background: string }> = {
   Cancelled: { color: "#cf1322", background: "#fff1f0" },
@@ -76,7 +77,6 @@ const columns: ColumnsType<Order> = [
   },
 ];
 
-
 function Page() {
   const { data, isLoading, isError } = useQuery({
     queryKey: ["farmStatistics"],
@@ -109,111 +109,117 @@ function Page() {
   if (isLoading) return <div>Loading...</div>;
   if (isError) return <div>Error fetching data</div>;
   return (
-    <PageContainer
-      title="Dashboard"
-      extra={
-        <Space>
-          <Button
-            style={{
-              borderRadius: "2rem",
-              width: "5rem",
-              borderColor: "#000000",
-            }}
-          >
-            ENG
-          </Button>
-        </Space>
-      }
-      header={{
-        style: {
-          boxShadow: "0px 4px 6px rgba(0, 0, 0, 0.1)",
-          background: "white",
-          zIndex: 10,
-        },
-      }}
-    >
-      <section className={"mt-3 grid grid-cols-2 gap-3 px-layout pb-layout"}>
-        <ClickableArea className={cn("block h-32 shadow-md p-4")}>
-          <div className="flex items-start justify-between">
+    <ProtectedRoute allowedRoles={["farmbreeder"]}>
+      <PageContainer
+        title="Dashboard"
+        extra={
+          <Space>
+            <Button
+              style={{
+                borderRadius: "2rem",
+                width: "5rem",
+                borderColor: "#000000",
+              }}
+            >
+              ENG
+            </Button>
+          </Space>
+        }
+        header={{
+          style: {
+            boxShadow: "0px 4px 6px rgba(0, 0, 0, 0.1)",
+            background: "white",
+            zIndex: 10,
+          },
+        }}
+      >
+        <section className={"mt-3 grid grid-cols-2 gap-3 px-layout pb-layout"}>
+          <ClickableArea className={cn("block h-32 shadow-md p-4")}>
+            <div className="flex items-start justify-between">
+              <Statistic
+                title={
+                  <span className="text-lg font-normal">Total Customers</span>
+                }
+                value={totalCustomers}
+                valueStyle={{ fontSize: "1.5rem", fontWeight: "bold" }}
+              />
+              <TeamOutlined className="text-blue-600 text-2xl cursor-pointer" />
+            </div>
             <Statistic
-              title={
-                <span className="text-lg font-normal">Total Customers</span>
-              }
-              value={totalCustomers}
-              valueStyle={{ fontSize: "1.5rem", fontWeight: "bold" }}
+              value={12}
+              valueStyle={{ fontSize: "1rem", color: "green" }}
+              prefix={<ArrowUpOutlined />}
+              suffix="% from last month"
             />
-            <TeamOutlined className="text-blue-600 text-2xl cursor-pointer" />
-          </div>
-          <Statistic
-            value={12}
-            valueStyle={{ fontSize: "1rem", color: "green" }}
-            prefix={<ArrowUpOutlined />}
-            suffix="% from last month"
-          />
-        </ClickableArea>
-        <ClickableArea className={cn("block h-32 shadow-md p-4")}>
-          <div className="flex items-start justify-between">
+          </ClickableArea>
+          <ClickableArea className={cn("block h-32 shadow-md p-4")}>
+            <div className="flex items-start justify-between">
+              <Statistic
+                title={
+                  <span className="text-lg font-normal">Total Orders</span>
+                }
+                value={totalOrderCount}
+                valueStyle={{ fontSize: "1.5rem", fontWeight: "bold" }}
+              />
+              <ShopOutlined className="text-violet-500 text-2xl cursor-pointer" />
+            </div>
             <Statistic
-              title={<span className="text-lg font-normal">Total Orders</span>}
-              value={totalOrderCount}
-              valueStyle={{ fontSize: "1.5rem", fontWeight: "bold" }}
+              value={12}
+              valueStyle={{ fontSize: "1rem", color: "red" }}
+              prefix={<ArrowDownOutlined />}
+              suffix="% from last month"
             />
-            <ShopOutlined className="text-violet-500 text-2xl cursor-pointer" />
-          </div>
-          <Statistic
-            value={12}
-            valueStyle={{ fontSize: "1rem", color: "red" }}
-            prefix={<ArrowDownOutlined />}
-            suffix="% from last month"
-          />
-        </ClickableArea>
-        <ClickableArea className={cn("block h-32 shadow-md p-4")}>
-          <div className="flex items-start justify-between">
+          </ClickableArea>
+          <ClickableArea className={cn("block h-32 shadow-md p-4")}>
+            <div className="flex items-start justify-between">
+              <Statistic
+                title={
+                  <span className="text-lg font-normal">Total Revenue</span>
+                }
+                value={totalRevenue}
+                valueStyle={{ fontSize: "1.5rem", fontWeight: "bold" }}
+              />
+              <WalletOutlined className="text-green-600 text-2xl cursor-pointer" />
+            </div>
             <Statistic
-              title={<span className="text-lg font-normal">Total Revenue</span>}
-              value={totalRevenue}
-              valueStyle={{ fontSize: "1.5rem", fontWeight: "bold" }}
+              value={12}
+              valueStyle={{ fontSize: "1rem", color: "green" }}
+              prefix={<ArrowUpOutlined />}
+              suffix="% from last month"
             />
-            <WalletOutlined className="text-green-600 text-2xl cursor-pointer" />
-          </div>
-          <Statistic
-            value={12}
-            valueStyle={{ fontSize: "1rem", color: "green" }}
-            prefix={<ArrowUpOutlined />}
-            suffix="% from last month"
-          />
-        </ClickableArea>
-        <ClickableArea className={cn("block h-32 shadow-md p-4")}>
-          <div className="flex items-start justify-between">
+          </ClickableArea>
+          <ClickableArea className={cn("block h-32 shadow-md p-4")}>
+            <div className="flex items-start justify-between">
+              <Statistic
+                title={
+                  <span className="text-lg font-normal">Total Withdrawals</span>
+                }
+                value={currentBalance}
+                valueStyle={{ fontSize: "1.5rem", fontWeight: "bold" }}
+              />
+              <MoneyCollectOutlined className="text-orange-500 text-2xl cursor-pointer" />
+            </div>
             <Statistic
-              title={
-                <span className="text-lg font-normal">Total Withdrawals</span>
-              }
-              value={currentBalance}
-              valueStyle={{ fontSize: "1.5rem", fontWeight: "bold" }}
+              value={12}
+              valueStyle={{ fontSize: "1rem", color: "green" }}
+              prefix={<ArrowUpOutlined />}
+              suffix="% from last month"
             />
-            <MoneyCollectOutlined className="text-orange-500 text-2xl cursor-pointer" />
-          </div>
-          <Statistic
-            value={12}
-            valueStyle={{ fontSize: "1rem", color: "green" }}
-            prefix={<ArrowUpOutlined />}
-            suffix="% from last month"
+          </ClickableArea>
+        </section>
+        <section className="mt-3">
+          <h2 className="mt-5 mb-3 font-medium text-lg">Recent Orders</h2>
+          <Table
+            columns={columns}
+            dataSource={orders}
+            rowKey="orderId"
+            bordered
+            pagination={{ pageSize: 10 }}
+            scroll={{ x: "max-content" }}
           />
-        </ClickableArea>
-      </section>
-      <section className="mt-3">
-        <h2 className="mt-5 mb-3 font-medium text-lg">Recent Orders</h2>
-        <Table
-          columns={columns}
-          dataSource={orders}
-          rowKey="orderId"
-          bordered
-          pagination={{ pageSize: 10 }}
-          scroll={{ x: "max-content" }}
-        />
-      </section>
-    </PageContainer>
+        </section>
+      </PageContainer>
+    </ProtectedRoute>
   );
 }
 

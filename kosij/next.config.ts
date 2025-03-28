@@ -58,6 +58,22 @@ const nextConfig: NextConfig = {
       { source: "/manager/tour-detail", destination: "/manager/tourDetail" },
     ];
   },
+  async redirects() {
+    return [
+      {
+        source: "/login",
+        destination: "/login", // Only redirect to login if necessary
+        permanent: false,
+        has: [
+          {
+            type: "cookie",
+            key: "authToken",
+            value: "undefined",  // Only redirect if the user is not logged in
+          },
+        ],
+      },
+    ];
+  },
 };
 
 export default nextConfig;

@@ -248,7 +248,7 @@ const TourUpdatePage: React.FC = () => {
               })
             ),
           })) || [],
-        tourPriceRequests: data.tourPrices || [],
+        tourPriceRequests: data.pricesPolicy || [],
         tourPaymentRequests: data.paymentPolicy || [],
         tourCancellationRequests: data.cancellationPolicy || [],
         tourPromotionRequests: data.promotionPolicy || [],

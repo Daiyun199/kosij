@@ -139,6 +139,27 @@ const ManagerLayout: React.FC<ManagerLayoutProps> = ({ title, children }) => {
           icon: "fa-solid fa-wallet",
           path: "/manager/withdrawals",
         },
+        {
+          label: "Variety",
+          icon: "fa-solid fa-seedling",
+          children: [
+            {
+              label: "All",
+              icon: "fa-solid fa-list",
+              path: "/manager/varieties",
+            },
+            {
+              label: "Approval",
+              icon: "fa-solid fa-clipboard-check",
+              path: "/manager/varieties/approve",
+            },
+            {
+              label: "Create",
+              icon: "fa-solid fa-file-circle-plus",
+              path: "/manager/varieties/create",
+            },
+          ],
+        },
       ],
     },
   ];

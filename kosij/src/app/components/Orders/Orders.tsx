@@ -1,10 +1,10 @@
 import React from "react";
-import { Card, Table, Descriptions, Collapse, Divider } from "antd";
+import { Card, Table, Descriptions, Collapse, Divider, Image } from "antd";
 import { Button } from "@/components/ui/button";
-import Image from "next/image";
+
 import { BoxAllocation, OrderData, OrderDetail } from "@/model/OrderInfoProps";
 import { useParams, useRouter } from "next/navigation";
-
+import { EyeOutlined } from "@ant-design/icons";
 interface OrderInfoProps {
   data: OrderData;
 }
@@ -114,7 +114,11 @@ const OrderInfo: React.FC<OrderInfoProps> = ({ data }) => {
                         alt="Order Image"
                         width={50}
                         height={50}
-                        className="rounded-md"
+                        className="rounded-md object-cover border border-gray-200 shadow-sm"
+                        preview={{
+                          mask: <EyeOutlined className="text-white" />,
+                          maskClassName: "rounded-md",
+                        }}
                       />
                     ))}
                   </div>

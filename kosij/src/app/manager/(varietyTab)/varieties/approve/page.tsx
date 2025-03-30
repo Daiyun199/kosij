@@ -2,28 +2,32 @@
 "use client";
 import {
   EyeOutlined,
-  EditOutlined,
   CheckCircleOutlined,
   ClockCircleOutlined,
 } from "@ant-design/icons";
-import { EnvironmentOutlined, StarFilled } from "@ant-design/icons";
 import React, { useState, useEffect } from "react";
 import {
   Table,
   Button,
   Space,
-  message,
   Tag,
   Tooltip,
   Modal,
   Descriptions,
   Image,
-  Avatar,
+  Popconfirm,
+  Input,
+  message,
 } from "antd";
 import type { ColumnsType } from "antd/es/table";
 import api from "@/config/axios.config";
 import { toast } from "react-toastify";
 import ManagerLayout from "@/app/components/ManagerLayout/ManagerLayout";
+
+interface Farm {
+  id: number;
+  farmName: string;
+}
 
 interface KoiVariety {
   id: number;
@@ -31,9 +35,9 @@ interface KoiVariety {
   description: string;
   imageUrl: string;
   status: boolean;
-  farms: {
-    farmName: string;
-  }[];
+  createdBy: string;
+  createdTime: string;
+  farm: Farm;
 }
 
 const KoiVarietiesPage: React.FC = () => {
@@ -47,11 +51,14 @@ const KoiVarietiesPage: React.FC = () => {
   });
   const [selectedRecord, setSelectedRecord] = useState<KoiVariety | null>(null);
   const [isModalVisible, setIsModalVisible] = useState(false);
+  const [denyModalVisible, setDenyModalVisible] = useState(false);
+  const [denyReason, setDenyReason] = useState("");
+  const [selectedId, setSelectedId] = useState<number | null>(null);
 
   const fetchData = async () => {
     setLoading(true);
     try {
-      const response = await api.get("/koi-varieties");
+      const response = await api.get("/new-koi-varieties");
       setAllData(response.data.value);
       setPagination({
         ...pagination,
@@ -59,7 +66,7 @@ const KoiVarietiesPage: React.FC = () => {
       });
       updateCurrentPageData(response.data.value, 1);
     } catch (error) {
-      toast.error("Failed to fetch Koi Varieties");
+      toast.error("No varieties need approval");
     } finally {
       setLoading(false);
     }
@@ -81,22 +88,38 @@ const KoiVarietiesPage: React.FC = () => {
 
   const handleApprove = async (id: number) => {
     try {
-      await api.put(`/koi-varieties/${id}/approve`);
+      await api.put(`/approve/koi-variety/${id}`, {
+        isApproved: true,
+        reason: "Good",
+      });
       toast.success("Koi variety approved successfully");
       fetchData();
     } catch (error) {
-      toast.error("Failed to approve Koi variety");
+      toast.error("No varieties need approval");
     }
   };
 
-  const handleDeny = async (id: number) => {
-    try {
-      await api.put(`/koi-varieties/${id}/deny`);
-      toast.success("Koi variety denied successfully");
-      fetchData();
-    } catch (error) {
-      toast.error("Failed to deny Koi variety");
+  const showDenyModal = (id: number) => {
+    setSelectedId(id);
+    setDenyModalVisible(true);
+  };
+
+  const handleDenyConfirm = async () => {
+    if (!selectedId || !denyReason) {
+      message.error("Please enter a reason");
+      return;
     }
+
+    try {
+      await api.put(`/approve/koi-variety/${selectedId}`, {
+        isApproved: false,
+        reason: denyReason,
+      });
+      toast.success("Koi variety denied successfully");
+      setDenyModalVisible(false);
+      setDenyReason("");
+      fetchData();
+    } catch (error) {}
   };
 
   const showDetailModal = (record: KoiVariety) => {
@@ -111,6 +134,7 @@ const KoiVarietiesPage: React.FC = () => {
   useEffect(() => {
     fetchData();
   }, []);
+
   const columns: ColumnsType<KoiVariety> = [
     {
       title: "ID",
@@ -143,31 +167,14 @@ const KoiVarietiesPage: React.FC = () => {
       ),
     },
     {
-      title: "Farms",
-      dataIndex: "farms",
-      key: "farms",
-      width: 200,
-      render: (farms: { farmName: string }[]) => (
-        <Tooltip
-          title={
-            farms?.length
-              ? farms.map((farm) => farm.farmName).join(", ")
-              : "No farms"
-          }
-          overlayClassName="max-w-md"
-        >
-          <div className="flex flex-wrap gap-1">
-            {farms?.slice(0, 3).map((farm, index) => (
-              <Tag key={index} color="blue" className="m-0">
-                {farm.farmName}
-              </Tag>
-            ))}
-            {farms?.length > 3 && (
-              <Tag color="cyan">+{farms.length - 3} more</Tag>
-            )}
-            {!farms?.length && <span className="text-gray-400">No farms</span>}
-          </div>
-        </Tooltip>
+      title: "Farm",
+      dataIndex: "farm",
+      key: "farm",
+      width: 150,
+      render: (farm: Farm) => (
+        <Tag color="blue" className="m-0">
+          {farm?.farmName || "No farm"}
+        </Tag>
       ),
     },
     {
@@ -218,26 +225,51 @@ const KoiVarietiesPage: React.FC = () => {
     {
       title: "Actions",
       key: "action",
-      width: 120,
+      width: 180,
       align: "center",
       render: (_, record) => (
         <Space size="small">
           <Button
             type="primary"
-            size="small"
             icon={<EyeOutlined />}
             onClick={() => showDetailModal(record)}
             className="flex items-center"
           >
             View
           </Button>
+          {!record.status && (
+            <>
+              <Popconfirm
+                title="Are you sure to approve this variety?"
+                onConfirm={() => handleApprove(record.id)}
+                okText="Yes"
+                cancelText="No"
+              >
+                <Button
+                  type="primary"
+                  icon={<CheckCircleOutlined />}
+                  className="flex items-center bg-green-500 hover:bg-green-600"
+                >
+                  Approve
+                </Button>
+              </Popconfirm>
+              <Button
+                danger
+                icon={<ClockCircleOutlined />}
+                className="flex items-center"
+                onClick={() => showDenyModal(record.id)}
+              >
+                Deny
+              </Button>
+            </>
+          )}
         </Space>
       ),
     },
   ];
 
   return (
-    <ManagerLayout title="Variety List">
+    <ManagerLayout title="New Koi Varieties Approval">
       <div style={{ padding: 24, maxWidth: "100%", overflowX: "hidden" }}>
         <Table
           columns={columns}
@@ -278,44 +310,16 @@ const KoiVarietiesPage: React.FC = () => {
                   {selectedRecord.description}
                 </div>
               </Descriptions.Item>
-              <Descriptions.Item label="Farms">
-                {selectedRecord.farms?.length ? (
-                  selectedRecord.farms.map((farm) => {
-                    const colors = [
-                      "magenta",
-                      "red",
-                      "volcano",
-                      "orange",
-                      "gold",
-                      "lime",
-                      "green",
-                      "cyan",
-                      "blue",
-                      "geekblue",
-                      "purple",
-                    ];
-                    const randomIndex = Math.floor(
-                      Math.random() * colors.length
-                    );
-                    const color = colors[randomIndex];
-
-                    return (
-                      <Tag
-                        key={farm.farmName}
-                        color={color}
-                        style={{
-                          marginBottom: 4,
-                          borderRadius: 4,
-                          padding: "0 8px",
-                        }}
-                      >
-                        {farm.farmName}
-                      </Tag>
-                    );
-                  })
-                ) : (
-                  <Tag color="default">No farms</Tag>
-                )}
+              <Descriptions.Item label="Farm">
+                <Tag color="blue">
+                  {selectedRecord.farm?.farmName || "No farm"}
+                </Tag>
+              </Descriptions.Item>
+              <Descriptions.Item label="Created By">
+                {selectedRecord.createdBy}
+              </Descriptions.Item>
+              <Descriptions.Item label="Created Time">
+                {new Date(selectedRecord.createdTime).toLocaleString()}
               </Descriptions.Item>
               <Descriptions.Item label="Status">
                 <Tag color={selectedRecord.status ? "green" : "red"}>
@@ -332,6 +336,48 @@ const KoiVarietiesPage: React.FC = () => {
               </Descriptions.Item>
             </Descriptions>
           )}
+        </Modal>
+
+        <Modal
+          title="Enter Deny Reason"
+          open={denyModalVisible}
+          onCancel={() => {
+            setDenyModalVisible(false);
+            setDenyReason("");
+          }}
+          footer={[
+            <Button
+              key="cancel"
+              onClick={() => {
+                setDenyModalVisible(false);
+                setDenyReason("");
+              }}
+            >
+              Cancel
+            </Button>,
+            <Popconfirm
+              key="confirm"
+              title="Are you sure to deny this variety?"
+              onConfirm={handleDenyConfirm}
+              okText="Yes"
+              cancelText="No"
+            >
+              <Button type="primary" danger>
+                Confirm Deny
+              </Button>
+            </Popconfirm>,
+          ]}
+          style={{ top: "20%" }}
+          bodyStyle={{ paddingBottom: "10px" }}
+        >
+          <Input.TextArea
+            rows={4}
+            placeholder="Please enter the reason for denial"
+            value={denyReason}
+            onChange={(e) => setDenyReason(e.target.value)}
+            maxLength={100}
+            showCount
+          />
         </Modal>
       </div>
     </ManagerLayout>

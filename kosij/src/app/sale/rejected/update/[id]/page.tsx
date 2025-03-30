@@ -201,14 +201,25 @@ const TourUpdatePage: React.FC = () => {
       setLoading(true);
       const response = await api.get(`/staff/trip/${id}`);
       const data = response.data.value;
+      const parseDepartureDate = (dateString: string) => {
+        if (!dateString) return undefined;
 
+        if (dateString.includes("-")) {
+          const parts = dateString.split("-");
+          if (parts.length === 3) {
+            return dayjs(`${parts[2]}-${parts[1]}-${parts[0]}`);
+          }
+        }
+
+        return dayjs(dateString);
+      };
       const formattedData = {
         tourName: data.tourResponse.tourName,
         imageUrl: data.tourResponse.imageUrl,
         nights: data.tourResponse.nights,
         departurePoint: data.tourResponse.departurePoint,
         destinationPoint: data.tourResponse.destinationPoint,
-        departureDate: dayjs(data.departureDate),
+        departureDate: parseDepartureDate(data.departureDate),
         tourPriceInclude: data.tourResponse.tourPriceInclude,
         tourPriceNotInclude: data.tourResponse.tourPriceNotInclude,
 
@@ -420,9 +431,27 @@ const TourUpdatePage: React.FC = () => {
                   name="departureDate"
                   rules={[
                     { required: true, message: "Please select departure date" },
+                    ({ getFieldValue }) => ({
+                      validator(_, value) {
+                        const minDate = dayjs().add(22, "day").startOf("day");
+                        if (!value || value >= minDate) {
+                          return Promise.resolve();
+                        }
+                        return Promise.reject(
+                          "Departure date must be at least 21 days from today"
+                        );
+                      },
+                    }),
                   ]}
                 >
-                  <DatePicker showTime className="w-full" />
+                  <DatePicker
+                    showTime
+                    className="w-full"
+                    disabledDate={(current) => {
+                      const minDate = dayjs().add(22, "day").startOf("day");
+                      return current && current < minDate;
+                    }}
+                  />
                 </Form.Item>
               </Col>
             </Row>

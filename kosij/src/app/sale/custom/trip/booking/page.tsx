@@ -51,6 +51,13 @@ export default function CreateTourStep0() {
         tripBookingId === "null" ||
         tripBookingId === "undefined"
       ) {
+        const responseTripRequest = await api.get(
+          `staff/trip-request/${tripRequestId}`
+        );
+
+        if (responseTripRequest.data?.value) {
+          setTripRequestStatus(responseTripRequest.data.value.requestStatus);
+        }
         return;
       }
 
@@ -233,6 +240,8 @@ export default function CreateTourStep0() {
       }
     }
   };
+  console.log("tripBookingStatus:", tripBookingStatus);
+  console.log("tripRequestStatus:", tripRequestStatus);
   const isEditable =
     (tripBookingStatus === "Drafted" ||
       tripBookingStatus === null ||

@@ -71,7 +71,7 @@ const ManagerLayout: React.FC<ManagerLayoutProps> = ({ title, children }) => {
               path: "/manager/deliveries",
             },
             {
-              label: "Fram Breeder",
+              label: "Farm Breeder",
               icon: "fa-solid fa-fish-fins",
               path: "/manager/farms",
             },

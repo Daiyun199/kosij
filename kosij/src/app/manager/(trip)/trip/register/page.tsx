@@ -6,6 +6,7 @@ import ManagerLayout from "@/app/components/ManagerLayout/ManagerLayout";
 import api from "@/config/axios.config";
 import { useSearchParams } from "next/navigation";
 import { toast } from "react-toastify";
+
 function CreateTrip() {
   return (
     <Suspense fallback={<div>Loading...</div>}>
@@ -13,32 +14,82 @@ function CreateTrip() {
     </Suspense>
   );
 }
+
 const { Title } = Typography;
 
 const CreateTripPage: React.FC = () => {
   const searchParams = useSearchParams();
   const tourId = searchParams.get("tourId");
-  // Set default departureDate to 22 days from now and format it correctly
-  const defaultDate = new Date(Date.now() + 22 * 24 * 60 * 60 * 1000);
-  const formattedDefaultDate = defaultDate.toISOString();
-  const initialTripData = {
-    departureDate: formattedDefaultDate,
+
+  const [tripData, setTripData] = useState({
+    departureDate: "",
     minGroupSize: 1,
     maxGroupSize: 1,
     pricingRate: 1.0,
     tourId: tourId,
-  };
-  const [tripData, setTripData] = useState(initialTripData);
+  });
   const [errors, setErrors] = useState<Record<string, string[]>>({});
   const [loading, setLoading] = useState(true);
+  const [registrationDaysBefore, setRegistrationDaysBefore] =
+    useState<number>(0);
+
+  const calculateMinDate = () => {
+    const today = new Date();
+    const daysToAdd =
+      registrationDaysBefore == null ? 29 : registrationDaysBefore + 8;
+    const minDate = new Date(today.setDate(today.getDate() + daysToAdd));
+    return minDate.toISOString();
+  };
+
+  const validateDepartureDate = (_: any, value: string) => {
+    const minDate = new Date(calculateMinDate());
+    const selectedDate = new Date(value);
+    if (selectedDate >= minDate) {
+      return Promise.resolve();
+    }
+
+    const daysRequired =
+      registrationDaysBefore == null ? 28 : registrationDaysBefore + 7;
+    return Promise.reject(
+      `Departure date must be at least ${daysRequired} days from today`
+    );
+  };
+
+  useEffect(() => {
+    if (registrationDaysBefore !== undefined) {
+      setTripData((prev) => ({
+        ...prev,
+        departureDate: calculateMinDate(),
+      }));
+    }
+  }, [registrationDaysBefore]);
 
   useEffect(() => {
     setTimeout(() => setLoading(false), 1000);
   }, []);
 
+  useEffect(() => {
+    if (!tourId) return;
+
+    const fetchTourData = async () => {
+      try {
+        const response = await api.get(`/tour/${tourId}`);
+        const data = response.data.value;
+        setRegistrationDaysBefore(data.registrationDaysBefore);
+
+        if (!data) throw new Error("No data returned from API");
+      } catch (error) {
+        console.error("Lỗi tải dữ liệu tour:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchTourData();
+  }, [tourId]);
+
   const handleChange = (name: string, value: any) => {
     if (name === "departureDate") {
-      // Convert the datetime-local input to ISO format
       const date = new Date(value);
       value = date.toISOString();
     } else if (
@@ -61,7 +112,13 @@ const CreateTripPage: React.FC = () => {
       console.log("Trip Created:", response.data);
       toast.success("Trip created successfully!");
       setErrors({});
-      setTripData(initialTripData);
+      setTripData({
+        departureDate: calculateMinDate(),
+        minGroupSize: 1,
+        maxGroupSize: 1,
+        pricingRate: 1.0,
+        tourId: tourId,
+      });
     } catch (error: any) {
       console.error("Error creating trip:", error);
       if (error.response?.data?.errors) {
@@ -72,8 +129,8 @@ const CreateTripPage: React.FC = () => {
     }
   };
 
-  // Convert ISO date to datetime-local format for the input
   const getInputDateValue = (isoDate: string) => {
+    if (!isoDate) return "";
     const date = new Date(isoDate);
     const year = date.getFullYear();
     const month = String(date.getMonth() + 1).padStart(2, "0");
@@ -123,11 +180,12 @@ const CreateTripPage: React.FC = () => {
                 help={errors.DepartureDate?.join(", ")}
                 rules={[
                   { required: true, message: "Please select departure date!" },
+                  { validator: validateDepartureDate },
                 ]}
               >
                 <Input
                   type="datetime-local"
-                  min={getInputDateValue(formattedDefaultDate)}
+                  min={getInputDateValue(calculateMinDate())}
                   value={getInputDateValue(tripData.departureDate)}
                   onChange={(e) =>
                     handleChange("departureDate", e.target.value)

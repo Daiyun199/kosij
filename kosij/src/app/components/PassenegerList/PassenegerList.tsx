@@ -75,7 +75,7 @@ const PassengerList: React.FC<PassengerListProps> = ({
             </Badge>
           </div>
 
-          {["Drafted", "Deposited"].includes(tripBookingStatus) &&
+          {["Deposited"].includes(tripBookingStatus) &&
             role !== "manager" &&
             !checkedPassengers.includes(passenger.id) && (
               <Popconfirm

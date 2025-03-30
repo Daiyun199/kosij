@@ -58,14 +58,21 @@ export default function CreateTripStep1({
             `/staff/trip-request/${tripRequestId}`
           );
           const apiData = response.data.value;
-
+          console.log(apiData);
           const initialValues = {
             ...data,
             night: apiData.nights || data.night || 1,
             day: (apiData.nights || data.night || 1) + 1,
-            departureDate: apiData.departureDate
+            departureDate: data.departureDate
+              ? dayjs(
+                  data.departureDate,
+                  data.departureDate.includes("-")
+                    ? "YYYY-MM-DD"
+                    : "DD-MM-YYYY HH:mm:ss"
+                )
+              : apiData.departureDate
               ? dayjs(apiData.departureDate, "DD-MM-YYYY HH:mm:ss")
-              : data.departureDate,
+              : undefined,
             departure: apiData.departurePoint || data.departure,
             destination: apiData.destination || data.destination,
             tourName: apiData.tourName || data.tourName,
@@ -103,6 +110,7 @@ export default function CreateTripStep1({
       const newData = {
         ...values,
         img,
+        departureDate: values.departureDate?.format("YYYY-MM-DD"),
       };
       updateData(newData);
       onNext();
@@ -211,12 +219,31 @@ export default function CreateTripStep1({
                     required: true,
                     message: "Please select the Departure Date!!!",
                   },
+                  ({ getFieldValue }) => ({
+                    validator(_, value) {
+                      const today = dayjs().startOf("day");
+                      const minDate = today.add(22, "day");
+                      if (!value || value >= minDate) {
+                        return Promise.resolve();
+                      }
+                      return Promise.reject(
+                        new Error(
+                          "Departure date must be at least 21 days from today!"
+                        )
+                      );
+                    },
+                  }),
                 ]}
               >
                 <DatePicker
                   style={{ width: "100%" }}
                   format="YYYY-MM-DD"
                   placeholder="Select departure date"
+                  disabledDate={(current) => {
+                    const today = dayjs().startOf("day");
+                    const minDate = today.add(22, "day");
+                    return current && current < minDate;
+                  }}
                 />
               </Form.Item>
               <Form.Item
@@ -289,7 +316,7 @@ export default function CreateTripStep1({
 
             <div className="flex justify-between">
               <Button
-                onClick={() => router.push(`/sale/requests/tripRequestId}`)}
+                onClick={() => router.push(`/sale/requests/${tripRequestId}`)}
               >
                 Back
               </Button>

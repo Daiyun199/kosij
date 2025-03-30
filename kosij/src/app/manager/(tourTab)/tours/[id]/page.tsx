@@ -61,7 +61,7 @@ function Page() {
                 departureDate: trip.departureDate,
               })
             ) || [],
-
+          numberOfTrips: data.numberOfTrips,
           tourPriceIncludes: data.tourPriceInclude?.split(", ") || [],
 
           tourPriceNotIncludes: data.tourPriceNotInclude?.split(", ") || [],

@@ -17,4 +17,5 @@ export interface TourData {
   cancelPolicy: string;
   depositPolicy: string;
   promotionPolicy: string;
+  numberOfTrips: number;
 }

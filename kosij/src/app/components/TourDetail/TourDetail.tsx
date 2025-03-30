@@ -238,13 +238,21 @@ const TourDetail = ({ data }: { data: TourData }) => {
           )}
         </ul>
       </Card>
-      <Button
-        type="default"
-        onClick={() => router.push("/manager/tours")}
-        style={{ marginTop: 10 }}
-      >
-        Back
-      </Button>
+
+      <div className="flex justify-between mt-4">
+        <Button type="default" onClick={() => router.push("/manager/tours")}>
+          Back
+        </Button>
+
+        {data.numberOfTrips === 0 && (
+          <Button
+            type="primary"
+            onClick={() => router.push(`/manager/tours/update/${data.id}`)}
+          >
+            Update
+          </Button>
+        )}
+      </div>
     </div>
   );
 };

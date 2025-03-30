@@ -435,34 +435,51 @@ export default function CreateTourStep0() {
         <h2 className="text-xl font-semibold mb-4">Trip Booking</h2>
         <Form form={form} layout="vertical" onFinish={handleSubmit}>
           <Form.Item name="note" label="Notes">
-            <Input.TextArea placeholder="Enter notes" disabled={!isEditable} />
+            <Input.TextArea
+              placeholder="Enter notes"
+              disabled={!isEditable}
+              rows={4}
+              className="w-full"
+            />
           </Form.Item>
 
-          <div className="flex justify-between items-center mb-4">
+          <div className="flex flex-col md:flex-row md:justify-between md:items-center mb-4 gap-2">
             <h3 className="text-lg font-semibold">Passenger Information</h3>
             <Button
               onClick={addPassenger}
               type="button"
-              className="bg-blue-500 hover:bg-blue-600 text-white"
+              className="bg-blue-500 hover:bg-blue-600 text-white w-full md:w-auto"
               disabled={!isEditable}
             >
               <PlusOutlined /> Add Passenger
             </Button>
           </div>
 
-          <Table columns={columns} dataSource={passengers} pagination={false} />
+          <div className="relative">
+            <div className="overflow-x-auto border rounded-lg">
+              <Table
+                columns={columns}
+                dataSource={passengers}
+                pagination={false}
+                scroll={{ x: "max-content" }}
+                className="w-full whitespace-nowrap"
+                size="middle"
+                style={{ minWidth: "1000px" }}
+              />
+            </div>
+          </div>
 
-          <div className="mt-6 flex justify-end gap-4">
+          <div className="mt-6 flex flex-col sm:flex-row justify-end gap-4">
             <Button
               type="button"
-              className="bg-gray-500 hover:bg-gray-600 text-white"
+              className="bg-gray-500 hover:bg-gray-600 text-white w-full sm:w-auto"
               onClick={() => router.push(`/sale/requests/${tripRequestId}`)}
             >
               Go to Request
             </Button>
             <Button
               type="submit"
-              className="bg-green-500 hover:bg-green-600 text-white"
+              className="bg-green-500 hover:bg-green-600 text-white w-full sm:w-auto"
               disabled={!isEditable}
             >
               Submit

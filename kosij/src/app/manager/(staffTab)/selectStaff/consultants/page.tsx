@@ -20,9 +20,11 @@ function Page() {
   const [searchParams, setSearchParams] = useState<URLSearchParams | null>(
     null
   );
+
   const [selectedStaffId, setSelectedStaffId] = useState<string | null>(null);
   const [customize, setCustomize] = useState<boolean | null>(false);
   const [isConfirmVisible, setIsConfirmVisible] = useState(false);
+  const [tourId, setTourId] = useState<string | null>(null);
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
 
@@ -37,6 +39,7 @@ function Page() {
       const params = new URLSearchParams(window.location.search);
       setSearchParams(params);
       setTripId(params.get("tripId"));
+      setTourId(params.get("tourId"));
     }
   }, []);
   useEffect(() => {
@@ -79,7 +82,7 @@ function Page() {
         if (customize) {
           router.push(`/manager/requests/all`);
         } else {
-          router.push(`/manager/tours`);
+          router.push(`/manager/trip/${tripId}?tourId=${tourId}`);
         }
       } else {
         setIsConfirmVisible(false);
@@ -225,7 +228,12 @@ function Page() {
         <p>Enter a note for staff assignment:</p>
         <Input.TextArea
           value={note}
-          onChange={(e) => setNote(e.target.value)}
+          onChange={(e) => {
+            if (e.target.value.length <= 150) {
+              setNote(e.target.value);
+            }
+          }}
+          maxLength={150}
         />
       </Modal>
     </ManagerLayout>

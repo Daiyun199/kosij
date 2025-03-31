@@ -6,9 +6,7 @@ import React, { Suspense, useEffect, useState } from "react";
 import { Table, Button, message, Modal, Form, Input, Popconfirm } from "antd";
 import ManagerLayout from "@/app/components/ManagerLayout/ManagerLayout";
 import api from "@/config/axios.config";
-
 import SearchBar from "@/app/components/SearchBar/SearchBar";
-
 import { toast } from "react-toastify";
 import { DeliveryStaff } from "@/model/DeliveryStaff";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -85,6 +83,7 @@ function Page() {
       setNote("");
       router.push(`/manager/tours`);
     } catch (error: any) {
+      setIsModalOpen(false);
       const errorMessage =
         error.response?.data?.value || "Failed to assign staff.";
       toast.error(errorMessage);
@@ -192,7 +191,12 @@ function Page() {
           <Form.Item label="Note">
             <Input.TextArea
               value={note}
-              onChange={(e) => setNote(e.target.value)}
+              onChange={(e) => {
+                if (e.target.value.length <= 150) {
+                  setNote(e.target.value);
+                }
+              }}
+              maxLength={150}
             />
           </Form.Item>
         </Form>

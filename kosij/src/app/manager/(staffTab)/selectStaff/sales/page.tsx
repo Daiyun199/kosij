@@ -23,10 +23,12 @@ function Page() {
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const [isConfirmVisible, setIsConfirmVisible] = useState(false);
   const [selectedStaffId, setSelectedStaffId] = useState<string | null>(null);
+  const [tourId, setTourId] = useState<string | null>(null);
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     setTripId(params.get("tripId"));
     setRequestId(params.get("requestId"));
+    setTourId(params.get("tourId"));
   }, []);
   useEffect(() => {
     fetchSalesStaff();
@@ -84,7 +86,11 @@ function Page() {
 
       if (response.status === 200) {
         toast.success(response.data.message || "Staff assigned successfully!");
-        router.push(tripId ? `/manager/tours` : `/manager/requests/pending`);
+        router.push(
+          tripId
+            ? `/manager/trip/${tripId}?tourId=${tourId}`
+            : `/manager/requests/pending`
+        );
       } else {
         toast.error(response.data.value || "Failed to assign staff.");
       }
@@ -211,7 +217,12 @@ function Page() {
         <p>Enter a note for staff assignment:</p>
         <Input.TextArea
           value={note}
-          onChange={(e) => setNote(e.target.value)}
+          onChange={(e) => {
+            if (e.target.value.length <= 150) {
+              setNote(e.target.value);
+            }
+          }}
+          maxLength={150}
         />
       </Modal>
     </ManagerLayout>

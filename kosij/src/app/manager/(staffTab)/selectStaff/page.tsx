@@ -27,10 +27,12 @@ function SelectStaff() {
   const [tripId, setTripId] = useState<string | null>(null);
   const [requestId, setRequestId] = useState<string | null>(null);
   const [consultant, setConsultant] = useState<boolean | null>(false);
+  const [tourId, setTourId] = useState<string | null>(null);
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     setTripId(params.get("tripId"));
     setRequestId(params.get("requestId"));
+    setTourId(params.get("tourId"));
     const consultantParam = params.get("consultant");
     setConsultant(consultantParam === "true");
   }, []);
@@ -82,16 +84,20 @@ function SelectStaff() {
               )}
               disabled={!selected}
               onClick={() => {
-                if (!tripId && !requestId) return;
+                if (!tripId && !requestId && !tourId) return;
+
+                const baseParams = [];
+                if (tripId) baseParams.push(`tripId=${tripId}`);
+                if (requestId) baseParams.push(`requestId=${requestId}`);
+                if (tourId) baseParams.push(`tourId=${tourId}`);
+                if (consultant) baseParams.push(`customize=true`);
 
                 const url =
                   selected === "sale"
-                    ? `/manager/selectStaff/sales?${
-                        tripId ? `tripId=${tripId}` : `requestId=${requestId}`
-                      }`
-                    : `/manager/selectStaff/consultants?tripId=${tripId}${
-                        consultant ? "&customize=true" : ""
-                      }`;
+                    ? `/manager/selectStaff/sales?${baseParams.join("&")}`
+                    : `/manager/selectStaff/consultants?${baseParams.join(
+                        "&"
+                      )}`;
 
                 router.push(url);
               }}

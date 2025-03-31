@@ -69,6 +69,7 @@ function Page() {
     setFilteredData(filtered);
   };
   const handleAssignStaff = async (staffId: string, note: string) => {
+    setIsConfirmVisible(false);
     if (!tripId && !requestId) {
       toast.error("Trip ID or Request ID is missing.");
       return;
@@ -183,10 +184,9 @@ function Page() {
             key="assign"
             title="Are you sure you want to assign this staff?"
             open={isConfirmVisible}
-            onConfirm={() => {
+            onConfirm={async () => {
               if (selectedStaffId) {
-                handleAssignStaff(selectedStaffId, note);
-                setIsConfirmVisible(false);
+                await handleAssignStaff(selectedStaffId, note);
                 setIsModalOpen(false);
               } else {
                 toast.error("No staff selected.");

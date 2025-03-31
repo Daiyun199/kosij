@@ -62,6 +62,7 @@ function Page() {
     }
   };
   const handleAssignStaff = async (staffId: string, note: string) => {
+    setIsConfirmVisible(false);
     if (!tripId) {
       toast.error("Trip ID is missing.");
       return;
@@ -81,9 +82,11 @@ function Page() {
           router.push(`/manager/tours`);
         }
       } else {
+        setIsConfirmVisible(false);
         toast.error(response.data.value || "Failed to assign staff.");
       }
     } catch (error: any) {
+      setIsConfirmVisible(false);
       const errorMessage =
         error.response?.data?.value ||
         "An error occurred while assigning staff.";
@@ -111,9 +114,6 @@ function Page() {
     setIsModalOpen(true);
   };
 
-  const handleModalOk = () => {
-    setIsModalOpen(false);
-  };
   const staffColumns = [
     {
       title: "Account ID",
@@ -198,10 +198,9 @@ function Page() {
             key="assign"
             title="Are you sure you want to assign this staff?"
             open={isConfirmVisible}
-            onConfirm={() => {
+            onConfirm={async () => {
               if (selectedStaffId) {
-                handleAssignStaff(selectedStaffId, note);
-                setIsConfirmVisible(false);
+                await handleAssignStaff(selectedStaffId, note);
                 setIsModalOpen(false);
               } else {
                 toast.error("No staff selected.");

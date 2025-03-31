@@ -9,6 +9,7 @@ import dayjs from "dayjs";
 import api from "@/config/axios.config";
 import SearchBar from "@/app/components/SearchBar/SearchBar";
 import { DeliveryStaff } from "@/model/DeliveryStaff";
+import ProtectedRoute from "@/app/ProtectedRoute";
 
 function Page() {
   const [staffData, setStaffData] = useState<DeliveryStaff[]>([]);
@@ -118,19 +119,21 @@ function Page() {
   ];
 
   return (
-    <ManagerLayout title="Delivery Staff List">
-      <div style={{ marginBottom: "8px" }}>
-        <SearchBar value={searchValue} onChange={handleSearch} />
-      </div>
-      <Table
-        columns={staffColumns}
-        dataSource={filteredData}
-        rowKey="accountId"
-        loading={loading}
-        bordered
-        pagination={{ pageSize: 5 }}
-      />
-    </ManagerLayout>
+    <ProtectedRoute allowedRoles={["manager"]}>
+      <ManagerLayout title="Delivery Staff List">
+        <div style={{ marginBottom: "8px" }}>
+          <SearchBar value={searchValue} onChange={handleSearch} />
+        </div>
+        <Table
+          columns={staffColumns}
+          dataSource={filteredData}
+          rowKey="accountId"
+          loading={loading}
+          bordered
+          pagination={{ pageSize: 5 }}
+        />
+      </ManagerLayout>
+    </ProtectedRoute>
   );
 }
 

@@ -5,6 +5,7 @@ import ManagerLayout from "@/app/components/ManagerLayout/ManagerLayout";
 import React, { useEffect, useState } from "react";
 import type { ColumnsType } from "antd/es/table";
 import api from "@/config/axios.config";
+import ProtectedRoute from "@/app/ProtectedRoute";
 
 interface Tour {
   key: string;
@@ -124,19 +125,21 @@ function Page() {
   ];
 
   return (
-    <ManagerLayout title="Tour List">
-      {loading ? (
-        <div className="flex justify-center items-center min-h-screen">
-          <Spin size="large" />
-        </div>
-      ) : (
-        <Table
-          columns={tourColumns}
-          dataSource={tourData}
-          pagination={{ pageSize: 5 }}
-        />
-      )}
-    </ManagerLayout>
+    <ProtectedRoute allowedRoles={["manager"]}>
+      <ManagerLayout title="Tour List">
+        {loading ? (
+          <div className="flex justify-center items-center min-h-screen">
+            <Spin size="large" />
+          </div>
+        ) : (
+          <Table
+            columns={tourColumns}
+            dataSource={tourData}
+            pagination={{ pageSize: 5 }}
+          />
+        )}
+      </ManagerLayout>
+    </ProtectedRoute>
   );
 }
 

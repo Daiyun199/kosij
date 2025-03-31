@@ -20,6 +20,7 @@ import SaleStaffLayout from "@/app/components/SaleStaffLayout/SaleStaffLayout";
 import api from "@/config/axios.config";
 import { toast } from "react-toastify";
 import { useRouter, useSearchParams } from "next/navigation";
+import ProtectedRoute from "@/app/ProtectedRoute";
 
 interface Passenger {
   key: string;
@@ -430,63 +431,65 @@ export default function CreateTourStep0() {
   ];
 
   return (
-    <SaleStaffLayout title="Trip Custom">
-      <div className="p-6 bg-white rounded-lg shadow-md">
-        <h2 className="text-xl font-semibold mb-4">Trip Booking</h2>
-        <Form form={form} layout="vertical" onFinish={handleSubmit}>
-          <Form.Item name="note" label="Notes">
-            <Input.TextArea
-              placeholder="Enter notes"
-              disabled={!isEditable}
-              rows={4}
-              className="w-full"
-            />
-          </Form.Item>
-
-          <div className="flex flex-col md:flex-row md:justify-between md:items-center mb-4 gap-2">
-            <h3 className="text-lg font-semibold">Passenger Information</h3>
-            <Button
-              onClick={addPassenger}
-              type="button"
-              className="bg-blue-500 hover:bg-blue-600 text-white w-full md:w-auto"
-              disabled={!isEditable}
-            >
-              <PlusOutlined /> Add Passenger
-            </Button>
-          </div>
-
-          <div className="relative">
-            <div className="overflow-x-auto border rounded-lg">
-              <Table
-                columns={columns}
-                dataSource={passengers}
-                pagination={false}
-                scroll={{ x: "max-content" }}
-                className="w-full whitespace-nowrap"
-                size="middle"
-                style={{ minWidth: "1000px" }}
+    <ProtectedRoute allowedRoles={["salesstaff"]}>
+      <SaleStaffLayout title="Trip Custom">
+        <div className="p-6 bg-white rounded-lg shadow-md">
+          <h2 className="text-xl font-semibold mb-4">Trip Booking</h2>
+          <Form form={form} layout="vertical" onFinish={handleSubmit}>
+            <Form.Item name="note" label="Notes">
+              <Input.TextArea
+                placeholder="Enter notes"
+                disabled={!isEditable}
+                rows={4}
+                className="w-full"
               />
-            </div>
-          </div>
+            </Form.Item>
 
-          <div className="mt-6 flex flex-col sm:flex-row justify-end gap-4">
-            <Button
-              type="button"
-              className="bg-gray-500 hover:bg-gray-600 text-white w-full sm:w-auto"
-              onClick={() => router.push(`/sale/requests/${tripRequestId}`)}
-            >
-              Go to Request
-            </Button>
-            <Button
-              type="submit"
-              className="bg-green-500 hover:bg-green-600 text-white w-full sm:w-auto"
-              disabled={!isEditable}
-            >
-              Submit
-            </Button>
-          </div>
-        </Form>
-      </div>
-    </SaleStaffLayout>
+            <div className="flex flex-col md:flex-row md:justify-between md:items-center mb-4 gap-2">
+              <h3 className="text-lg font-semibold">Passenger Information</h3>
+              <Button
+                onClick={addPassenger}
+                type="button"
+                className="bg-blue-500 hover:bg-blue-600 text-white w-full md:w-auto"
+                disabled={!isEditable}
+              >
+                <PlusOutlined /> Add Passenger
+              </Button>
+            </div>
+
+            <div className="relative">
+              <div className="overflow-x-auto border rounded-lg">
+                <Table
+                  columns={columns}
+                  dataSource={passengers}
+                  pagination={false}
+                  scroll={{ x: "max-content" }}
+                  className="w-full whitespace-nowrap"
+                  size="middle"
+                  style={{ minWidth: "1000px" }}
+                />
+              </div>
+            </div>
+
+            <div className="mt-6 flex flex-col sm:flex-row justify-end gap-4">
+              <Button
+                type="button"
+                className="bg-gray-500 hover:bg-gray-600 text-white w-full sm:w-auto"
+                onClick={() => router.push(`/sale/requests/${tripRequestId}`)}
+              >
+                Go to Request
+              </Button>
+              <Button
+                type="submit"
+                className="bg-green-500 hover:bg-green-600 text-white w-full sm:w-auto"
+                disabled={!isEditable}
+              >
+                Submit
+              </Button>
+            </div>
+          </Form>
+        </div>
+      </SaleStaffLayout>
+    </ProtectedRoute>
   );
 }

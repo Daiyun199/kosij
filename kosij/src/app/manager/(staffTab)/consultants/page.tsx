@@ -7,6 +7,7 @@ import ManagerLayout from "@/app/components/ManagerLayout/ManagerLayout";
 import api from "@/config/axios.config";
 import { ConsultingStaff } from "@/model/ConsultantStaff";
 import SearchBar from "@/app/components/SearchBar/SearchBar";
+import ProtectedRoute from "@/app/ProtectedRoute";
 
 function Page() {
   const [staffData, setStaffData] = useState<ConsultingStaff[]>([]);
@@ -110,19 +111,21 @@ function Page() {
   ];
 
   return (
-    <ManagerLayout title="Consulting Staff List">
-      <div style={{ marginBottom: "8px" }}>
-        <SearchBar value={searchValue} onChange={handleSearch} />
-      </div>
-      <Table
-        columns={staffColumns}
-        dataSource={filteredData}
-        rowKey="accountId"
-        loading={loading}
-        bordered
-        pagination={{ pageSize: 5 }}
-      />
-    </ManagerLayout>
+    <ProtectedRoute allowedRoles={["manager"]}>
+      <ManagerLayout title="Consulting Staff List">
+        <div style={{ marginBottom: "8px" }}>
+          <SearchBar value={searchValue} onChange={handleSearch} />
+        </div>
+        <Table
+          columns={staffColumns}
+          dataSource={filteredData}
+          rowKey="accountId"
+          loading={loading}
+          bordered
+          pagination={{ pageSize: 5 }}
+        />
+      </ManagerLayout>
+    </ProtectedRoute>
   );
 }
 

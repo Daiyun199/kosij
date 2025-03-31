@@ -6,6 +6,7 @@ import QueryProvider from "./QueryProvider";
 import { App as AntdApp } from "antd";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { AuthProvider } from "./AuthProvider";
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
@@ -27,18 +28,20 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
-      <head>
-        <link rel="icon" href="/favicon.ico" type="image/x-icon" />
-      </head>
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-      >
-        <QueryProvider>
-          <ToastContainer />
-          <AntdApp>{children}</AntdApp>
-        </QueryProvider>
-      </body>
-    </html>
+    <AuthProvider>
+      <html lang="en">
+        <head>
+          <link rel="icon" href="/favicon.ico" type="image/x-icon" />
+        </head>
+        <body
+          className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        >
+          <QueryProvider>
+            <ToastContainer />
+            <AntdApp>{children}</AntdApp>
+          </QueryProvider>
+        </body>
+      </html>
+    </AuthProvider>
   );
 }

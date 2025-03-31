@@ -23,6 +23,7 @@ import type { ColumnsType } from "antd/es/table";
 import api from "@/config/axios.config";
 import { toast } from "react-toastify";
 import ManagerLayout from "@/app/components/ManagerLayout/ManagerLayout";
+import ProtectedRoute from "@/app/ProtectedRoute";
 
 interface Farm {
   id: number;
@@ -269,118 +270,120 @@ const KoiVarietiesPage: React.FC = () => {
   ];
 
   return (
-    <ManagerLayout title="New Koi Varieties Approval">
-      <div style={{ padding: 24, maxWidth: "100%", overflowX: "hidden" }}>
-        <Table
-          columns={columns}
-          rowKey={(record) => record.id}
-          dataSource={currentPageData}
-          pagination={{
-            ...pagination,
-            onChange: handleTableChange,
-            showSizeChanger: false,
-          }}
-          loading={loading}
-          scroll={{ x: true }}
-          size="middle"
-          bordered
-        />
-
-        <Modal
-          title="Koi Variety Details"
-          open={isModalVisible}
-          onCancel={handleCancel}
-          footer={[
-            <Button key="back" onClick={handleCancel}>
-              Close
-            </Button>,
-          ]}
-          width={700}
-        >
-          {selectedRecord && (
-            <Descriptions bordered column={1}>
-              <Descriptions.Item label="ID">
-                {selectedRecord.id}
-              </Descriptions.Item>
-              <Descriptions.Item label="Variety Name">
-                {selectedRecord.varietyName}
-              </Descriptions.Item>
-              <Descriptions.Item label="Description">
-                <div style={{ whiteSpace: "pre-line" }}>
-                  {selectedRecord.description}
-                </div>
-              </Descriptions.Item>
-              <Descriptions.Item label="Farm">
-                <Tag color="blue">
-                  {selectedRecord.farm?.farmName || "No farm"}
-                </Tag>
-              </Descriptions.Item>
-              <Descriptions.Item label="Created By">
-                {selectedRecord.createdBy}
-              </Descriptions.Item>
-              <Descriptions.Item label="Created Time">
-                {new Date(selectedRecord.createdTime).toLocaleString()}
-              </Descriptions.Item>
-              <Descriptions.Item label="Status">
-                <Tag color={selectedRecord.status ? "green" : "red"}>
-                  {selectedRecord.status ? "Approved" : "Pending"}
-                </Tag>
-              </Descriptions.Item>
-              <Descriptions.Item label="Image">
-                <Image
-                  src={selectedRecord.imageUrl}
-                  alt="Koi Variety"
-                  width="100%"
-                  style={{ maxWidth: "300px", objectFit: "cover" }}
-                />
-              </Descriptions.Item>
-            </Descriptions>
-          )}
-        </Modal>
-
-        <Modal
-          title="Enter Deny Reason"
-          open={denyModalVisible}
-          onCancel={() => {
-            setDenyModalVisible(false);
-            setDenyReason("");
-          }}
-          footer={[
-            <Button
-              key="cancel"
-              onClick={() => {
-                setDenyModalVisible(false);
-                setDenyReason("");
-              }}
-            >
-              Cancel
-            </Button>,
-            <Popconfirm
-              key="confirm"
-              title="Are you sure to deny this variety?"
-              onConfirm={handleDenyConfirm}
-              okText="Yes"
-              cancelText="No"
-            >
-              <Button type="primary" danger>
-                Confirm Deny
-              </Button>
-            </Popconfirm>,
-          ]}
-          style={{ top: "20%" }}
-          bodyStyle={{ paddingBottom: "10px" }}
-        >
-          <Input.TextArea
-            rows={4}
-            placeholder="Please enter the reason for denial"
-            value={denyReason}
-            onChange={(e) => setDenyReason(e.target.value)}
-            maxLength={100}
-            showCount
+    <ProtectedRoute allowedRoles={["manager"]}>
+      <ManagerLayout title="New Koi Varieties Approval">
+        <div style={{ padding: 24, maxWidth: "100%", overflowX: "hidden" }}>
+          <Table
+            columns={columns}
+            rowKey={(record) => record.id}
+            dataSource={currentPageData}
+            pagination={{
+              ...pagination,
+              onChange: handleTableChange,
+              showSizeChanger: false,
+            }}
+            loading={loading}
+            scroll={{ x: true }}
+            size="middle"
+            bordered
           />
-        </Modal>
-      </div>
-    </ManagerLayout>
+
+          <Modal
+            title="Koi Variety Details"
+            open={isModalVisible}
+            onCancel={handleCancel}
+            footer={[
+              <Button key="back" onClick={handleCancel}>
+                Close
+              </Button>,
+            ]}
+            width={700}
+          >
+            {selectedRecord && (
+              <Descriptions bordered column={1}>
+                <Descriptions.Item label="ID">
+                  {selectedRecord.id}
+                </Descriptions.Item>
+                <Descriptions.Item label="Variety Name">
+                  {selectedRecord.varietyName}
+                </Descriptions.Item>
+                <Descriptions.Item label="Description">
+                  <div style={{ whiteSpace: "pre-line" }}>
+                    {selectedRecord.description}
+                  </div>
+                </Descriptions.Item>
+                <Descriptions.Item label="Farm">
+                  <Tag color="blue">
+                    {selectedRecord.farm?.farmName || "No farm"}
+                  </Tag>
+                </Descriptions.Item>
+                <Descriptions.Item label="Created By">
+                  {selectedRecord.createdBy}
+                </Descriptions.Item>
+                <Descriptions.Item label="Created Time">
+                  {new Date(selectedRecord.createdTime).toLocaleString()}
+                </Descriptions.Item>
+                <Descriptions.Item label="Status">
+                  <Tag color={selectedRecord.status ? "green" : "red"}>
+                    {selectedRecord.status ? "Approved" : "Pending"}
+                  </Tag>
+                </Descriptions.Item>
+                <Descriptions.Item label="Image">
+                  <Image
+                    src={selectedRecord.imageUrl}
+                    alt="Koi Variety"
+                    width="100%"
+                    style={{ maxWidth: "300px", objectFit: "cover" }}
+                  />
+                </Descriptions.Item>
+              </Descriptions>
+            )}
+          </Modal>
+
+          <Modal
+            title="Enter Deny Reason"
+            open={denyModalVisible}
+            onCancel={() => {
+              setDenyModalVisible(false);
+              setDenyReason("");
+            }}
+            footer={[
+              <Button
+                key="cancel"
+                onClick={() => {
+                  setDenyModalVisible(false);
+                  setDenyReason("");
+                }}
+              >
+                Cancel
+              </Button>,
+              <Popconfirm
+                key="confirm"
+                title="Are you sure to deny this variety?"
+                onConfirm={handleDenyConfirm}
+                okText="Yes"
+                cancelText="No"
+              >
+                <Button type="primary" danger>
+                  Confirm Deny
+                </Button>
+              </Popconfirm>,
+            ]}
+            style={{ top: "20%" }}
+            bodyStyle={{ paddingBottom: "10px" }}
+          >
+            <Input.TextArea
+              rows={4}
+              placeholder="Please enter the reason for denial"
+              value={denyReason}
+              onChange={(e) => setDenyReason(e.target.value)}
+              maxLength={100}
+              showCount
+            />
+          </Modal>
+        </div>
+      </ManagerLayout>
+    </ProtectedRoute>
   );
 };
 

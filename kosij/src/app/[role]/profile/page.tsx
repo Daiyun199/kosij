@@ -177,6 +177,7 @@ function Profile() {
   }
 
   return (
+    
     <LayoutComponent title="Profile">
       <div className={styles.container}>
         <div className={styles.card}>

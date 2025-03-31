@@ -5,6 +5,7 @@ import React, { useState } from "react";
 import "./staffCreate.css";
 import api from "@/config/axios.config";
 import { toast } from "react-toastify";
+import ProtectedRoute from "@/app/ProtectedRoute";
 
 interface FormValues {
   email: string;
@@ -121,76 +122,81 @@ function Page() {
   };
 
   return (
-    <div className="form-container">
-      <ManagerLayout title="New Staff">
-        <h1 className="form-title">Register New Member</h1>
+    <ProtectedRoute allowedRoles={["manager"]}>
+      <div className="form-container">
+        <ManagerLayout title="New Staff">
+          <h1 className="form-title">Register New Member</h1>
 
-        <form className="form" onSubmit={handleSubmit}>
-          <div className="form-group">
-            <label>Full Name</label>
-            <input
-              type="text"
-              name="fullName"
-              value={formValues.fullName}
-              onChange={handleChange}
-            />
-            {errors.fullName && (
-              <span className="error">{errors.fullName}</span>
-            )}
-          </div>
-          <div className="form-group">
-            <label>Email</label>
-            <input
-              type="email"
-              name="email"
-              value={formValues.email}
-              onChange={handleChange}
-            />
-            {errors.email && <span className="error">{errors.email}</span>}
-          </div>
-          <div className="form-group">
-            <label>Sex</label>
-            <select name="sex" value={formValues.sex} onChange={handleChange}>
-              <option value="">Select</option>
-              <option value="Male">Male</option>
-              <option value="Female">Female</option>
-            </select>
-            {errors.sex && <span className="error">{errors.sex}</span>}
-          </div>
-          <div className="form-group">
-            <label>Phone Number</label>
-            <input
-              type="text"
-              name="phoneNumber"
-              value={formValues.phoneNumber}
-              onChange={handleChange}
-            />
-            {errors.phoneNumber && (
-              <span className="error">{errors.phoneNumber}</span>
-            )}
-          </div>
-          <div className="form-group">
-            <label>Area</label>
-            <input
-              type="text"
-              name="area"
-              value={formValues.area}
-              onChange={handleChange}
-            />
-            {errors.area && <span className="error">{errors.area}</span>}
-          </div>
-          <div className="form-group">
-            <label>Role</label>
-            <select name="role" value={formValues.role} onChange={handleChange}>
-              <option value="">Select a role</option>
-              <option value="SALESSTAFF">Sales Staff</option>
-              <option value="CONSULTINGSTAFF">Consulting Staff</option>
-              <option value="DELIVERYSTAFF">Delivery Staff</option>
-              <option value="FARMBREEDER">Farm Breeder</option>
-            </select>
-            {errors.role && <span className="error">{errors.role}</span>}
-          </div>
-          {/* <div className="form-group">
+          <form className="form" onSubmit={handleSubmit}>
+            <div className="form-group">
+              <label>Full Name</label>
+              <input
+                type="text"
+                name="fullName"
+                value={formValues.fullName}
+                onChange={handleChange}
+              />
+              {errors.fullName && (
+                <span className="error">{errors.fullName}</span>
+              )}
+            </div>
+            <div className="form-group">
+              <label>Email</label>
+              <input
+                type="email"
+                name="email"
+                value={formValues.email}
+                onChange={handleChange}
+              />
+              {errors.email && <span className="error">{errors.email}</span>}
+            </div>
+            <div className="form-group">
+              <label>Sex</label>
+              <select name="sex" value={formValues.sex} onChange={handleChange}>
+                <option value="">Select</option>
+                <option value="Male">Male</option>
+                <option value="Female">Female</option>
+              </select>
+              {errors.sex && <span className="error">{errors.sex}</span>}
+            </div>
+            <div className="form-group">
+              <label>Phone Number</label>
+              <input
+                type="text"
+                name="phoneNumber"
+                value={formValues.phoneNumber}
+                onChange={handleChange}
+              />
+              {errors.phoneNumber && (
+                <span className="error">{errors.phoneNumber}</span>
+              )}
+            </div>
+            <div className="form-group">
+              <label>Area</label>
+              <input
+                type="text"
+                name="area"
+                value={formValues.area}
+                onChange={handleChange}
+              />
+              {errors.area && <span className="error">{errors.area}</span>}
+            </div>
+            <div className="form-group">
+              <label>Role</label>
+              <select
+                name="role"
+                value={formValues.role}
+                onChange={handleChange}
+              >
+                <option value="">Select a role</option>
+                <option value="SALESSTAFF">Sales Staff</option>
+                <option value="CONSULTINGSTAFF">Consulting Staff</option>
+                <option value="DELIVERYSTAFF">Delivery Staff</option>
+                <option value="FARMBREEDER">Farm Breeder</option>
+              </select>
+              {errors.role && <span className="error">{errors.role}</span>}
+            </div>
+            {/* <div className="form-group">
             <label>Password</label>
             <input
               type="password"
@@ -202,7 +208,7 @@ function Page() {
               <span className="error">{errors.password}</span>
             )}
           </div> */}
-          {/* <div className="form-group">
+            {/* <div className="form-group">
             <label>Confirm Password</label>
             <input
               type="password"
@@ -214,12 +220,13 @@ function Page() {
               <span className="error">{errors.confirmPassword}</span>
             )}
           </div> */}
-          <button className="staff-button" type="submit" disabled={loading}>
-            {loading ? "Creating..." : "Create"}
-          </button>
-        </form>
-      </ManagerLayout>
-    </div>
+            <button className="staff-button" type="submit" disabled={loading}>
+              {loading ? "Creating..." : "Create"}
+            </button>
+          </form>
+        </ManagerLayout>
+      </div>
+    </ProtectedRoute>
   );
 }
 

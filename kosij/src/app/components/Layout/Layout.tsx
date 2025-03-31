@@ -93,6 +93,10 @@ const CustomLayout: React.FC<LayoutProps> = ({
     });
   };
 
+  const handleBackClick = () => {
+    router.back();
+  };
+
   return (
     <div className="layout">
       <aside className="sidebar">
@@ -111,7 +115,9 @@ const CustomLayout: React.FC<LayoutProps> = ({
       <main className="main">
         <header className="header">
           <div className="header-left">
-            <button className="back-btn">&larr;</button>
+            <button className="back-btn" onClick={handleBackClick}>
+              &larr;
+            </button>
             <div className="title">{title}</div>
           </div>
           <button className="lang-btn" onClick={onLanguageChange}>

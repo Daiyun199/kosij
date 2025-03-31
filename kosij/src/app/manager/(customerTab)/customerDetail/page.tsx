@@ -11,6 +11,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import ProtectedRoute from "@/app/ProtectedRoute";
 function Page() {
   const historyTripData = [
     {
@@ -59,133 +60,135 @@ function Page() {
   ];
 
   return (
-    <div>
-      <ManagerLayout title="Profile">
-        <div className={customStyles.container}>
-          <div className={customStyles.card}>
-            <div className={customStyles.avatarSection}>
-              <div className={customStyles.avatar}>
-                <Image
-                  src="https://static.wikia.nocookie.net/hoducks/images/1/14/Game_Chapter_31_%28Full_1%29.png/revision/latest?cb=20240128195103"
-                  alt="Avatar"
-                  width={300}
-                  height={300}
-                />
-              </div>
-              <button className={customStyles.uploadButton}>
-                Upload Image
-              </button>
-            </div>
-            <div className={customStyles.infoSection}>
-              <h2 className={customStyles.title}>Manager Information</h2>
-              <form className={customStyles.form}>
-                <input
-                  type="text"
-                  placeholder="Full Name"
-                  className={customStyles.input}
-                />
-                <input
-                  type="text"
-                  placeholder="Phone Number"
-                  className={customStyles.input}
-                />
-                <input
-                  type="text"
-                  placeholder="Address"
-                  className={customStyles.input}
-                />
-                <input
-                  type="text"
-                  placeholder="Citizen identification card"
-                  className={customStyles.input}
-                />
-                <input
-                  type="email"
-                  placeholder="Email"
-                  className={customStyles.input}
-                />
-                <button type="submit" className={customStyles.updateButton}>
-                  Update
+    <ProtectedRoute allowedRoles={["manager"]}>
+      <div>
+        <ManagerLayout title="Profile">
+          <div className={customStyles.container}>
+            <div className={customStyles.card}>
+              <div className={customStyles.avatarSection}>
+                <div className={customStyles.avatar}>
+                  <Image
+                    src="https://static.wikia.nocookie.net/hoducks/images/1/14/Game_Chapter_31_%28Full_1%29.png/revision/latest?cb=20240128195103"
+                    alt="Avatar"
+                    width={300}
+                    height={300}
+                  />
+                </div>
+                <button className={customStyles.uploadButton}>
+                  Upload Image
                 </button>
-              </form>
+              </div>
+              <div className={customStyles.infoSection}>
+                <h2 className={customStyles.title}>Manager Information</h2>
+                <form className={customStyles.form}>
+                  <input
+                    type="text"
+                    placeholder="Full Name"
+                    className={customStyles.input}
+                  />
+                  <input
+                    type="text"
+                    placeholder="Phone Number"
+                    className={customStyles.input}
+                  />
+                  <input
+                    type="text"
+                    placeholder="Address"
+                    className={customStyles.input}
+                  />
+                  <input
+                    type="text"
+                    placeholder="Citizen identification card"
+                    className={customStyles.input}
+                  />
+                  <input
+                    type="email"
+                    placeholder="Email"
+                    className={customStyles.input}
+                  />
+                  <button type="submit" className={customStyles.updateButton}>
+                    Update
+                  </button>
+                </form>
+              </div>
             </div>
-          </div>
-          <div className={customStyles.tableContainer}>
-            <div>
-              <h2 className="text-xl font-bold mb-2">History Trip</h2>
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Trip ID</TableHead>
-                    <TableHead>Tour Name</TableHead>
-                    <TableHead>Booking Date</TableHead>
-                    <TableHead>Start Date</TableHead>
-                    <TableHead>End Date</TableHead>
-                    <TableHead>Status</TableHead>
-                    <TableHead>Type</TableHead>
-                    <TableHead>Detail</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {historyTripData.map((trip) => (
-                    <TableRow key={trip.tripID}>
-                      <TableCell>{trip.tripID}</TableCell>
-                      <TableCell>{trip.tourName}</TableCell>
-                      <TableCell>{trip.bookingDate}</TableCell>
-                      <TableCell>{trip.startDate}</TableCell>
-                      <TableCell>{trip.endDate}</TableCell>
-                      <TableCell>{trip.status}</TableCell>
-                      <TableCell>{trip.type}</TableCell>
-                      <TableCell>
-                        <button className={customStyles.detailButton}>
-                          View
-                        </button>
-                      </TableCell>
+            <div className={customStyles.tableContainer}>
+              <div>
+                <h2 className="text-xl font-bold mb-2">History Trip</h2>
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Trip ID</TableHead>
+                      <TableHead>Tour Name</TableHead>
+                      <TableHead>Booking Date</TableHead>
+                      <TableHead>Start Date</TableHead>
+                      <TableHead>End Date</TableHead>
+                      <TableHead>Status</TableHead>
+                      <TableHead>Type</TableHead>
+                      <TableHead>Detail</TableHead>
                     </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </div>
+                  </TableHeader>
+                  <TableBody>
+                    {historyTripData.map((trip) => (
+                      <TableRow key={trip.tripID}>
+                        <TableCell>{trip.tripID}</TableCell>
+                        <TableCell>{trip.tourName}</TableCell>
+                        <TableCell>{trip.bookingDate}</TableCell>
+                        <TableCell>{trip.startDate}</TableCell>
+                        <TableCell>{trip.endDate}</TableCell>
+                        <TableCell>{trip.status}</TableCell>
+                        <TableCell>{trip.type}</TableCell>
+                        <TableCell>
+                          <button className={customStyles.detailButton}>
+                            View
+                          </button>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
 
-            <div>
-              <h2 className="text-xl font-bold mb-2">History Order</h2>
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Order ID</TableHead>
-                    <TableHead>Order Date</TableHead>
-                    <TableHead>Total Amount</TableHead>
-                    <TableHead>Employee Handling</TableHead>
-                    <TableHead>Item Count</TableHead>
-                    <TableHead>Status</TableHead>
-                    <TableHead>Delivery Status</TableHead>
-                    <TableHead>Detail</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {historyOrderData.map((order) => (
-                    <TableRow key={order.orderId}>
-                      <TableCell>{order.orderId}</TableCell>
-                      <TableCell>{order.orderDate}</TableCell>
-                      <TableCell>{order.totalAmount}</TableCell>
-                      <TableCell>{order.employeeHandling}</TableCell>
-                      <TableCell>{order.itemCount}</TableCell>
-                      <TableCell>{order.status}</TableCell>
-                      <TableCell>{order.deliveryStatus}</TableCell>
-                      <TableCell>
-                        <button className={customStyles.detailButton}>
-                          View
-                        </button>
-                      </TableCell>
+              <div>
+                <h2 className="text-xl font-bold mb-2">History Order</h2>
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Order ID</TableHead>
+                      <TableHead>Order Date</TableHead>
+                      <TableHead>Total Amount</TableHead>
+                      <TableHead>Employee Handling</TableHead>
+                      <TableHead>Item Count</TableHead>
+                      <TableHead>Status</TableHead>
+                      <TableHead>Delivery Status</TableHead>
+                      <TableHead>Detail</TableHead>
                     </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
+                  </TableHeader>
+                  <TableBody>
+                    {historyOrderData.map((order) => (
+                      <TableRow key={order.orderId}>
+                        <TableCell>{order.orderId}</TableCell>
+                        <TableCell>{order.orderDate}</TableCell>
+                        <TableCell>{order.totalAmount}</TableCell>
+                        <TableCell>{order.employeeHandling}</TableCell>
+                        <TableCell>{order.itemCount}</TableCell>
+                        <TableCell>{order.status}</TableCell>
+                        <TableCell>{order.deliveryStatus}</TableCell>
+                        <TableCell>
+                          <button className={customStyles.detailButton}>
+                            View
+                          </button>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
             </div>
           </div>
-        </div>
-      </ManagerLayout>
-    </div>
+        </ManagerLayout>
+      </div>
+    </ProtectedRoute>
   );
 }
 

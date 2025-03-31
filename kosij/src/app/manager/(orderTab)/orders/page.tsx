@@ -9,6 +9,7 @@ import ManagerLayout from "@/app/components/ManagerLayout/ManagerLayout";
 import { useRouter } from "next/navigation";
 import SearchBar from "@/app/components/SearchBar/SearchBar";
 import isBetween from "dayjs/plugin/isBetween";
+import ProtectedRoute from "@/app/ProtectedRoute";
 dayjs.extend(isBetween);
 
 interface Order {
@@ -155,28 +156,30 @@ const OrdersPage = () => {
   ];
 
   return (
-    <ManagerLayout title="Orders List">
-      <div style={{ display: "flex", gap: "16px", marginBottom: "16px" }}>
-        <SearchBar
-          value={searchValue}
-          onChange={(e) => setSearchValue(e.target.value)}
-        />
-        <DatePicker.RangePicker
-          onChange={(dates) =>
-            setDateRange(dates as [dayjs.Dayjs | null, dayjs.Dayjs | null])
-          }
-        />
-      </div>
-      <div className="p-4">
-        <Table
-          columns={columns}
-          dataSource={filteredOrders}
-          rowKey="id"
-          loading={loading}
-          pagination={{ pageSize: 5 }}
-        />
-      </div>
-    </ManagerLayout>
+    <ProtectedRoute allowedRoles={["manager"]}>
+      <ManagerLayout title="Orders List">
+        <div style={{ display: "flex", gap: "16px", marginBottom: "16px" }}>
+          <SearchBar
+            value={searchValue}
+            onChange={(e) => setSearchValue(e.target.value)}
+          />
+          <DatePicker.RangePicker
+            onChange={(dates) =>
+              setDateRange(dates as [dayjs.Dayjs | null, dayjs.Dayjs | null])
+            }
+          />
+        </div>
+        <div className="p-4">
+          <Table
+            columns={columns}
+            dataSource={filteredOrders}
+            rowKey="id"
+            loading={loading}
+            pagination={{ pageSize: 5 }}
+          />
+        </div>
+      </ManagerLayout>
+    </ProtectedRoute>
   );
 };
 

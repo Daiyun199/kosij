@@ -12,6 +12,7 @@ import SearchBar from "@/app/components/SearchBar/SearchBar";
 import { toast } from "react-toastify";
 import { DeliveryStaff } from "@/model/DeliveryStaff";
 import { useRouter, useSearchParams } from "next/navigation";
+import ProtectedRoute from "@/app/ProtectedRoute";
 
 function Page() {
   const [staffData, setStaffData] = useState<DeliveryStaff[]>([]);
@@ -155,49 +156,51 @@ function Page() {
   ];
 
   return (
-    <ManagerLayout title="Delivery Staff List">
-      <div style={{ marginBottom: "8px" }}>
-        <SearchBar value={searchValue} onChange={handleSearch} />
-      </div>
-      <Table
-        columns={staffColumns}
-        dataSource={filteredData}
-        rowKey="accountId"
-        loading={loading}
-        bordered
-        pagination={{ pageSize: 5 }}
-      />
-      <Modal
-        title="Assign Staff"
-        open={isModalOpen}
-        onCancel={handleModalCancel}
-        footer={[
-          <Button key="cancel" onClick={() => setIsModalOpen(false)}>
-            Cancel
-          </Button>,
-          <Popconfirm
-            key="assign"
-            title="Are you sure you want to assign this staff?"
-            onConfirm={handleModalOk}
-            okText="Yes"
-            cancelText="No"
-          >
-            <Button type="primary" loading={loading}>
-              Assign
-            </Button>
-          </Popconfirm>,
-        ]}
-      >
-        <Form layout="vertical">
-          <Form.Item label="Note">
-            <Input.TextArea
-              value={note}
-              onChange={(e) => setNote(e.target.value)}
-            />
-          </Form.Item>
-        </Form>
-      </Modal>
-    </ManagerLayout>
+    <ProtectedRoute allowedRoles={["manager"]}>
+      <ManagerLayout title="Delivery Staff List">
+        <div style={{ marginBottom: "8px" }}>
+          <SearchBar value={searchValue} onChange={handleSearch} />
+        </div>
+        <Table
+          columns={staffColumns}
+          dataSource={filteredData}
+          rowKey="accountId"
+          loading={loading}
+          bordered
+          pagination={{ pageSize: 5 }}
+        />
+        <Modal
+          title="Assign Staff"
+          open={isModalOpen}
+          onCancel={handleModalCancel}
+          footer={[
+            <Button key="cancel" onClick={() => setIsModalOpen(false)}>
+              Cancel
+            </Button>,
+            <Popconfirm
+              key="assign"
+              title="Are you sure you want to assign this staff?"
+              onConfirm={handleModalOk}
+              okText="Yes"
+              cancelText="No"
+            >
+              <Button type="primary" loading={loading}>
+                Assign
+              </Button>
+            </Popconfirm>,
+          ]}
+        >
+          <Form layout="vertical">
+            <Form.Item label="Note">
+              <Input.TextArea
+                value={note}
+                onChange={(e) => setNote(e.target.value)}
+              />
+            </Form.Item>
+          </Form>
+        </Modal>
+      </ManagerLayout>
+    </ProtectedRoute>
   );
 }
 

@@ -11,10 +11,7 @@ import {
   Tag,
 } from "antd";
 import { cn } from "@/lib/utils/cn.util";
-import {
-  EyeOutlined,
-  LogoutOutlined,
-} from "@ant-design/icons";
+import { EyeOutlined, LogoutOutlined } from "@ant-design/icons";
 import { ProColumns, ProTable } from "@ant-design/pro-components";
 import { useState } from "react";
 import WithdrawalModal from "@/features/farmbreeder/component/Withdrawal.modal";
@@ -22,6 +19,7 @@ import { useQuery } from "@tanstack/react-query";
 import { fetchStatistics } from "@/features/farmbreeder/api/dashboard/all.api";
 import { fetchTransaction } from "@/features/farmbreeder/api/wallet/all.api";
 import dayjs from "dayjs";
+import ProtectedRoute from "@/app/ProtectedRoute";
 
 type TransactionItem = {
   id: number;
@@ -134,79 +132,81 @@ function Page() {
   console.log("Transactions Data:", transactions);
 
   return (
-    <PageContainer
-      title="Your Wallet"
-      extra={
-        <Space>
-          <Button
-            style={{
-              borderRadius: "2rem",
-              width: "5rem",
-              borderColor: "#000000",
-            }}
-          >
-            ENG
-          </Button>
-        </Space>
-      }
-      header={{
-        style: {
-          boxShadow: "0px 4px 6px rgba(0, 0, 0, 0.1)",
-          background: "white",
-          zIndex: 10,
-        },
-      }}
-    >
-      <section className={"mt-3 grid grid-cols-2 gap-3 px-layout pb-layout"}>
-        <ClickableArea className={cn("block h-40 shadow-md p-4")}>
-          <div className="flex items-start justify-between">
-            <Statistic
-              title={
-                <span className="text-lg font-normal">Current Balance</span>
-              }
-              value={`${formatNumber(data.currentBalance)} VND`}
-              valueStyle={{ fontSize: "1.5rem", fontWeight: "bold" }}
+    <ProtectedRoute allowedRoles={["farmbreeder"]}>
+      <PageContainer
+        title="Your Wallet"
+        extra={
+          <Space>
+            <Button
+              style={{
+                borderRadius: "2rem",
+                width: "5rem",
+                borderColor: "#000000",
+              }}
+            >
+              ENG
+            </Button>
+          </Space>
+        }
+        header={{
+          style: {
+            boxShadow: "0px 4px 6px rgba(0, 0, 0, 0.1)",
+            background: "white",
+            zIndex: 10,
+          },
+        }}
+      >
+        <section className={"mt-3 grid grid-cols-2 gap-3 px-layout pb-layout"}>
+          <ClickableArea className={cn("block h-40 shadow-md p-4")}>
+            <div className="flex items-start justify-between">
+              <Statistic
+                title={
+                  <span className="text-lg font-normal">Current Balance</span>
+                }
+                value={`${formatNumber(data.currentBalance)} VND`}
+                valueStyle={{ fontSize: "1.5rem", fontWeight: "bold" }}
+              />
+              Last Updated: 2 mins ago
+            </div>
+            <Button
+              className="mt-5 w-40"
+              icon={<LogoutOutlined />}
+              style={{ backgroundColor: "#2563EB", color: "#fff" }}
+              onClick={handleOpen}
+            >
+              Withdraw
+            </Button>
+          </ClickableArea>
+        </section>
+        <section className="mt-5">
+          {transactionLoading ? (
+            <div>Loading transactions...</div>
+          ) : transactionError ? (
+            <div>Error fetching transactions.</div>
+          ) : transactions.length > 0 ? (
+            <ProTable<TransactionItem>
+              columns={columns}
+              dataSource={transactions}
+              rowKey="id"
+              pagination={{
+                pageSize: 5,
+                showTotal: (total) => `Total ${total} records`,
+              }}
+              headerTitle="Recent Transactions"
+              search={false}
             />
-            Last Updated: 2 mins ago
-          </div>
-          <Button
-            className="mt-5 w-40"
-            icon={<LogoutOutlined />}
-            style={{ backgroundColor: "#2563EB", color: "#fff" }}
-            onClick={handleOpen}
-          >
-            Withdraw
-          </Button>
-        </ClickableArea>
-      </section>
-      <section className="mt-5">
-        {transactionLoading ? (
-          <div>Loading transactions...</div>
-        ) : transactionError ? (
-          <div>Error fetching transactions.</div>
-        ) : transactions.length > 0 ? (
-          <ProTable<TransactionItem>
-            columns={columns}
-            dataSource={transactions}
-            rowKey="id"
-            pagination={{
-              pageSize: 5,
-              showTotal: (total) => `Total ${total} records`,
-            }}
-            headerTitle="Recent Transactions"
-            search={false}
-          />
-        ) : (
-          <div>No transactions found.</div>
-        )}
-      </section>
+          ) : (
+            <div>No transactions found.</div>
+          )}
+        </section>
 
-      <WithdrawalModal
-        visible={isModalOpen}
-        onCancel={handleClose}
-        onSubmit={handleSubmit}
-      />
-    </PageContainer>
+        <WithdrawalModal
+          visible={isModalOpen}
+          onCancel={handleClose}
+          onSubmit={handleSubmit}
+        />
+      </PageContainer>
+    </ProtectedRoute>
   );
 }
 

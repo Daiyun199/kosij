@@ -1,8 +1,10 @@
-import { createContext, useContext, useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
-import { getAuthToken } from "@/lib/utils/auth.utils";
+"use client";
 
-type UserRole = "manager" | "salesstaff" | "farmbreeder";
+import { createContext, useContext, useState } from "react";
+import { useRouter } from "next/navigation";
+import { Role } from "@/lib/domain/User/role.enum";
+
+type UserRole = Role;
 
 interface AuthContextType {
   userRole: UserRole | null;
@@ -18,16 +20,21 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const router = useRouter();
 
-  useEffect(() => {
-    const token = getAuthToken();
-    if (token) {
-      const storedRole = localStorage.getItem("userRole") as UserRole | null;
-      if (storedRole) {
-        setUserRole(storedRole);
-        setIsAuthenticated(true);
-      }
-    }
-  }, []);
+  // useEffect(() => {
+  //   const token = getAuthToken();
+  //   console.log("Token1:", token);
+  //   if (token) {
+  //     const storedRole = localStorage.getItem("userRole") as UserRole | null;
+  //     console.log("Stored role:", storedRole);
+  //     if (storedRole) {
+  //       setUserRole(storedRole);
+  //       setIsAuthenticated(true);
+  //     }
+  //   } else {
+  //     setUserRole(null);
+  //     setIsAuthenticated(false);
+  //   }
+  // }, []);
 
   const login = (role: UserRole) => {
     localStorage.setItem("userRole", role);

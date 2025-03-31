@@ -6,6 +6,7 @@ import type { ColumnsType } from "antd/es/table";
 import api from "@/config/axios.config";
 import { TripRequest } from "@/model/TripRequest";
 import SaleStaffLayout from "@/app/components/SaleStaffLayout/SaleStaffLayout";
+import ProtectedRoute from "@/app/ProtectedRoute";
 
 function Page() {
   const [tripRequests, setTripRequests] = useState<TripRequest[]>([]);
@@ -82,19 +83,21 @@ function Page() {
   ];
 
   return (
-    <SaleStaffLayout title="Trip Requests">
-      {loading ? (
-        <div className="flex justify-center items-center min-h-screen">
-          <Spin size="large" />
-        </div>
-      ) : (
-        <Table
-          columns={tripRequestColumns}
-          dataSource={tripRequests}
-          pagination={{ pageSize: 5 }}
-        />
-      )}
-    </SaleStaffLayout>
+    <ProtectedRoute allowedRoles={["salesstaff"]}>
+      <SaleStaffLayout title="Trip Requests">
+        {loading ? (
+          <div className="flex justify-center items-center min-h-screen">
+            <Spin size="large" />
+          </div>
+        ) : (
+          <Table
+            columns={tripRequestColumns}
+            dataSource={tripRequests}
+            pagination={{ pageSize: 5 }}
+          />
+        )}
+      </SaleStaffLayout>
+    </ProtectedRoute>
   );
 }
 

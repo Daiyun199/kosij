@@ -6,6 +6,7 @@ import type { ColumnsType } from "antd/es/table";
 import api from "@/config/axios.config";
 import ManagerLayout from "@/app/components/ManagerLayout/ManagerLayout";
 import { Transaction } from "@/model/Transaction";
+import ProtectedRoute from "@/app/ProtectedRoute";
 
 const transactionTypes = [
   "None",
@@ -110,16 +111,18 @@ const TransactionsTable = () => {
   ];
 
   return (
-    <ManagerLayout title="Transaction's List">
-      <div className="p-4">
-        <Table
-          columns={columns}
-          dataSource={filteredTransactions}
-          rowKey="id"
-          pagination={{ pageSize: 5 }}
-        />
-      </div>
-    </ManagerLayout>
+    <ProtectedRoute allowedRoles={["manager"]}>
+      <ManagerLayout title="Transaction's List">
+        <div className="p-4">
+          <Table
+            columns={columns}
+            dataSource={filteredTransactions}
+            rowKey="id"
+            pagination={{ pageSize: 5 }}
+          />
+        </div>
+      </ManagerLayout>
+    </ProtectedRoute>
   );
 };
 

@@ -8,6 +8,7 @@ import api from "@/config/axios.config";
 import { FarmBreeder } from "@/model/FarmBreeder";
 import SearchBar from "@/app/components/SearchBar/SearchBar";
 import isBetween from "dayjs/plugin/isBetween";
+import ProtectedRoute from "@/app/ProtectedRoute";
 
 dayjs.extend(isBetween);
 
@@ -112,23 +113,25 @@ function Page() {
   ];
 
   return (
-    <ManagerLayout title="Farm Breeder List">
-      <div style={{ display: "flex", gap: "16px", marginBottom: "16px" }}>
-        <SearchBar
-          value={searchValue}
-          onChange={(e) => setSearchValue(e.target.value)}
-        />
-      </div>
+    <ProtectedRoute allowedRoles={["manager"]}>
+      <ManagerLayout title="Farm Breeder List">
+        <div style={{ display: "flex", gap: "16px", marginBottom: "16px" }}>
+          <SearchBar
+            value={searchValue}
+            onChange={(e) => setSearchValue(e.target.value)}
+          />
+        </div>
 
-      <Table
-        columns={farmBreederColumns}
-        dataSource={filteredData}
-        rowKey="accountId"
-        loading={loading}
-        bordered
-        pagination={{ pageSize: 5 }}
-      />
-    </ManagerLayout>
+        <Table
+          columns={farmBreederColumns}
+          dataSource={filteredData}
+          rowKey="accountId"
+          loading={loading}
+          bordered
+          pagination={{ pageSize: 5 }}
+        />
+      </ManagerLayout>
+    </ProtectedRoute>
   );
 }
 

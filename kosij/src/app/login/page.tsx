@@ -12,6 +12,7 @@ import manager_uri from "@/features/manager/uri";
 import farmbreeder_uri from "@/features/farmbreeder/uri";
 import salesstaff_uri from "@/features/sales/uri";
 import Image from "next/image";
+import { useAuth } from "@/app/AuthProvider";
 
 type FieldType = {
   email: string;
@@ -28,6 +29,7 @@ function Home() {
   const [cssLoaded, setCssLoaded] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [path, setPath] = useState<string | null>(null);
+  const { login } = useAuth();
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
@@ -83,10 +85,11 @@ function Home() {
           setLoading(false);
           return;
         }
-
+        localStorage.setItem("authToken", token);
         Cookies.set("token", token);
         const payload = decodeJwt(token);
-
+        localStorage.setItem("userRole", payload.role);
+        login(payload.role);
         let redirectPath = "";
         switch (payload.role) {
           case Role.manager:
@@ -111,7 +114,6 @@ function Home() {
             setLoading(false);
             return;
         }
-
         router.push(redirectPath);
       },
       onError: () => {

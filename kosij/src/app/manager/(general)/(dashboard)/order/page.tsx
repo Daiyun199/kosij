@@ -167,18 +167,28 @@ function Page() {
           ),
         },
       });
-
       setChartData({
-        labels: ["Transactions", "Revenue", "Satisfaction"],
+        labels: ["Current Period", "Previous Period"],
         datasets: [
           {
-            label: "Current Period",
+            label: "Revenue",
             data: [
-              currentData?.value.totalTransactions ?? 0,
               currentData?.value.totalRevenue ?? 0,
-              currentData?.value.customerSatisfaction ?? 0,
+              previousData?.value.totalRevenue ?? 0,
             ],
-            backgroundColor: "rgba(54, 162, 235, 0.6)",
+            backgroundColor: "rgba(75, 192, 192, 0.6)",
+            borderColor: "rgba(75, 192, 192, 1)",
+            borderWidth: 1,
+          },
+          {
+            label: "Commission Earned",
+            data: [
+              currentData?.value.commissionEarned ?? 0,
+              previousData?.value.commissionEarned ?? 0,
+            ],
+            backgroundColor: "rgba(153, 102, 255, 0.6)",
+            borderColor: "rgba(153, 102, 255, 1)",
+            borderWidth: 1,
           },
         ],
       });

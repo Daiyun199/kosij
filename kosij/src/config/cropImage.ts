@@ -1,4 +1,3 @@
-// src/cropImage.ts
 export default function getCroppedImg(
   imageSrc: string,
   pixelCrop: { x: number; y: number; width: number; height: number }
@@ -8,7 +7,7 @@ export default function getCroppedImg(
       const image = new Image();
       image.addEventListener("load", () => resolve(image));
       image.addEventListener("error", (error) => reject(error));
-      image.setAttribute("crossOrigin", "anonymous"); // Để tránh vấn đề CORS
+      image.setAttribute("crossOrigin", "anonymous");
       image.src = url;
     });
 

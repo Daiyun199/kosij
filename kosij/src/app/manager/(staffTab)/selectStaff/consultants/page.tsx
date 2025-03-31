@@ -21,9 +21,11 @@ function Page() {
   const [searchParams, setSearchParams] = useState<URLSearchParams | null>(
     null
   );
+
   const [selectedStaffId, setSelectedStaffId] = useState<string | null>(null);
   const [customize, setCustomize] = useState<boolean | null>(false);
   const [isConfirmVisible, setIsConfirmVisible] = useState(false);
+  const [tourId, setTourId] = useState<string | null>(null);
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
 
@@ -38,6 +40,7 @@ function Page() {
       const params = new URLSearchParams(window.location.search);
       setSearchParams(params);
       setTripId(params.get("tripId"));
+      setTourId(params.get("tourId"));
     }
   }, []);
   useEffect(() => {
@@ -63,6 +66,7 @@ function Page() {
     }
   };
   const handleAssignStaff = async (staffId: string, note: string) => {
+    setIsConfirmVisible(false);
     if (!tripId) {
       toast.error("Trip ID is missing.");
       return;
@@ -79,12 +83,14 @@ function Page() {
         if (customize) {
           router.push(`/manager/requests/all`);
         } else {
-          router.push(`/manager/tours`);
+          router.push(`/manager/trip/${tripId}?tourId=${tourId}`);
         }
       } else {
+        setIsConfirmVisible(false);
         toast.error(response.data.value || "Failed to assign staff.");
       }
     } catch (error: any) {
+      setIsConfirmVisible(false);
       const errorMessage =
         error.response?.data?.value ||
         "An error occurred while assigning staff.";
@@ -112,9 +118,6 @@ function Page() {
     setIsModalOpen(true);
   };
 
-  const handleModalOk = () => {
-    setIsModalOpen(false);
-  };
   const staffColumns = [
     {
       title: "Account ID",
@@ -200,6 +203,52 @@ function Page() {
               key="assign"
               title="Are you sure you want to assign this staff?"
               open={isConfirmVisible}
+              onConfirm={async () => {
+                if (selectedStaffId) {
+                  await handleAssignStaff(selectedStaffId, note);
+                  setIsModalOpen(false);
+                } else {
+                  toast.error("No staff selected.");
+                }
+              }}
+              onCancel={() => setIsConfirmVisible(false)}
+              okText="Yes"
+              cancelText="No"
+            >
+              <Button
+                type="primary"
+                loading={loading}
+                onClick={() => {
+                  setIsConfirmVisible(true);
+                }}
+              >
+                Assign
+              </Button>
+            </Popconfirm>,
+          ]}
+        >
+          <p>Enter a note for staff assignment:</p>
+          <Input.TextArea
+            value={note}
+            onChange={(e) => {
+              if (e.target.value.length <= 150) {
+                setNote(e.target.value);
+              }
+            }}
+            maxLength={150}
+          />
+          {/* <Modal
+          title="Assign Staff"
+          open={isModalOpen}
+          onCancel={handleModalCancel}
+          footer={[
+            <Button key="cancel" onClick={() => setIsModalOpen(false)}>
+              Cancel
+            </Button>,
+            <Popconfirm
+              key="assign"
+              title="Are you sure you want to assign this staff?"
+              open={isConfirmVisible}
               onConfirm={() => {
                 if (selectedStaffId) {
                   handleAssignStaff(selectedStaffId, note);
@@ -229,7 +278,7 @@ function Page() {
           <Input.TextArea
             value={note}
             onChange={(e) => setNote(e.target.value)}
-          />
+          /> */}
         </Modal>
       </ManagerLayout>
     </ProtectedRoute>

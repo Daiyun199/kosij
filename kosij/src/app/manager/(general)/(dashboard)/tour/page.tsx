@@ -166,31 +166,35 @@ function Page() {
           ),
         },
       });
-
       setChartData({
-        labels: ["Bookings", "Revenue", "Satisfaction"],
+        labels: ["Capacity Utilization", "Refund Rate"],
         datasets: [
           {
-            label: "Current Period",
+            label: "Current",
             data: [
-              currentData?.value.totalTourBookings ?? 0,
-              currentData?.value.totalRevenue ?? 0,
-              currentData?.value.customerSatisfaction ?? 0,
+              currentData?.value.tourCapacityUtilization ?? 0,
+              currentData?.value.refundRate ?? 0,
             ],
-            backgroundColor: "rgba(54, 162, 235, 0.6)",
+            backgroundColor: [
+              "rgba(75, 192, 192, 0.6)",
+              "rgba(153, 102, 255, 0.6)",
+            ],
+            borderWidth: 1,
           },
           {
-            label: "Previous Period",
+            label: "Previous",
             data: [
-              previousData?.value.totalTourBookings ?? 0,
-              previousData?.value.totalRevenue ?? 0,
-              previousData?.value.customerSatisfaction ?? 0,
+              previousData?.value.tourCapacityUtilization ?? 0,
+              previousData?.value.refundRate ?? 0,
             ],
-            backgroundColor: "rgba(255, 99, 132, 0.6)",
+            backgroundColor: [
+              "rgba(75, 192, 192, 0.3)",
+              "rgba(153, 102, 255, 0.3)",
+            ],
+            borderWidth: 1,
           },
         ],
       });
-
       setLoading(false);
     };
 

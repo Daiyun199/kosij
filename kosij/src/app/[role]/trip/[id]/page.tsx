@@ -151,7 +151,7 @@ function Page() {
     fetchTripData();
   }, [id]);
   const handleSelectStaff = () => {
-    router.push(`/manager/selectStaff?tripId=${id}`);
+    router.push(`/manager/selectStaff?tripId=${id}&tourId=${tourId}`);
   };
   if (loading) return <p>Loading...</p>;
 

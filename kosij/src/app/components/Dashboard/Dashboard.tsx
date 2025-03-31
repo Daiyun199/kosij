@@ -42,6 +42,17 @@ const Dashboard: React.FC<DashboardProps> = ({
   chartData,
   chartOptions,
 }) => {
+  const mergedChartOptions = {
+    ...chartOptions,
+    responsive: true,
+    maintainAspectRatio: false,
+    scales: {
+      y: {
+        beginAtZero: true,
+      },
+    },
+  };
+
   return (
     <div className="space-y-8">
       <h2 className="text-2xl font-bold">{title}</h2>
@@ -58,7 +69,9 @@ const Dashboard: React.FC<DashboardProps> = ({
         ))}
       </div>
       <div className="p-4 bg-white rounded-lg shadow">
-        <Bar data={chartData} options={chartOptions} />
+        <div style={{ height: "400px", position: "relative" }}>
+          <Bar data={chartData} options={mergedChartOptions} redraw={true} />
+        </div>
       </div>
     </div>
   );

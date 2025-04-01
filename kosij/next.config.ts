@@ -62,13 +62,13 @@ const nextConfig: NextConfig = {
     return [
       {
         source: "/login",
-        destination: "/login", // Only redirect to login if necessary
+        destination: "/login",
         permanent: false,
         has: [
           {
             type: "cookie",
             key: "authToken",
-            value: "undefined",  // Only redirect if the user is not logged in
+            value: "undefined", 
           },
         ],
       },

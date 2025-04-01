@@ -12,6 +12,7 @@ import { getDownloadURL, ref, uploadBytesResumable } from "firebase/storage";
 import { storage } from "@/config/firebase";
 import { toast } from "react-toastify";
 import { useParams } from "next/navigation";
+import ProtectedRoute from "@/app/ProtectedRoute";
 
 interface UserProfile {
   fullName: string;
@@ -177,188 +178,192 @@ function Profile() {
   }
 
   return (
-    
-    <LayoutComponent title="Profile">
-      <div className={styles.container}>
-        <div className={styles.card}>
-          <div className={styles.avatarSection}>
-            <ImageUploader
-              onFileSelected={setSelectedFile}
-              initialImage={
-                user?.urlAvatar ||
-                "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQd1VYKzrXv11-IzWaTgoSQVepzpku0hrr1Ww&s"
-              }
-            />
-            <Button
-              onClick={handleUpload}
-              disabled={uploading}
-              className={styles.uploadButton}
-            >
-              {uploading ? "Uploading..." : "Save Image"}
-            </Button>
-          </div>
-          <div className={styles.infoSection}>
-            <h2 className={styles.title}>Personal Information</h2>
-            <div className={styles.info}>
-              <p>
-                <strong>Full Name:</strong> {user?.fullName || "N/A"}
-              </p>
-              <p>
-                <strong>Email:</strong> {user?.email}
-              </p>
-              <p>
-                <strong>Phone Number:</strong> {user?.phoneNumber}
-              </p>
-              <p>
-                <strong>Role:</strong> {user?.role}
-              </p>
-              <p>
-                <strong>Gender:</strong> {user?.sex}
-              </p>
-              <p>
-                <strong>Address:</strong> {user?.address || "N/A"}
-              </p>
-            </div>
-            <div className={styles.buttonGroup}>
-              <Button className={styles.editButton} onClick={handleEdit}>
-                Edit
-              </Button>
+    <ProtectedRoute allowedRoles={["manager", "salesstaff"]}>
+      <LayoutComponent title="Profile">
+        <div className={styles.container}>
+          <div className={styles.card}>
+            <div className={styles.avatarSection}>
+              <ImageUploader
+                onFileSelected={setSelectedFile}
+                initialImage={
+                  user?.urlAvatar ||
+                  "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQd1VYKzrXv11-IzWaTgoSQVepzpku0hrr1Ww&s"
+                }
+              />
               <Button
-                onClick={handleOpenPasswordModal}
-                className={styles.changePasswordButton}
+                onClick={handleUpload}
+                disabled={uploading}
+                className={styles.uploadButton}
               >
-                Change Password
+                {uploading ? "Uploading..." : "Save Image"}
               </Button>
             </div>
-          </div>
-
-          <Modal
-            title="Change Password"
-            open={isPasswordModalOpen}
-            onCancel={handleClosePasswordModal}
-            footer={[
-              <Button key="cancel" onClick={handleClosePasswordModal}>
-                Cancel
-              </Button>,
-              <Popconfirm
-                key="confirm"
-                title="Are you sure you want to change your password?"
-                onConfirm={handleConfirmChangePassword}
-                okText="Yes"
-                cancelText="No"
-              >
-                <Button type="primary" loading={loading}>
+            <div className={styles.infoSection}>
+              <h2 className={styles.title}>Personal Information</h2>
+              <div className={styles.info}>
+                <p>
+                  <strong>Full Name:</strong> {user?.fullName || "N/A"}
+                </p>
+                <p>
+                  <strong>Email:</strong> {user?.email}
+                </p>
+                <p>
+                  <strong>Phone Number:</strong> {user?.phoneNumber}
+                </p>
+                <p>
+                  <strong>Role:</strong> {user?.role}
+                </p>
+                <p>
+                  <strong>Gender:</strong> {user?.sex}
+                </p>
+                <p>
+                  <strong>Address:</strong> {user?.address || "N/A"}
+                </p>
+              </div>
+              <div className={styles.buttonGroup}>
+                <Button className={styles.editButton} onClick={handleEdit}>
+                  Edit
+                </Button>
+                <Button
+                  onClick={handleOpenPasswordModal}
+                  className={styles.changePasswordButton}
+                >
                   Change Password
                 </Button>
-              </Popconfirm>,
-            ]}
+              </div>
+            </div>
+
+            <Modal
+              title="Change Password"
+              open={isPasswordModalOpen}
+              onCancel={handleClosePasswordModal}
+              footer={[
+                <Button key="cancel" onClick={handleClosePasswordModal}>
+                  Cancel
+                </Button>,
+                <Popconfirm
+                  key="confirm"
+                  title="Are you sure you want to change your password?"
+                  onConfirm={handleConfirmChangePassword}
+                  okText="Yes"
+                  cancelText="No"
+                >
+                  <Button type="primary" loading={loading}>
+                    Change Password
+                  </Button>
+                </Popconfirm>,
+              ]}
+            >
+              <Form layout="vertical">
+                <Form.Item label="Old Password">
+                  <Input.Password
+                    placeholder="Enter old password"
+                    value={oldPassword}
+                    onChange={(e) => setOldPassword(e.target.value)}
+                  />
+                </Form.Item>
+
+                <Form.Item label="New Password">
+                  <Input.Password
+                    placeholder="Enter new password"
+                    value={newPassword}
+                    onChange={(e) => setNewPassword(e.target.value)}
+                  />
+                </Form.Item>
+
+                <Form.Item label="Confirm New Password">
+                  <Input.Password
+                    placeholder="Confirm new password"
+                    value={confirmPassword}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
+                  />
+                </Form.Item>
+              </Form>
+            </Modal>
+          </div>
+          <Modal
+            title="Edit Information"
+            open={isModalOpen}
+            onOk={handleSave}
+            onCancel={handleCancel}
+            okText="Save"
+            cancelText="Cancel"
           >
-            <Form layout="vertical">
-              <Form.Item label="Old Password">
-                <Input.Password
-                  placeholder="Enter old password"
-                  value={oldPassword}
-                  onChange={(e) => setOldPassword(e.target.value)}
-                />
-              </Form.Item>
+            <div className={styles.modalContent}>
+              <Row gutter={[16, 16]} align="middle">
+                <Col span={8}>
+                  <label>Full Name</label>
+                </Col>
+                <Col span={16}>
+                  <Input
+                    placeholder="Full Name"
+                    value={editedUser?.fullName || ""}
+                    onChange={(e) =>
+                      setEditedUser({
+                        ...editedUser!,
+                        fullName: e.target.value,
+                      })
+                    }
+                  />
+                </Col>
+              </Row>
 
-              <Form.Item label="New Password">
-                <Input.Password
-                  placeholder="Enter new password"
-                  value={newPassword}
-                  onChange={(e) => setNewPassword(e.target.value)}
-                />
-              </Form.Item>
+              <Row gutter={[16, 16]} align="middle">
+                <Col span={8}>
+                  <label>Phone Number</label>
+                </Col>
+                <Col span={16}>
+                  <Input
+                    placeholder="Phone Number"
+                    value={editedUser?.phoneNumber || ""}
+                    onChange={(e) =>
+                      setEditedUser({
+                        ...editedUser!,
+                        phoneNumber: e.target.value,
+                      })
+                    }
+                  />
+                </Col>
+              </Row>
 
-              <Form.Item label="Confirm New Password">
-                <Input.Password
-                  placeholder="Confirm new password"
-                  value={confirmPassword}
-                  onChange={(e) => setConfirmPassword(e.target.value)}
-                />
-              </Form.Item>
-            </Form>
+              <Row gutter={[16, 16]} align="middle">
+                <Col span={8}>
+                  <label>Gender</label>
+                </Col>
+                <Col span={16}>
+                  <Select
+                    placeholder="Select Gender"
+                    value={editedUser?.sex || ""}
+                    onChange={(value) =>
+                      setEditedUser({ ...editedUser!, sex: value })
+                    }
+                    style={{ width: "100%" }}
+                  >
+                    <Select.Option value="Male">Male</Select.Option>
+                    <Select.Option value="Female">Female</Select.Option>
+                  </Select>
+                </Col>
+              </Row>
+
+              <Row gutter={[16, 16]} align="middle">
+                <Col span={8}>
+                  <label>Address</label>
+                </Col>
+                <Col span={16}>
+                  <Input
+                    placeholder="Address"
+                    value={editedUser?.address || ""}
+                    onChange={(e) =>
+                      setEditedUser({ ...editedUser!, address: e.target.value })
+                    }
+                  />
+                </Col>
+              </Row>
+            </div>
           </Modal>
         </div>
-        <Modal
-          title="Edit Information"
-          open={isModalOpen}
-          onOk={handleSave}
-          onCancel={handleCancel}
-          okText="Save"
-          cancelText="Cancel"
-        >
-          <div className={styles.modalContent}>
-            <Row gutter={[16, 16]} align="middle">
-              <Col span={8}>
-                <label>Full Name</label>
-              </Col>
-              <Col span={16}>
-                <Input
-                  placeholder="Full Name"
-                  value={editedUser?.fullName || ""}
-                  onChange={(e) =>
-                    setEditedUser({ ...editedUser!, fullName: e.target.value })
-                  }
-                />
-              </Col>
-            </Row>
-
-            <Row gutter={[16, 16]} align="middle">
-              <Col span={8}>
-                <label>Phone Number</label>
-              </Col>
-              <Col span={16}>
-                <Input
-                  placeholder="Phone Number"
-                  value={editedUser?.phoneNumber || ""}
-                  onChange={(e) =>
-                    setEditedUser({
-                      ...editedUser!,
-                      phoneNumber: e.target.value,
-                    })
-                  }
-                />
-              </Col>
-            </Row>
-
-            <Row gutter={[16, 16]} align="middle">
-              <Col span={8}>
-                <label>Gender</label>
-              </Col>
-              <Col span={16}>
-                <Select
-                  placeholder="Select Gender"
-                  value={editedUser?.sex || ""}
-                  onChange={(value) =>
-                    setEditedUser({ ...editedUser!, sex: value })
-                  }
-                  style={{ width: "100%" }}
-                >
-                  <Select.Option value="Male">Male</Select.Option>
-                  <Select.Option value="Female">Female</Select.Option>
-                </Select>
-              </Col>
-            </Row>
-
-            <Row gutter={[16, 16]} align="middle">
-              <Col span={8}>
-                <label>Address</label>
-              </Col>
-              <Col span={16}>
-                <Input
-                  placeholder="Address"
-                  value={editedUser?.address || ""}
-                  onChange={(e) =>
-                    setEditedUser({ ...editedUser!, address: e.target.value })
-                  }
-                />
-              </Col>
-            </Row>
-          </div>
-        </Modal>
-      </div>
-    </LayoutComponent>
+      </LayoutComponent>
+    </ProtectedRoute>
   );
 }
 

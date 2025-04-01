@@ -76,7 +76,7 @@ function SelectStaff() {
               ))}
             </div>
 
-            {/* <div className="flex justify-center">
+            <div className="flex justify-center">
               <Button
                 className={cn(
                   "py-4 px-12 rounded-full text-white text-lg font-bold flex items-center gap-3 transition-all",
@@ -86,56 +86,27 @@ function SelectStaff() {
                 )}
                 disabled={!selected}
                 onClick={() => {
-                  if (!tripId && !requestId) return;
+                  if (!tripId && !requestId && !tourId) return;
+
+                  const baseParams = [];
+                  if (tripId) baseParams.push(`tripId=${tripId}`);
+                  if (requestId) baseParams.push(`requestId=${requestId}`);
+                  if (tourId) baseParams.push(`tourId=${tourId}`);
+                  if (consultant) baseParams.push(`customize=true`);
 
                   const url =
                     selected === "sale"
-                      ? `/manager/selectStaff/sales?${
-                          tripId ? `tripId=${tripId}` : `requestId=${requestId}`
-                        }`
-                      : `/manager/selectStaff/consultants?tripId=${tripId}${
-                          consultant ? "&customize=true" : ""
-                        }`;
+                      ? `/manager/selectStaff/sales?${baseParams.join("&")}`
+                      : `/manager/selectStaff/consultants?${baseParams.join(
+                          "&"
+                        )}`;
 
                   router.push(url);
                 }}
               >
-                <div className="text-5xl text-blue-500">{staff.icon}</div>
-                <span className="font-semibold text-xl">{staff.label}</span>
-              </Card>
-            ))} */}
-          </div>
-
-          <div className="flex justify-center">
-            <Button
-              className={cn(
-                "py-4 px-12 rounded-full text-white text-lg font-bold flex items-center gap-3 transition-all",
-                selected
-                  ? "bg-gradient-to-r from-blue-600 to-indigo-500 hover:brightness-125 shadow-lg shadow-blue-400 hover:scale-110 ring-2 ring-blue-500"
-                  : "bg-gray-300 cursor-not-allowed"
-              )}
-              disabled={!selected}
-              onClick={() => {
-                if (!tripId && !requestId && !tourId) return;
-
-                const baseParams = [];
-                if (tripId) baseParams.push(`tripId=${tripId}`);
-                if (requestId) baseParams.push(`requestId=${requestId}`);
-                if (tourId) baseParams.push(`tourId=${tourId}`);
-                if (consultant) baseParams.push(`customize=true`);
-
-                const url =
-                  selected === "sale"
-                    ? `/manager/selectStaff/sales?${baseParams.join("&")}`
-                    : `/manager/selectStaff/consultants?${baseParams.join(
-                        "&"
-                      )}`;
-
-                router.push(url);
-              }}
-            >
-              🚀 Continue
-            </Button>
+                🚀 Continue
+              </Button>
+            </div>
           </div>
         </div>
       </ManagerLayout>

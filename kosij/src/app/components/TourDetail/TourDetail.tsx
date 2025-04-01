@@ -2,11 +2,13 @@
 "use client";
 import Image from "next/image";
 import React, { useState } from "react";
-import { Card, Collapse, Tag, DatePicker, Button } from "antd";
+import { Card, Collapse, Tag, DatePicker, Button, Popconfirm } from "antd";
 import { CalendarOutlined, EyeOutlined } from "@ant-design/icons";
 import dayjs from "dayjs";
 import { TourData } from "@/model/TourData";
 import { useRouter } from "next/navigation";
+import api from "@/config/axios.config";
+import { toast } from "react-toastify";
 const { Panel } = Collapse;
 const { RangePicker } = DatePicker;
 
@@ -28,6 +30,18 @@ const TourDetail = ({ data }: { data: TourData }) => {
       (trip) => trip.departureDate >= start && trip.departureDate <= end
     );
     setFilteredTrips(filtered);
+  };
+  const handleDelete = async (id: string) => {
+    try {
+      await api.delete(`/tour/${id}`);
+      toast.success("The tour has been successfully deleted!");
+      router.push("/manager/tours");
+    } catch (error: any) {
+      const errorMessage =
+        error.response?.data?.message || "Failed to delete the tour!";
+      toast.error(errorMessage);
+      console.error("Error deleting tour:", error);
+    }
   };
 
   return (
@@ -245,12 +259,26 @@ const TourDetail = ({ data }: { data: TourData }) => {
         </Button>
 
         {data.numberOfTrips === 0 && (
-          <Button
-            type="primary"
-            onClick={() => router.push(`/manager/tours/update/${data.id}`)}
-          >
-            Update
-          </Button>
+          <>
+            <Button
+              type="primary"
+              onClick={() => router.push(`/manager/tours/update/${data.id}`)}
+            >
+              Update
+            </Button>
+            <Popconfirm
+              title="Are you sure?"
+              description="Do you really want to delete this tour? This action cannot be undone."
+              okText="Yes, delete it"
+              cancelText="Cancel"
+              onConfirm={() => handleDelete(data.id)}
+              okType="danger"
+            >
+              <Button type="default" danger>
+                Delete
+              </Button>
+            </Popconfirm>
+          </>
         )}
       </div>
     </div>

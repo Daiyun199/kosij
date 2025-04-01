@@ -111,13 +111,6 @@ function Page() {
           >
             Add Trip
           </Button>
-          <Button
-            type="primary"
-            danger
-            onClick={() => console.log("Delete:", record)}
-          >
-            Delete
-          </Button>
         </div>
       ),
     },

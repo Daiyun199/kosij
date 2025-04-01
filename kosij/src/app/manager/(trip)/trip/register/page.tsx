@@ -90,8 +90,7 @@ const CreateTripPage: React.FC = () => {
 
   const handleChange = (name: string, value: any) => {
     if (name === "departureDate") {
-      const date = new Date(value);
-      value = date.toISOString();
+      value = value;
     } else if (
       name === "minGroupSize" ||
       name === "maxGroupSize" ||
@@ -108,7 +107,19 @@ const CreateTripPage: React.FC = () => {
 
   const handleSubmit = async () => {
     try {
-      const response = await api.post("trip/scheduled", tripData);
+      const departureDate = new Date(tripData.departureDate);
+
+      const timezoneOffset = departureDate.getTimezoneOffset() * 60000;
+
+      const adjustedDate = new Date(departureDate.getTime() - timezoneOffset);
+      const isoStringWithLocalTimezone = adjustedDate.toISOString();
+
+      const dataToSend = {
+        ...tripData,
+        departureDate: isoStringWithLocalTimezone,
+      };
+
+      const response = await api.post("trip/scheduled", dataToSend);
       console.log("Trip Created:", response.data);
       toast.success("Trip created successfully!");
       setErrors({});
@@ -121,8 +132,8 @@ const CreateTripPage: React.FC = () => {
       });
     } catch (error: any) {
       console.error("Error creating trip:", error);
-      if (error.response?.data?.errors) {
-        setErrors(error.response.data.errors);
+      if (error.response?.data?.value) {
+        toast.error(error.response?.data?.value);
       } else {
         toast.error("Failed to create trip.");
       }

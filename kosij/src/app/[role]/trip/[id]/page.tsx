@@ -9,6 +9,7 @@ import { Button, Empty } from "antd";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
 
 import React, { useEffect, useState } from "react";
+import { toast } from "react-toastify";
 
 function Page() {
   const params = useParams() as { id: string };
@@ -153,6 +154,18 @@ function Page() {
   const handleSelectStaff = () => {
     router.push(`/manager/selectStaff?tripId=${id}&tourId=${tourId}`);
   };
+  const handleDeleteTrip = async () => {
+    try {
+      await api.delete(`/trip/${id}`);
+      toast.success("The trip has been successfully deleted!");
+      router.push(`/manager/tours/${tourId}`);
+    } catch (error: any) {
+      const errorMessage =
+        error.response?.data?.message || "Failed to delete the tour!";
+      toast.error(errorMessage);
+      console.error("Error deleting tour:", error);
+    }
+  };
   if (loading) return <p>Loading...</p>;
 
   if (!tripData) {
@@ -172,6 +185,7 @@ function Page() {
         <div className="flex justify-between items-center mt-4 pl-6 pr-6">
           <Button
             size="large"
+            className="h-10"
             onClick={() =>
               router.push(
                 role === "sale"
@@ -182,9 +196,27 @@ function Page() {
           >
             Back
           </Button>
+
           {role === "manager" && tripData.tripType !== "Customized" && (
-            <Button type="primary" size="large" onClick={handleSelectStaff}>
+            <Button
+              type="primary"
+              size="large"
+              className="h-10"
+              onClick={handleSelectStaff}
+            >
               Assign
+            </Button>
+          )}
+
+          {tripData.customers.length === 0 && (
+            <Button
+              type="default"
+              danger
+              size="large"
+              className="h-10"
+              onClick={handleDeleteTrip}
+            >
+              Delete
             </Button>
           )}
         </div>

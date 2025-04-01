@@ -7,6 +7,7 @@ import { cn } from "@/lib/utils";
 import { useRouter } from "next/navigation";
 import ManagerLayout from "@/app/components/ManagerLayout/ManagerLayout";
 import { MapPinned, ShoppingCart } from "lucide-react";
+import ProtectedRoute from "@/app/ProtectedRoute";
 
 const staffOptions = [
   {
@@ -44,70 +45,72 @@ function SelectStaff() {
       : staffOptions;
 
   return (
-    <ManagerLayout title="Select Staff">
-      <div className="flex justify-center items-center min-h-screen bg-gray-100">
-        <div className="bg-white p-12 rounded-2xl shadow-2xl w-[800px] h-[650px] flex flex-col justify-between text-center">
-          <div>
-            <h2 className="text-4xl font-bold text-gray-800">
-              Please select the staff
-            </h2>
-            <p className="text-gray-500 text-base mt-3">
-              Select staff to assign to a trip
-            </p>
-          </div>
+    <ProtectedRoute allowedRoles={["manager"]}>
+      <ManagerLayout title="Select Staff">
+        <div className="flex justify-center items-center min-h-screen bg-gray-100">
+          <div className="bg-white p-12 rounded-2xl shadow-2xl w-[800px] h-[650px] flex flex-col justify-between text-center">
+            <div>
+              <h2 className="text-4xl font-bold text-gray-800">
+                Please select the staff
+              </h2>
+              <p className="text-gray-500 text-base mt-3">
+                Select staff to assign to a trip
+              </p>
+            </div>
 
-          <div className="flex justify-center gap-10">
-            {filteredStaffOptions.map((staff) => (
-              <Card
-                key={staff.id}
+            <div className="flex justify-center gap-10">
+              {filteredStaffOptions.map((staff) => (
+                <Card
+                  key={staff.id}
+                  className={cn(
+                    "p-8 border rounded-xl cursor-pointer w-[220px] flex flex-col items-center gap-5 transition-all hover:scale-105",
+                    selected === staff.id
+                      ? "border-blue-500 bg-blue-100 shadow-md"
+                      : "border-gray-300 bg-gray-50"
+                  )}
+                  onClick={() => setSelected(staff.id)}
+                >
+                  <div className="text-5xl text-blue-500">{staff.icon}</div>
+                  <span className="font-semibold text-xl">{staff.label}</span>
+                </Card>
+              ))}
+            </div>
+
+            <div className="flex justify-center">
+              <Button
                 className={cn(
-                  "p-8 border rounded-xl cursor-pointer w-[220px] flex flex-col items-center gap-5 transition-all hover:scale-105",
-                  selected === staff.id
-                    ? "border-blue-500 bg-blue-100 shadow-md"
-                    : "border-gray-300 bg-gray-50"
+                  "py-4 px-12 rounded-full text-white text-lg font-bold flex items-center gap-3 transition-all",
+                  selected
+                    ? "bg-gradient-to-r from-blue-600 to-indigo-500 hover:brightness-125 shadow-lg shadow-blue-400 hover:scale-110 ring-2 ring-blue-500"
+                    : "bg-gray-300 cursor-not-allowed"
                 )}
-                onClick={() => setSelected(staff.id)}
+                disabled={!selected}
+                onClick={() => {
+                  if (!tripId && !requestId && !tourId) return;
+
+                  const baseParams = [];
+                  if (tripId) baseParams.push(`tripId=${tripId}`);
+                  if (requestId) baseParams.push(`requestId=${requestId}`);
+                  if (tourId) baseParams.push(`tourId=${tourId}`);
+                  if (consultant) baseParams.push(`customize=true`);
+
+                  const url =
+                    selected === "sale"
+                      ? `/manager/selectStaff/sales?${baseParams.join("&")}`
+                      : `/manager/selectStaff/consultants?${baseParams.join(
+                          "&"
+                        )}`;
+
+                  router.push(url);
+                }}
               >
-                <div className="text-5xl text-blue-500">{staff.icon}</div>
-                <span className="font-semibold text-xl">{staff.label}</span>
-              </Card>
-            ))}
-          </div>
-
-          <div className="flex justify-center">
-            <Button
-              className={cn(
-                "py-4 px-12 rounded-full text-white text-lg font-bold flex items-center gap-3 transition-all",
-                selected
-                  ? "bg-gradient-to-r from-blue-600 to-indigo-500 hover:brightness-125 shadow-lg shadow-blue-400 hover:scale-110 ring-2 ring-blue-500"
-                  : "bg-gray-300 cursor-not-allowed"
-              )}
-              disabled={!selected}
-              onClick={() => {
-                if (!tripId && !requestId && !tourId) return;
-
-                const baseParams = [];
-                if (tripId) baseParams.push(`tripId=${tripId}`);
-                if (requestId) baseParams.push(`requestId=${requestId}`);
-                if (tourId) baseParams.push(`tourId=${tourId}`);
-                if (consultant) baseParams.push(`customize=true`);
-
-                const url =
-                  selected === "sale"
-                    ? `/manager/selectStaff/sales?${baseParams.join("&")}`
-                    : `/manager/selectStaff/consultants?${baseParams.join(
-                        "&"
-                      )}`;
-
-                router.push(url);
-              }}
-            >
-              🚀 Continue
-            </Button>
+                🚀 Continue
+              </Button>
+            </div>
           </div>
         </div>
-      </div>
-    </ManagerLayout>
+      </ManagerLayout>
+    </ProtectedRoute>
   );
 }
 export default SelectStaff;

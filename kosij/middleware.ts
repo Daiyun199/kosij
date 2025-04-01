@@ -1,20 +1,18 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextResponse } from "next/server";
+import { NextRequest } from "next/server";
 
-// Define protected routes with roles
-const protectedRoutes = ['/farmbreeder', '/manager', '/salesstaff'];
+export function middleware(request: NextRequest) {
+  const token = request.cookies.get("token");
+  const url = request.url;
 
-export function middleware(req: NextRequest) {
-  const token = req.cookies.get("authToken")?.value;
-  const userRole = req.cookies.get("userRole")?.value;
+  if (!token && !url.includes("/login")) {
+    return NextResponse.redirect(new URL("/login", url));
+  }
 
-  // Check if the user is trying to access a protected route
-  const isProtectedRoute = protectedRoutes.some(path => req.nextUrl.pathname.startsWith(path));
+  const userRole = request.cookies.get("userRole")?.value;
 
-  // If the route is protected but the token or role is invalid, redirect to login
-  if (isProtectedRoute) {
-    if (!token || !userRole || !["manager", "salesstaff", "farmbreeder"].includes(userRole)) {
-      return NextResponse.redirect(new URL("/login", req.url));
-    }
+  if (userRole !== "farmbreeder" && url.includes("/farmbreeder")) {
+    return NextResponse.redirect(new URL("/login", url));
   }
 
   return NextResponse.next();

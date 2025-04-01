@@ -8,6 +8,7 @@ import { useRef } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { getCurrentFarmTrips } from "@/features/farmbreeder/api/trip/all.api";
 import { Tag } from "antd";
+import ProtectedRoute from "@/app/ProtectedRoute";
 
 type TripItem = {
   id: number;
@@ -137,21 +138,23 @@ export default function Page() {
   }
 
   return (
-    <PageContainer title="Trip Tracking List">
-      <section className="mt-5">
-        <ProTable<TripItem>
-          columns={columns}
-          actionRef={actionRef}
-          dataSource={data}
-          cardBordered
-          loading={isLoading}
-          search={false}
-          pagination={{
-            pageSize: 10,
-            showTotal: (total) => `Total ${total} record(s)`,
-          }}
-        />
-      </section>
-    </PageContainer>
+    <ProtectedRoute allowedRoles={["farmbreeder"]}>
+      <PageContainer title="Trip Tracking List">
+        <section className="mt-5">
+          <ProTable<TripItem>
+            columns={columns}
+            actionRef={actionRef}
+            dataSource={data}
+            cardBordered
+            loading={isLoading}
+            search={false}
+            pagination={{
+              pageSize: 10,
+              showTotal: (total) => `Total ${total} record(s)`,
+            }}
+          />
+        </section>
+      </PageContainer>
+    </ProtectedRoute>
   );
 }

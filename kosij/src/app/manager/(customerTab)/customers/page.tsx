@@ -8,6 +8,7 @@ import api from "@/config/axios.config";
 import { Customer } from "@/model/Customer";
 import SearchBar from "@/app/components/SearchBar/SearchBar";
 import isBetween from "dayjs/plugin/isBetween";
+import ProtectedRoute from "@/app/ProtectedRoute";
 
 dayjs.extend(isBetween);
 
@@ -129,28 +130,30 @@ function Page() {
   ];
 
   return (
-    <ManagerLayout title="Customer List">
-      <div style={{ display: "flex", gap: "16px", marginBottom: "16px" }}>
-        <SearchBar
-          value={searchValue}
-          onChange={(e) => setSearchValue(e.target.value)}
-        />
-        <DatePicker.RangePicker
-          onChange={(dates) =>
-            setDateRange(dates as [dayjs.Dayjs | null, dayjs.Dayjs | null])
-          }
-        />
-      </div>
+    <ProtectedRoute allowedRoles={["manager"]}>
+      <ManagerLayout title="Customer List">
+        <div style={{ display: "flex", gap: "16px", marginBottom: "16px" }}>
+          <SearchBar
+            value={searchValue}
+            onChange={(e) => setSearchValue(e.target.value)}
+          />
+          <DatePicker.RangePicker
+            onChange={(dates) =>
+              setDateRange(dates as [dayjs.Dayjs | null, dayjs.Dayjs | null])
+            }
+          />
+        </div>
 
-      <Table
-        columns={customerColumns}
-        dataSource={filteredData}
-        rowKey="accountId"
-        loading={loading}
-        bordered
-        pagination={{ pageSize: 5 }}
-      />
-    </ManagerLayout>
+        <Table
+          columns={customerColumns}
+          dataSource={filteredData}
+          rowKey="accountId"
+          loading={loading}
+          bordered
+          pagination={{ pageSize: 5 }}
+        />
+      </ManagerLayout>
+    </ProtectedRoute>
   );
 }
 

@@ -7,6 +7,7 @@ import ManagerLayout from "@/app/components/ManagerLayout/ManagerLayout";
 import dayjs from "dayjs";
 import { Select, DatePicker } from "antd";
 import api from "@/config/axios.config";
+import ProtectedRoute from "@/app/ProtectedRoute";
 
 const { Option } = Select;
 
@@ -201,63 +202,65 @@ function Page() {
   }, [selectedTime, selectedValue]);
 
   return (
-    <ManagerLayout title="Tour Dashboard">
-      <div className="p-6 bg-gray-100 min-h-screen">
-        <div className="flex items-center space-x-4 mb-4">
-          <Select
-            value={selectedTime}
-            onChange={handleTimeChange}
-            style={{ width: 120 }}
-          >
-            <Option value="day">Ngày</Option>
-            <Option value="month">Tháng</Option>
-            <Option value="year">Năm</Option>
-          </Select>
+    <ProtectedRoute allowedRoles={["manager"]}>
+      <ManagerLayout title="Tour Dashboard">
+        <div className="p-6 bg-gray-100 min-h-screen">
+          <div className="flex items-center space-x-4 mb-4">
+            <Select
+              value={selectedTime}
+              onChange={handleTimeChange}
+              style={{ width: 120 }}
+            >
+              <Option value="day">Ngày</Option>
+              <Option value="month">Tháng</Option>
+              <Option value="year">Năm</Option>
+            </Select>
 
-          {selectedTime === "day" && (
-            <DatePicker
-              value={dayjs(selectedValue)}
-              onChange={handleDateChange}
-            />
-          )}
-          {selectedTime === "month" && (
-            <DatePicker
-              picker="month"
-              value={dayjs(selectedValue)}
-              onChange={handleMonthChange}
-            />
-          )}
-          {selectedTime === "year" && (
-            <DatePicker
-              picker="year"
-              value={dayjs(selectedValue)}
-              onChange={handleYearChange}
+            {selectedTime === "day" && (
+              <DatePicker
+                value={dayjs(selectedValue)}
+                onChange={handleDateChange}
+              />
+            )}
+            {selectedTime === "month" && (
+              <DatePicker
+                picker="month"
+                value={dayjs(selectedValue)}
+                onChange={handleMonthChange}
+              />
+            )}
+            {selectedTime === "year" && (
+              <DatePicker
+                picker="year"
+                value={dayjs(selectedValue)}
+                onChange={handleYearChange}
+              />
+            )}
+          </div>
+
+          {loading ? (
+            <p>Loading...</p>
+          ) : (
+            <Dashboard
+              title="Dashboard Overview"
+              metricsData={metricsData}
+              selectedTime={selectedTime}
+              chartData={chartData}
+              chartOptions={{
+                responsive: true,
+                plugins: {
+                  legend: { position: "top" },
+                  title: {
+                    display: true,
+                    text: "Tour Booking and Revenue Overview",
+                  },
+                },
+              }}
             />
           )}
         </div>
-
-        {loading ? (
-          <p>Loading...</p>
-        ) : (
-          <Dashboard
-            title="Dashboard Overview"
-            metricsData={metricsData}
-            selectedTime={selectedTime}
-            chartData={chartData}
-            chartOptions={{
-              responsive: true,
-              plugins: {
-                legend: { position: "top" },
-                title: {
-                  display: true,
-                  text: "Tour Booking and Revenue Overview",
-                },
-              },
-            }}
-          />
-        )}
-      </div>
-    </ManagerLayout>
+      </ManagerLayout>
+    </ProtectedRoute>
   );
 }
 

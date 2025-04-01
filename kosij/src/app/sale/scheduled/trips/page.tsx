@@ -7,6 +7,7 @@ import React, { useEffect, useState } from "react";
 import type { ColumnsType } from "antd/es/table";
 import api from "@/config/axios.config";
 import SaleStaffLayout from "@/app/components/SaleStaffLayout/SaleStaffLayout";
+import ProtectedRoute from "@/app/ProtectedRoute";
 
 interface Trip {
   key: string;
@@ -115,19 +116,21 @@ function Page() {
   ];
 
   return (
-    <SaleStaffLayout title="Trip List">
-      {loading ? (
-        <div className="flex justify-center items-center min-h-screen">
-          <Spin size="large" />
-        </div>
-      ) : (
-        <Table
-          columns={tripColumns}
-          dataSource={tripData}
-          pagination={{ pageSize: 5 }}
-        />
-      )}
-    </SaleStaffLayout>
+    <ProtectedRoute allowedRoles={["salesstaff"]}>
+      <SaleStaffLayout title="Trip List">
+        {loading ? (
+          <div className="flex justify-center items-center min-h-screen">
+            <Spin size="large" />
+          </div>
+        ) : (
+          <Table
+            columns={tripColumns}
+            dataSource={tripData}
+            pagination={{ pageSize: 5 }}
+          />
+        )}
+      </SaleStaffLayout>
+    </ProtectedRoute>
   );
 }
 

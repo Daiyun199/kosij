@@ -4,6 +4,7 @@ import React, { useState } from "react";
 import Dashboard from "@/app/components/Dashboard/Dashboard";
 import ManagerLayout from "@/app/components/ManagerLayout/ManagerLayout";
 import TimeFilter from "@/app/components/TimeFilter/TimeFilter";
+import ProtectedRoute from "@/app/ProtectedRoute";
 
 function Page() {
   const metrics = [
@@ -90,8 +91,9 @@ function Page() {
   };
 
   return (
-    <div>
-      {/* <ManagerLayout title="Finance">
+    <ProtectedRoute allowedRoles={["manager"]}>
+      <div>
+        {/* <ManagerLayout title="Finance">
         <div className="p-6 bg-gray-100 min-h-screen">
           <TimeFilter onChange={handleTimeChange} />
           <Dashboard
@@ -102,7 +104,8 @@ function Page() {
           />
         </div>
       </ManagerLayout> */}
-    </div>
+      </div>
+    </ProtectedRoute>
   );
 }
 

@@ -6,13 +6,13 @@ import { AppProps } from "next/app";
 import { useRef } from "react";
 import "@/styles/globals.css";
 import Head from "next/head";
-import { AuthProvider } from "./AuthProvider";
+// import { AuthProvider } from "./AuthProvider";
 
 export default function MyApp({ Component, pageProps }: AppProps) {
   const queryClientRef = useRef(new QueryClient());
 
   return (
-    <AuthProvider>
+    // <AuthProvider>
       <QueryClientProvider client={queryClientRef.current}>
         <ConfigProvider>
           <App>
@@ -23,6 +23,6 @@ export default function MyApp({ Component, pageProps }: AppProps) {
           </App>
         </ConfigProvider>
       </QueryClientProvider>
-    </AuthProvider>
+    // </AuthProvider>
   );
 }

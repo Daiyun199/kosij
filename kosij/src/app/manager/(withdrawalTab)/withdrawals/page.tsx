@@ -16,6 +16,7 @@ import type { ColumnsType } from "antd/es/table";
 import api from "@/config/axios.config";
 import { toast } from "react-toastify";
 import ManagerLayout from "@/app/components/ManagerLayout/ManagerLayout";
+import ProtectedRoute from "@/app/ProtectedRoute";
 
 interface Withdrawal {
   id: number;
@@ -211,100 +212,104 @@ const WithdrawalsTable: React.FC = () => {
   ];
 
   return (
-    <ManagerLayout title="Withdrawals">
-      <Table
-        columns={columns}
-        dataSource={data}
-        loading={loading}
-        rowKey="id"
-        pagination={{ pageSize: 5 }}
-      />
-
-      <Modal
-        title="Deny Withdrawal"
-        open={denyModalVisible}
-        onCancel={() => setDenyModalVisible(false)}
-        footer={[
-          <Button key="cancel" onClick={() => setDenyModalVisible(false)}>
-            Cancel
-          </Button>,
-          <Popconfirm
-            key="confirm"
-            title="Are you sure you want to deny this withdrawal?"
-            onConfirm={handleConfirmDeny}
-            okText="Yes"
-            cancelText="No"
-          >
-            <Button danger>Confirm Denial</Button>
-          </Popconfirm>,
-        ]}
-      >
-        <Input.TextArea
-          rows={4}
-          placeholder="Enter reason for denial (max 100 characters)"
-          value={deniedReason}
-          onChange={(e) => setDeniedReason(e.target.value)}
-          maxLength={100}
-          showCount
+    <ProtectedRoute allowedRoles={["manager"]}>
+      <ManagerLayout title="Withdrawals">
+        <Table
+          columns={columns}
+          dataSource={data}
+          loading={loading}
+          rowKey="id"
+          pagination={{ pageSize: 5 }}
         />
-      </Modal>
 
-      <Modal
-        title="Withdrawal Details"
-        open={detailModalVisible}
-        onCancel={() => setDetailModalVisible(false)}
-        footer={[
-          <Button key="close" onClick={() => setDetailModalVisible(false)}>
-            Close
-          </Button>,
-        ]}
-        width={700}
-      >
-        {selectedWithdrawal && (
-          <Descriptions bordered column={1}>
-            <Descriptions.Item label="ID">
-              {selectedWithdrawal.id}
-            </Descriptions.Item>
-            <Descriptions.Item label="Wallet ID">
-              {selectedWithdrawal.walletId}
-            </Descriptions.Item>
-            <Descriptions.Item label="Amount">
-              {new Intl.NumberFormat("vi-VN").format(selectedWithdrawal.amount)}{" "}
-              VND
-            </Descriptions.Item>
-            <Descriptions.Item label="Bank Name">
-              {selectedWithdrawal.bankName}
-            </Descriptions.Item>
-            <Descriptions.Item label="Bank Number">
-              {selectedWithdrawal.bankNumber}
-            </Descriptions.Item>
-            <Descriptions.Item label="Holder Name">
-              {selectedWithdrawal.holderName}
-            </Descriptions.Item>
-            <Descriptions.Item label="Status">
-              <Tag
-                color={
-                  selectedWithdrawal.withdrawStatus === "Pending"
-                    ? "orange"
-                    : selectedWithdrawal.withdrawStatus === "Canceled"
-                    ? "volcano"
-                    : selectedWithdrawal.withdrawStatus === "Success"
-                    ? "green"
-                    : selectedWithdrawal.withdrawStatus === "Failed"
-                    ? "red"
-                    : "default"
-                }
-              >
-                {selectedWithdrawal.withdrawStatus}
-              </Tag>
-            </Descriptions.Item>
-            <Descriptions.Item label="Denial Reason">
-              {selectedWithdrawal.deniedReason || "-"}
-            </Descriptions.Item>
-          </Descriptions>
-        )}
-      </Modal>
-    </ManagerLayout>
+        <Modal
+          title="Deny Withdrawal"
+          open={denyModalVisible}
+          onCancel={() => setDenyModalVisible(false)}
+          footer={[
+            <Button key="cancel" onClick={() => setDenyModalVisible(false)}>
+              Cancel
+            </Button>,
+            <Popconfirm
+              key="confirm"
+              title="Are you sure you want to deny this withdrawal?"
+              onConfirm={handleConfirmDeny}
+              okText="Yes"
+              cancelText="No"
+            >
+              <Button danger>Confirm Denial</Button>
+            </Popconfirm>,
+          ]}
+        >
+          <Input.TextArea
+            rows={4}
+            placeholder="Enter reason for denial (max 100 characters)"
+            value={deniedReason}
+            onChange={(e) => setDeniedReason(e.target.value)}
+            maxLength={100}
+            showCount
+          />
+        </Modal>
+
+        <Modal
+          title="Withdrawal Details"
+          open={detailModalVisible}
+          onCancel={() => setDetailModalVisible(false)}
+          footer={[
+            <Button key="close" onClick={() => setDetailModalVisible(false)}>
+              Close
+            </Button>,
+          ]}
+          width={700}
+        >
+          {selectedWithdrawal && (
+            <Descriptions bordered column={1}>
+              <Descriptions.Item label="ID">
+                {selectedWithdrawal.id}
+              </Descriptions.Item>
+              <Descriptions.Item label="Wallet ID">
+                {selectedWithdrawal.walletId}
+              </Descriptions.Item>
+              <Descriptions.Item label="Amount">
+                {new Intl.NumberFormat("vi-VN").format(
+                  selectedWithdrawal.amount
+                )}{" "}
+                VND
+              </Descriptions.Item>
+              <Descriptions.Item label="Bank Name">
+                {selectedWithdrawal.bankName}
+              </Descriptions.Item>
+              <Descriptions.Item label="Bank Number">
+                {selectedWithdrawal.bankNumber}
+              </Descriptions.Item>
+              <Descriptions.Item label="Holder Name">
+                {selectedWithdrawal.holderName}
+              </Descriptions.Item>
+              <Descriptions.Item label="Status">
+                <Tag
+                  color={
+                    selectedWithdrawal.withdrawStatus === "Pending"
+                      ? "orange"
+                      : selectedWithdrawal.withdrawStatus === "Canceled"
+                      ? "volcano"
+                      : selectedWithdrawal.withdrawStatus === "Success"
+                      ? "green"
+                      : selectedWithdrawal.withdrawStatus === "Failed"
+                      ? "red"
+                      : "default"
+                  }
+                >
+                  {selectedWithdrawal.withdrawStatus}
+                </Tag>
+              </Descriptions.Item>
+              <Descriptions.Item label="Denial Reason">
+                {selectedWithdrawal.deniedReason || "-"}
+              </Descriptions.Item>
+            </Descriptions>
+          )}
+        </Modal>
+      </ManagerLayout>
+    </ProtectedRoute>
   );
 };
 

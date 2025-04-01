@@ -6,6 +6,7 @@ import CreateTourStep2 from "./tourCreateStep2";
 import CreateTourStep1 from "./tourCreateStep1";
 import CreateTourStep3 from "./tourCreateStep3";
 import CreateTourStep4 from "./tourCreateStep4";
+import ProtectedRoute from "@/app/ProtectedRoute";
 
 export default function CreateTour() {
   const [step, setStep] = useState(1);
@@ -46,41 +47,43 @@ export default function CreateTour() {
   };
 
   return (
-    <div>
-      {step === 1 && (
-        <CreateTourStep1
-          onNext={() => setStep(2)}
-          data={tourData.step1}
-          updateData={(data) => updateStepData("step1", data)}
-        />
-      )}
-      {step === 2 && (
-        <CreateTourStep2
-          onBack={() => setStep(1)}
-          onNext={() => setStep(3)}
-          data={tourData.step2}
-          updateData={(data) => updateStepData("step2", data)}
-          dayStep1={tourData.step1.day}
-        />
-      )}
-      {step === 3 && (
-        <CreateTourStep3
-          onBack={() => setStep(2)}
-          onNext={() => setStep(4)}
-          data={tourData.step3}
-          updateData={(data) => updateStepData("step3", data)}
-        />
-      )}
-      {step === 4 && (
-        <CreateTourStep4
-          onBack={() => setStep(3)}
-          tourData={tourData}
-          formData={tourData.step4}
-          setFormData={(data) => updateStepData("step4", data)}
-          setStep={setStep}
-          resetForm={resetForm}
-        />
-      )}
-    </div>
+    <ProtectedRoute allowedRoles={["manager"]}>
+      <div>
+        {step === 1 && (
+          <CreateTourStep1
+            onNext={() => setStep(2)}
+            data={tourData.step1}
+            updateData={(data) => updateStepData("step1", data)}
+          />
+        )}
+        {step === 2 && (
+          <CreateTourStep2
+            onBack={() => setStep(1)}
+            onNext={() => setStep(3)}
+            data={tourData.step2}
+            updateData={(data) => updateStepData("step2", data)}
+            dayStep1={tourData.step1.day}
+          />
+        )}
+        {step === 3 && (
+          <CreateTourStep3
+            onBack={() => setStep(2)}
+            onNext={() => setStep(4)}
+            data={tourData.step3}
+            updateData={(data) => updateStepData("step3", data)}
+          />
+        )}
+        {step === 4 && (
+          <CreateTourStep4
+            onBack={() => setStep(3)}
+            tourData={tourData}
+            formData={tourData.step4}
+            setFormData={(data) => updateStepData("step4", data)}
+            setStep={setStep}
+            resetForm={resetForm}
+          />
+        )}
+      </div>
+    </ProtectedRoute>
   );
 }

@@ -30,6 +30,7 @@ import { useParams, useRouter } from "next/navigation";
 import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
 import { storage } from "@/config/firebase";
 import { toast } from "react-toastify";
+import ProtectedRoute from "@/app/ProtectedRoute";
 const { TextArea } = Input;
 const { Panel } = Collapse;
 
@@ -313,888 +314,950 @@ const TourUpdatePage: React.FC = () => {
   };
 
   return (
-    <SaleStaffLayout title="Update Tour">
-      <div className="container mx-auto px-4 py-8">
-        <h1 className="text-2xl font-bold mb-6">Update Tour</h1>
+    <ProtectedRoute allowedRoles={["salesstaff"]}>
+      <SaleStaffLayout title="Update Tour">
+        <div className="container mx-auto px-4 py-8">
+          <h1 className="text-2xl font-bold mb-6">Update Tour</h1>
 
-        <Form
-          form={form}
-          layout="vertical"
-          onFinish={onFinish}
-          autoComplete="off"
-          className="bg-white p-6 rounded-lg shadow"
-        >
-          <Card title="Basic Information" className="mb-6">
-            <Row gutter={16}>
-              <Col span={24}>
-                <Form.Item
-                  label="Tour Name"
-                  name="tourName"
-                  rules={[
-                    { required: true, message: "Please enter tour name" },
-                  ]}
-                >
-                  <Input placeholder="Enter tour name" />
-                </Form.Item>
-              </Col>
-            </Row>
+          <Form
+            form={form}
+            layout="vertical"
+            onFinish={onFinish}
+            autoComplete="off"
+            className="bg-white p-6 rounded-lg shadow"
+          >
+            <Card title="Basic Information" className="mb-6">
+              <Row gutter={16}>
+                <Col span={24}>
+                  <Form.Item
+                    label="Tour Name"
+                    name="tourName"
+                    rules={[
+                      { required: true, message: "Please enter tour name" },
+                    ]}
+                  >
+                    <Input placeholder="Enter tour name" />
+                  </Form.Item>
+                </Col>
+              </Row>
 
-            <Row gutter={16}>
-              <Col span={24}>
-                <Form.Item
-                  label="Tour Image"
-                  name="imageUrl"
-                  rules={[
-                    { required: true, message: "Please upload tour image" },
-                  ]}
-                >
-                  <div className="flex flex-col items-center gap-4">
-                    {imageUrl && (
-                      <Image
-                        src={imageUrl}
-                        alt="Tour preview"
-                        width={500}
-                        height="auto"
-                        className="rounded-lg object-cover border shadow-sm"
-                        style={{ maxWidth: "100%", height: "auto" }}
-                      />
-                    )}
-                    <Upload
-                      accept="image/*"
-                      showUploadList={false}
-                      beforeUpload={(file) => {
-                        handleUpload(file);
-                        return false;
-                      }}
-                      className="w-full"
-                    >
-                      <Button
-                        icon={<UploadOutlined />}
-                        loading={uploading}
-                        className="w-full max-w-xs"
-                        size="large"
+              <Row gutter={16}>
+                <Col span={24}>
+                  <Form.Item
+                    label="Tour Image"
+                    name="imageUrl"
+                    rules={[
+                      { required: true, message: "Please upload tour image" },
+                    ]}
+                  >
+                    <div className="flex flex-col items-center gap-4">
+                      {imageUrl && (
+                        <Image
+                          src={imageUrl}
+                          alt="Tour preview"
+                          width={500}
+                          height="auto"
+                          className="rounded-lg object-cover border shadow-sm"
+                          style={{ maxWidth: "100%", height: "auto" }}
+                        />
+                      )}
+                      <Upload
+                        accept="image/*"
+                        showUploadList={false}
+                        beforeUpload={(file) => {
+                          handleUpload(file);
+                          return false;
+                        }}
+                        className="w-full"
                       >
-                        {uploading ? "Uploading..." : "Click to Upload Image"}
-                      </Button>
-                    </Upload>
-                  </div>
-                </Form.Item>
-              </Col>
-            </Row>
+                        <Button
+                          icon={<UploadOutlined />}
+                          loading={uploading}
+                          className="w-full max-w-xs"
+                          size="large"
+                        >
+                          {uploading ? "Uploading..." : "Click to Upload Image"}
+                        </Button>
+                      </Upload>
+                    </div>
+                  </Form.Item>
+                </Col>
+              </Row>
 
-            <Row gutter={16}>
-              <Col span={8}>
-                <Form.Item
-                  label="Number of Nights"
-                  name="nights"
-                  rules={[
-                    {
-                      required: true,
-                      message: "Please enter number of nights",
-                    },
-                  ]}
-                >
-                  <InputNumber min={0} className="w-full" />
-                </Form.Item>
-              </Col>
-              <Col span={8}>
-                <Form.Item
-                  label="Departure Point"
-                  name="departurePoint"
-                  rules={[
-                    { required: true, message: "Please enter departure point" },
-                  ]}
-                >
-                  <Input placeholder="Enter departure point" />
-                </Form.Item>
-              </Col>
-              <Col span={8}>
-                <Form.Item
-                  label="Destination Point"
-                  name="destinationPoint"
-                  rules={[
-                    {
-                      required: true,
-                      message: "Please enter destination point",
-                    },
-                  ]}
-                >
-                  <Input placeholder="Enter destination point" />
-                </Form.Item>
-              </Col>
-            </Row>
-
-            <Row gutter={16}>
-              <Col span={12}>
-                <Form.Item
-                  label="Departure Date & Time"
-                  name="departureDate"
-                  rules={[
-                    { required: true, message: "Please select departure date" },
-                    ({ getFieldValue }) => ({
-                      validator(_, value) {
-                        const minDate = dayjs().add(22, "day").startOf("day");
-                        if (!value || value >= minDate) {
-                          return Promise.resolve();
-                        }
-                        return Promise.reject(
-                          "Departure date must be at least 21 days from today"
-                        );
+              <Row gutter={16}>
+                <Col span={8}>
+                  <Form.Item
+                    label="Number of Nights"
+                    name="nights"
+                    rules={[
+                      {
+                        required: true,
+                        message: "Please enter number of nights",
                       },
-                    }),
-                  ]}
-                >
-                  <DatePicker
-                    showTime
-                    className="w-full"
-                    disabledDate={(current) => {
-                      const minDate = dayjs().add(22, "day").startOf("day");
-                      return current && current < minDate;
-                    }}
-                  />
-                </Form.Item>
-              </Col>
-            </Row>
+                    ]}
+                  >
+                    <InputNumber min={0} className="w-full" />
+                  </Form.Item>
+                </Col>
+                <Col span={8}>
+                  <Form.Item
+                    label="Departure Point"
+                    name="departurePoint"
+                    rules={[
+                      {
+                        required: true,
+                        message: "Please enter departure point",
+                      },
+                    ]}
+                  >
+                    <Input placeholder="Enter departure point" />
+                  </Form.Item>
+                </Col>
+                <Col span={8}>
+                  <Form.Item
+                    label="Destination Point"
+                    name="destinationPoint"
+                    rules={[
+                      {
+                        required: true,
+                        message: "Please enter destination point",
+                      },
+                    ]}
+                  >
+                    <Input placeholder="Enter destination point" />
+                  </Form.Item>
+                </Col>
+              </Row>
 
-            <Row gutter={16}>
-              <Col span={12}>
-                <Form.Item
-                  label="Price Includes"
-                  name="tourPriceInclude"
-                  rules={[
-                    {
-                      required: true,
-                      message: "Please enter what price includes",
-                    },
-                  ]}
-                >
-                  <TextArea rows={3} placeholder="Enter what price includes" />
-                </Form.Item>
-              </Col>
-              <Col span={12}>
-                <Form.Item
-                  label="Price Excludes"
-                  name="tourPriceNotInclude"
-                  rules={[
-                    {
-                      required: true,
-                      message: "Please enter what price excludes",
-                    },
-                  ]}
-                >
-                  <TextArea rows={3} placeholder="Enter what price excludes" />
-                </Form.Item>
-              </Col>
-            </Row>
-          </Card>
-          <Card title="Pricing Information" className="mb-6">
-            <Row gutter={16}>
-              <Col span={8}>
-                <Form.Item
-                  label="Standard Price"
-                  name="standardPrice"
-                  rules={[
-                    { required: true, message: "Please enter standard price" },
-                  ]}
-                >
-                  <InputNumber min={0} className="w-full" />
-                </Form.Item>
-              </Col>
-              <Col span={8}>
-                <Form.Item
-                  label="Visa Fee"
-                  name="visaFee"
-                  rules={[{ required: true, message: "Please enter visa fee" }]}
-                >
-                  <InputNumber min={0} className="w-full" />
-                </Form.Item>
-              </Col>
-              <Col span={8}>
-                <Form.Item
-                  label="Pricing Rate (%)"
-                  name="pricingRate"
-                  rules={[
-                    { required: true, message: "Please enter pricing rate" },
-                  ]}
-                >
-                  <InputNumber min={0} max={100} className="w-full" />
-                </Form.Item>
-              </Col>
-            </Row>
-          </Card>
+              <Row gutter={16}>
+                <Col span={12}>
+                  <Form.Item
+                    label="Departure Date & Time"
+                    name="departureDate"
+                    rules={[
+                      {
+                        required: true,
+                        message: "Please select departure date",
+                      },
+                      ({ getFieldValue }) => ({
+                        validator(_, value) {
+                          const minDate = dayjs().add(22, "day").startOf("day");
+                          if (!value || value >= minDate) {
+                            return Promise.resolve();
+                          }
+                          return Promise.reject(
+                            "Departure date must be at least 21 days from today"
+                          );
+                        },
+                      }),
+                    ]}
+                  >
+                    <DatePicker
+                      showTime
+                      className="w-full"
+                      disabledDate={(current) => {
+                        const minDate = dayjs().add(22, "day").startOf("day");
+                        return current && current < minDate;
+                      }}
+                    />
+                  </Form.Item>
+                </Col>
+              </Row>
 
-          <Collapse className="mb-6" destroyInactivePanel={false}>
-            <Panel header="Tour Itinerary" key="1" forceRender>
-              <Form.List name="tourDetailsRequests">
-                {(fields, { remove }) => (
-                  <div className="space-y-6">
-                    {fields.map(({ key, name, ...restField }) => (
-                      <Card
-                        key={key}
-                        className="shadow-sm"
-                        title={
-                          <div className="flex items-center justify-between">
-                            <span className="font-medium">Day {name + 1}</span>
+              <Row gutter={16}>
+                <Col span={12}>
+                  <Form.Item
+                    label="Price Includes"
+                    name="tourPriceInclude"
+                    rules={[
+                      {
+                        required: true,
+                        message: "Please enter what price includes",
+                      },
+                    ]}
+                  >
+                    <TextArea
+                      rows={3}
+                      placeholder="Enter what price includes"
+                    />
+                  </Form.Item>
+                </Col>
+                <Col span={12}>
+                  <Form.Item
+                    label="Price Excludes"
+                    name="tourPriceNotInclude"
+                    rules={[
+                      {
+                        required: true,
+                        message: "Please enter what price excludes",
+                      },
+                    ]}
+                  >
+                    <TextArea
+                      rows={3}
+                      placeholder="Enter what price excludes"
+                    />
+                  </Form.Item>
+                </Col>
+              </Row>
+            </Card>
+            <Card title="Pricing Information" className="mb-6">
+              <Row gutter={16}>
+                <Col span={8}>
+                  <Form.Item
+                    label="Standard Price"
+                    name="standardPrice"
+                    rules={[
+                      {
+                        required: true,
+                        message: "Please enter standard price",
+                      },
+                    ]}
+                  >
+                    <InputNumber min={0} className="w-full" />
+                  </Form.Item>
+                </Col>
+                <Col span={8}>
+                  <Form.Item
+                    label="Visa Fee"
+                    name="visaFee"
+                    rules={[
+                      { required: true, message: "Please enter visa fee" },
+                    ]}
+                  >
+                    <InputNumber min={0} className="w-full" />
+                  </Form.Item>
+                </Col>
+                <Col span={8}>
+                  <Form.Item
+                    label="Pricing Rate (%)"
+                    name="pricingRate"
+                    rules={[
+                      { required: true, message: "Please enter pricing rate" },
+                    ]}
+                  >
+                    <InputNumber min={0} max={100} className="w-full" />
+                  </Form.Item>
+                </Col>
+              </Row>
+            </Card>
+
+            <Collapse className="mb-6" destroyInactivePanel={false}>
+              <Panel header="Tour Itinerary" key="1" forceRender>
+                <Form.List name="tourDetailsRequests">
+                  {(fields, { remove }) => (
+                    <div className="space-y-6">
+                      {fields.map(({ key, name, ...restField }) => (
+                        <Card
+                          key={key}
+                          className="shadow-sm"
+                          title={
+                            <div className="flex items-center justify-between">
+                              <span className="font-medium">
+                                Day {name + 1}
+                              </span>
+                              <Button
+                                type="text"
+                                danger
+                                icon={<DeleteOutlined />}
+                                onClick={() => remove(name)}
+                                className="hover:bg-red-50"
+                              />
+                            </div>
+                          }
+                        >
+                          <div className="space-y-4">
+                            <Form.Item
+                              {...restField}
+                              name={[name, "itineraryName"]}
+                              label="Itinerary Name"
+                              rules={[
+                                {
+                                  required: true,
+                                  message: "Please enter itinerary name",
+                                },
+                              ]}
+                            >
+                              <Input
+                                placeholder="E.g: Day 1 - Exploring Tokyo"
+                                className="w-full"
+                              />
+                            </Form.Item>
+
+                            <Form.List name={[name, "itineraryDetails"]}>
+                              {(subFields, subOpt) => (
+                                <div className="space-y-4">
+                                  {subFields.map((subField) => (
+                                    <Card
+                                      key={subField.key}
+                                      size="small"
+                                      className="bg-gray-50 border-gray-200"
+                                    >
+                                      <Row gutter={16} align="middle">
+                                        <Col span={6}>
+                                          <Form.Item
+                                            {...restField}
+                                            name={[subField.name, "time"]}
+                                            label="Time"
+                                            rules={[
+                                              {
+                                                required: true,
+                                                message: "Please select time",
+                                              },
+                                              {
+                                                validator: (_, value) => {
+                                                  if (!value)
+                                                    return Promise.resolve();
+
+                                                  const allActivities =
+                                                    form.getFieldValue([
+                                                      "tourDetailsRequests",
+                                                      name,
+                                                      "itineraryDetails",
+                                                    ]);
+
+                                                  const currentIndex =
+                                                    subField.name;
+                                                  const prevActivity =
+                                                    allActivities?.[
+                                                      currentIndex - 1
+                                                    ];
+
+                                                  if (prevActivity?.time) {
+                                                    const prevTime = dayjs(
+                                                      prevActivity.time
+                                                    );
+                                                    const currentTime =
+                                                      dayjs(value);
+
+                                                    if (
+                                                      currentTime.isBefore(
+                                                        prevTime.add(
+                                                          1,
+                                                          "minute"
+                                                        )
+                                                      )
+                                                    ) {
+                                                      return Promise.reject(
+                                                        "Time must be after the previous activity's time"
+                                                      );
+                                                    }
+                                                  }
+
+                                                  return Promise.resolve();
+                                                },
+                                              },
+                                            ]}
+                                          >
+                                            <TimePicker
+                                              format="HH:mm"
+                                              className="w-full"
+                                              placeholder="Select time"
+                                            />
+                                          </Form.Item>
+                                        </Col>
+                                        <Col span={6}>
+                                          <Form.Item
+                                            {...restField}
+                                            name={[subField.name, "farmId"]}
+                                            label="Farm"
+                                            rules={[
+                                              {
+                                                validator: (_, value) => {
+                                                  const selectedFarmIds =
+                                                    getSelectedFarmIds();
+                                                  const currentValue =
+                                                    form.getFieldValue([
+                                                      "tourDetailsRequests",
+                                                      name,
+                                                      "itineraryDetails",
+                                                      subField.name,
+                                                      "farmId",
+                                                    ]);
+
+                                                  if (
+                                                    value &&
+                                                    selectedFarmIds.filter(
+                                                      (id) => id === value
+                                                    ).length > 1
+                                                  ) {
+                                                    return Promise.reject(
+                                                      "This farm has already been selected"
+                                                    );
+                                                  }
+                                                  return Promise.resolve();
+                                                },
+                                              },
+                                            ]}
+                                          >
+                                            <Select
+                                              showSearch
+                                              optionFilterProp="children"
+                                              filterOption={(input, option) =>
+                                                String(option?.label ?? "")
+                                                  .toLowerCase()
+                                                  .includes(
+                                                    String(input).toLowerCase()
+                                                  )
+                                              }
+                                              placeholder="Select farm"
+                                              disabled={
+                                                getSelectedFarmIds().includes(
+                                                  form.getFieldValue([
+                                                    "tourDetailsRequests",
+                                                    name,
+                                                    "itineraryDetails",
+                                                    subField.name,
+                                                    "farmId",
+                                                  ])
+                                                ) &&
+                                                form.getFieldValue([
+                                                  "tourDetailsRequests",
+                                                  name,
+                                                  "itineraryDetails",
+                                                  subField.name,
+                                                  "farmId",
+                                                ]) !==
+                                                  form.getFieldValue([
+                                                    "tourDetailsRequests",
+                                                    name,
+                                                    "itineraryDetails",
+                                                    subField.name,
+                                                    "farmId",
+                                                  ])
+                                              }
+                                            >
+                                              {farms.map((farm) => (
+                                                <Select.Option
+                                                  key={farm.id}
+                                                  value={farm.id}
+                                                  disabled={
+                                                    getSelectedFarmIds().includes(
+                                                      farm.id
+                                                    ) &&
+                                                    form.getFieldValue([
+                                                      "tourDetailsRequests",
+                                                      name,
+                                                      "itineraryDetails",
+                                                      subField.name,
+                                                      "farmId",
+                                                    ]) !== farm.id
+                                                  }
+                                                >
+                                                  {farm.farmName}
+                                                  {getSelectedFarmIds().includes(
+                                                    farm.id
+                                                  ) &&
+                                                    form.getFieldValue([
+                                                      "tourDetailsRequests",
+                                                      name,
+                                                      "itineraryDetails",
+                                                      subField.name,
+                                                      "farmId",
+                                                    ]) !== farm.id &&
+                                                    " (Already selected)"}
+                                                </Select.Option>
+                                              ))}
+                                            </Select>
+                                          </Form.Item>
+                                        </Col>
+                                        <Col span={10}>
+                                          <Form.Item
+                                            {...restField}
+                                            name={[
+                                              subField.name,
+                                              "description",
+                                            ]}
+                                            label="Activity Description"
+                                            rules={[
+                                              {
+                                                required: true,
+                                                message:
+                                                  "Please enter description",
+                                              },
+                                            ]}
+                                          >
+                                            <Input.TextArea
+                                              placeholder="Describe the activity..."
+                                              autoSize={{
+                                                minRows: 1,
+                                                maxRows: 3,
+                                              }}
+                                            />
+                                          </Form.Item>
+                                        </Col>
+                                        <Col span={2}>
+                                          <Button
+                                            type="text"
+                                            danger
+                                            icon={<DeleteOutlined />}
+                                            onClick={() =>
+                                              subOpt.remove(subField.name)
+                                            }
+                                            className="flex items-center justify-center"
+                                          />
+                                        </Col>
+                                      </Row>
+                                    </Card>
+                                  ))}
+
+                                  <Button
+                                    type="dashed"
+                                    onClick={() => {
+                                      const currentActivities =
+                                        form.getFieldValue([
+                                          "tourDetailsRequests",
+                                          name,
+                                          "itineraryDetails",
+                                        ]);
+                                      let newTime = null;
+
+                                      if (
+                                        currentActivities &&
+                                        currentActivities.length > 0
+                                      ) {
+                                        const lastActivity =
+                                          currentActivities[
+                                            currentActivities.length - 1
+                                          ];
+                                        const lastTime = lastActivity?.time;
+                                        if (lastTime) {
+                                          newTime = dayjs(lastTime).add(
+                                            15,
+                                            "minute"
+                                          );
+                                        }
+                                      }
+                                      subOpt.add({
+                                        time: newTime,
+                                        farmId: undefined,
+                                        description: "",
+                                      });
+                                    }}
+                                    icon={<PlusOutlined />}
+                                    className="w-full"
+                                  >
+                                    Add Activity
+                                  </Button>
+                                </div>
+                              )}
+                            </Form.List>
+                          </div>
+                        </Card>
+                      ))}
+                    </div>
+                  )}
+                </Form.List>
+              </Panel>
+            </Collapse>
+
+            <Collapse className="mb-6" destroyInactivePanel={false}>
+              <Panel header="Tour Prices" key="2" forceRender>
+                <Form.List name="tourPriceRequests">
+                  {(fields, { add, remove }) => (
+                    <>
+                      {fields.map(({ key, name, ...restField }) => (
+                        <Row key={key} gutter={16} className="mb-4">
+                          <Col span={4}>
+                            <Form.Item
+                              {...restField}
+                              name={[name, "ageFrom"]}
+                              label="Age From"
+                              rules={[
+                                {
+                                  required: true,
+                                  message: "Please enter age from",
+                                },
+                              ]}
+                            >
+                              <InputNumber
+                                disabled
+                                min={0}
+                                className="w-full"
+                              />
+                            </Form.Item>
+                          </Col>
+                          <Col span={4}>
+                            <Form.Item
+                              {...restField}
+                              name={[name, "ageTo"]}
+                              label="Age To"
+                              rules={[
+                                {
+                                  required: true,
+                                  message: "Please enter age to",
+                                },
+                              ]}
+                            >
+                              <InputNumber
+                                disabled
+                                min={0}
+                                className="w-full"
+                              />
+                            </Form.Item>
+                          </Col>
+                          <Col span={6}>
+                            <Form.Item
+                              {...restField}
+                              name={[name, "pricingRate"]}
+                              label="Pricing Rate (%)"
+                              rules={[
+                                {
+                                  required: true,
+                                  message: "Please enter pricing rate",
+                                },
+                              ]}
+                            >
+                              <InputNumber
+                                min={0}
+                                max={100}
+                                className="w-full"
+                              />
+                            </Form.Item>
+                          </Col>
+                          <Col span={8}>
+                            <Form.Item
+                              {...restField}
+                              name={[name, "description"]}
+                              label="Description"
+                              rules={[
+                                {
+                                  required: true,
+                                  message: "Please enter description",
+                                },
+                              ]}
+                            >
+                              <Input placeholder="Enter description" />
+                            </Form.Item>
+                          </Col>
+                          <Col span={2}>
                             <Button
                               type="text"
                               danger
                               icon={<DeleteOutlined />}
                               onClick={() => remove(name)}
-                              className="hover:bg-red-50"
+                              className="mt-7"
                             />
-                          </div>
-                        }
+                          </Col>
+                        </Row>
+                      ))}
+                      <Button
+                        type="dashed"
+                        onClick={() => add()}
+                        icon={<PlusOutlined />}
+                        block
                       >
-                        <div className="space-y-4">
-                          <Form.Item
-                            {...restField}
-                            name={[name, "itineraryName"]}
-                            label="Itinerary Name"
-                            rules={[
-                              {
-                                required: true,
-                                message: "Please enter itinerary name",
-                              },
-                            ]}
-                          >
-                            <Input
-                              placeholder="E.g: Day 1 - Exploring Tokyo"
-                              className="w-full"
+                        Add Price
+                      </Button>
+                    </>
+                  )}
+                </Form.List>
+              </Panel>
+            </Collapse>
+
+            <Collapse className="mb-6" destroyInactivePanel={false}>
+              <Panel header="Payment Policies" key="3" forceRender>
+                <Form.List name="tourPaymentRequests">
+                  {(fields, { add, remove }) => (
+                    <>
+                      {fields.map(({ key, name, ...restField }) => (
+                        <Row key={key} gutter={16} className="mb-4">
+                          <Col span={4}>
+                            <Form.Item
+                              {...restField}
+                              name={[name, "dayFrom"]}
+                              label="Day From"
+                              rules={[
+                                {
+                                  required: true,
+                                  message: "Please enter day from",
+                                },
+                              ]}
+                            >
+                              <InputNumber
+                                disabled
+                                min={0}
+                                className="w-full"
+                              />
+                            </Form.Item>
+                          </Col>
+                          <Col span={4}>
+                            <Form.Item
+                              {...restField}
+                              name={[name, "dayTo"]}
+                              label="Day To"
+                              rules={[
+                                {
+                                  required: true,
+                                  message: "Please enter day to",
+                                },
+                              ]}
+                            >
+                              <InputNumber
+                                disabled
+                                min={0}
+                                className="w-full"
+                              />
+                            </Form.Item>
+                          </Col>
+                          <Col span={6}>
+                            <Form.Item
+                              {...restField}
+                              name={[name, "depositRate"]}
+                              label="Deposit Rate (%)"
+                              rules={[
+                                {
+                                  required: true,
+                                  message: "Please enter deposit rate",
+                                },
+                              ]}
+                            >
+                              <InputNumber
+                                min={0}
+                                max={100}
+                                className="w-full"
+                              />
+                            </Form.Item>
+                          </Col>
+                          <Col span={8}>
+                            <Form.Item
+                              {...restField}
+                              name={[name, "description"]}
+                              label="Description"
+                              rules={[
+                                {
+                                  required: true,
+                                  message: "Please enter description",
+                                },
+                              ]}
+                            >
+                              <Input placeholder="Enter description" />
+                            </Form.Item>
+                          </Col>
+                          <Col span={2}>
+                            <Button
+                              type="text"
+                              danger
+                              icon={<DeleteOutlined />}
+                              onClick={() => remove(name)}
+                              className="mt-7"
                             />
-                          </Form.Item>
+                          </Col>
+                        </Row>
+                      ))}
+                      <Button
+                        type="dashed"
+                        onClick={() => add()}
+                        icon={<PlusOutlined />}
+                        block
+                      >
+                        Add Payment Policy
+                      </Button>
+                    </>
+                  )}
+                </Form.List>
+              </Panel>
+            </Collapse>
 
-                          <Form.List name={[name, "itineraryDetails"]}>
-                            {(subFields, subOpt) => (
-                              <div className="space-y-4">
-                                {subFields.map((subField) => (
-                                  <Card
-                                    key={subField.key}
-                                    size="small"
-                                    className="bg-gray-50 border-gray-200"
-                                  >
-                                    <Row gutter={16} align="middle">
-                                      <Col span={6}>
-                                        <Form.Item
-                                          {...restField}
-                                          name={[subField.name, "time"]}
-                                          label="Time"
-                                          rules={[
-                                            {
-                                              required: true,
-                                              message: "Please select time",
-                                            },
-                                            {
-                                              validator: (_, value) => {
-                                                if (!value)
-                                                  return Promise.resolve();
+            <Collapse className="mb-6" destroyInactivePanel={false}>
+              <Panel header="Cancellation Policies" key="4" forceRender>
+                <Form.List name="tourCancellationRequests">
+                  {(fields, { add, remove }) => (
+                    <>
+                      {fields.map(({ key, name, ...restField }) => (
+                        <Row key={key} gutter={16} className="mb-4">
+                          <Col span={4}>
+                            <Form.Item
+                              {...restField}
+                              name={[name, "dayFrom"]}
+                              label="Day From"
+                              rules={[
+                                {
+                                  required: true,
+                                  message: "Please enter day from",
+                                },
+                              ]}
+                            >
+                              <InputNumber min={0} className="w-full" />
+                            </Form.Item>
+                          </Col>
+                          <Col span={4}>
+                            <Form.Item
+                              {...restField}
+                              name={[name, "dayTo"]}
+                              label="Day To"
+                              rules={[
+                                {
+                                  required: true,
+                                  message: "Please enter day to",
+                                },
+                              ]}
+                            >
+                              <InputNumber min={0} className="w-full" />
+                            </Form.Item>
+                          </Col>
+                          <Col span={6}>
+                            <Form.Item
+                              {...restField}
+                              name={[name, "penaltyRate"]}
+                              label="Penalty Rate (%)"
+                              rules={[
+                                {
+                                  required: true,
+                                  message: "Please enter penalty rate",
+                                },
+                              ]}
+                            >
+                              <InputNumber
+                                min={0}
+                                max={100}
+                                className="w-full"
+                              />
+                            </Form.Item>
+                          </Col>
+                          <Col span={8}>
+                            <Form.Item
+                              {...restField}
+                              name={[name, "description"]}
+                              label="Description"
+                              rules={[
+                                {
+                                  required: true,
+                                  message: "Please enter description",
+                                },
+                              ]}
+                            >
+                              <Input placeholder="Enter description" />
+                            </Form.Item>
+                          </Col>
+                          <Col span={2}>
+                            <Button
+                              type="text"
+                              danger
+                              icon={<DeleteOutlined />}
+                              onClick={() => remove(name)}
+                              className="mt-7"
+                            />
+                          </Col>
+                        </Row>
+                      ))}
+                      <Button
+                        type="dashed"
+                        onClick={() => add()}
+                        icon={<PlusOutlined />}
+                        block
+                      >
+                        Add Cancellation Policy
+                      </Button>
+                    </>
+                  )}
+                </Form.List>
+              </Panel>
+            </Collapse>
 
-                                                const allActivities =
-                                                  form.getFieldValue([
-                                                    "tourDetailsRequests",
-                                                    name,
-                                                    "itineraryDetails",
-                                                  ]);
+            <Collapse className="mb-6">
+              <Panel header="Promotions" key="5" forceRender>
+                <Form.List name="tourPromotionRequests">
+                  {(fields, { add, remove }) => (
+                    <>
+                      {fields.map(({ key, name, ...restField }) => (
+                        <Row key={key} gutter={16} className="mb-4">
+                          <Col span={4}>
+                            <Form.Item
+                              {...restField}
+                              name={[name, "from"]}
+                              label="From (days)"
+                              rules={[
+                                {
+                                  required: true,
+                                  message: "Please enter from",
+                                },
+                              ]}
+                            >
+                              <InputNumber min={0} className="w-full" />
+                            </Form.Item>
+                          </Col>
+                          <Col span={4}>
+                            <Form.Item
+                              {...restField}
+                              name={[name, "to"]}
+                              label="To (days)"
+                              rules={[
+                                { required: true, message: "Please enter to" },
+                              ]}
+                            >
+                              <InputNumber min={0} className="w-full" />
+                            </Form.Item>
+                          </Col>
+                          <Col span={6}>
+                            <Form.Item
+                              {...restField}
+                              name={[name, "discountRate"]}
+                              label="Discount Rate (%)"
+                              rules={[
+                                {
+                                  required: true,
+                                  message: "Please enter discount rate",
+                                },
+                              ]}
+                            >
+                              <InputNumber
+                                min={0}
+                                max={100}
+                                className="w-full"
+                              />
+                            </Form.Item>
+                          </Col>
+                          <Col span={8}>
+                            <Form.Item
+                              {...restField}
+                              name={[name, "description"]}
+                              label="Description"
+                              rules={[
+                                {
+                                  required: true,
+                                  message: "Please enter description",
+                                },
+                              ]}
+                            >
+                              <Input placeholder="Enter description" />
+                            </Form.Item>
+                          </Col>
+                          <Col span={2}>
+                            <Button
+                              type="text"
+                              danger
+                              icon={<DeleteOutlined />}
+                              onClick={() => remove(name)}
+                              className="mt-7"
+                            />
+                          </Col>
+                        </Row>
+                      ))}
+                      <Button
+                        type="dashed"
+                        onClick={() => add()}
+                        icon={<PlusOutlined />}
+                        block
+                      >
+                        Add Promotion
+                      </Button>
+                    </>
+                  )}
+                </Form.List>
+              </Panel>
+            </Collapse>
 
-                                                const currentIndex =
-                                                  subField.name;
-                                                const prevActivity =
-                                                  allActivities?.[
-                                                    currentIndex - 1
-                                                  ];
-
-                                                if (prevActivity?.time) {
-                                                  const prevTime = dayjs(
-                                                    prevActivity.time
-                                                  );
-                                                  const currentTime =
-                                                    dayjs(value);
-
-                                                  if (
-                                                    currentTime.isBefore(
-                                                      prevTime.add(1, "minute")
-                                                    )
-                                                  ) {
-                                                    return Promise.reject(
-                                                      "Time must be after the previous activity's time"
-                                                    );
-                                                  }
-                                                }
-
-                                                return Promise.resolve();
-                                              },
-                                            },
-                                          ]}
-                                        >
-                                          <TimePicker
-                                            format="HH:mm"
-                                            className="w-full"
-                                            placeholder="Select time"
-                                          />
-                                        </Form.Item>
-                                      </Col>
-                                      <Col span={6}>
-                                        <Form.Item
-                                          {...restField}
-                                          name={[subField.name, "farmId"]}
-                                          label="Farm"
-                                          rules={[
-                                            {
-                                              validator: (_, value) => {
-                                                const selectedFarmIds =
-                                                  getSelectedFarmIds();
-                                                const currentValue =
-                                                  form.getFieldValue([
-                                                    "tourDetailsRequests",
-                                                    name,
-                                                    "itineraryDetails",
-                                                    subField.name,
-                                                    "farmId",
-                                                  ]);
-
-                                                if (
-                                                  value &&
-                                                  selectedFarmIds.filter(
-                                                    (id) => id === value
-                                                  ).length > 1
-                                                ) {
-                                                  return Promise.reject(
-                                                    "This farm has already been selected"
-                                                  );
-                                                }
-                                                return Promise.resolve();
-                                              },
-                                            },
-                                          ]}
-                                        >
-                                          <Select
-                                            showSearch
-                                            optionFilterProp="children"
-                                            filterOption={(input, option) =>
-                                              String(option?.label ?? "")
-                                                .toLowerCase()
-                                                .includes(
-                                                  String(input).toLowerCase()
-                                                )
-                                            }
-                                            placeholder="Select farm"
-                                            disabled={
-                                              getSelectedFarmIds().includes(
-                                                form.getFieldValue([
-                                                  "tourDetailsRequests",
-                                                  name,
-                                                  "itineraryDetails",
-                                                  subField.name,
-                                                  "farmId",
-                                                ])
-                                              ) &&
-                                              form.getFieldValue([
-                                                "tourDetailsRequests",
-                                                name,
-                                                "itineraryDetails",
-                                                subField.name,
-                                                "farmId",
-                                              ]) !==
-                                                form.getFieldValue([
-                                                  "tourDetailsRequests",
-                                                  name,
-                                                  "itineraryDetails",
-                                                  subField.name,
-                                                  "farmId",
-                                                ])
-                                            }
-                                          >
-                                            {farms.map((farm) => (
-                                              <Select.Option
-                                                key={farm.id}
-                                                value={farm.id}
-                                                disabled={
-                                                  getSelectedFarmIds().includes(
-                                                    farm.id
-                                                  ) &&
-                                                  form.getFieldValue([
-                                                    "tourDetailsRequests",
-                                                    name,
-                                                    "itineraryDetails",
-                                                    subField.name,
-                                                    "farmId",
-                                                  ]) !== farm.id
-                                                }
-                                              >
-                                                {farm.farmName}
-                                                {getSelectedFarmIds().includes(
-                                                  farm.id
-                                                ) &&
-                                                  form.getFieldValue([
-                                                    "tourDetailsRequests",
-                                                    name,
-                                                    "itineraryDetails",
-                                                    subField.name,
-                                                    "farmId",
-                                                  ]) !== farm.id &&
-                                                  " (Already selected)"}
-                                              </Select.Option>
-                                            ))}
-                                          </Select>
-                                        </Form.Item>
-                                      </Col>
-                                      <Col span={10}>
-                                        <Form.Item
-                                          {...restField}
-                                          name={[subField.name, "description"]}
-                                          label="Activity Description"
-                                          rules={[
-                                            {
-                                              required: true,
-                                              message:
-                                                "Please enter description",
-                                            },
-                                          ]}
-                                        >
-                                          <Input.TextArea
-                                            placeholder="Describe the activity..."
-                                            autoSize={{
-                                              minRows: 1,
-                                              maxRows: 3,
-                                            }}
-                                          />
-                                        </Form.Item>
-                                      </Col>
-                                      <Col span={2}>
-                                        <Button
-                                          type="text"
-                                          danger
-                                          icon={<DeleteOutlined />}
-                                          onClick={() =>
-                                            subOpt.remove(subField.name)
-                                          }
-                                          className="flex items-center justify-center"
-                                        />
-                                      </Col>
-                                    </Row>
-                                  </Card>
-                                ))}
-
-                                <Button
-                                  type="dashed"
-                                  onClick={() => {
-                                    const currentActivities =
-                                      form.getFieldValue([
-                                        "tourDetailsRequests",
-                                        name,
-                                        "itineraryDetails",
-                                      ]);
-                                    let newTime = null;
-
-                                    if (
-                                      currentActivities &&
-                                      currentActivities.length > 0
-                                    ) {
-                                      const lastActivity =
-                                        currentActivities[
-                                          currentActivities.length - 1
-                                        ];
-                                      const lastTime = lastActivity?.time;
-                                      if (lastTime) {
-                                        newTime = dayjs(lastTime).add(
-                                          15,
-                                          "minute"
-                                        );
-                                      }
-                                    }
-                                    subOpt.add({
-                                      time: newTime,
-                                      farmId: undefined,
-                                      description: "",
-                                    });
-                                  }}
-                                  icon={<PlusOutlined />}
-                                  className="w-full"
-                                >
-                                  Add Activity
-                                </Button>
-                              </div>
-                            )}
-                          </Form.List>
-                        </div>
-                      </Card>
-                    ))}
-                  </div>
-                )}
-              </Form.List>
-            </Panel>
-          </Collapse>
-
-          <Collapse className="mb-6" destroyInactivePanel={false}>
-            <Panel header="Tour Prices" key="2" forceRender>
-              <Form.List name="tourPriceRequests">
-                {(fields, { add, remove }) => (
-                  <>
-                    {fields.map(({ key, name, ...restField }) => (
-                      <Row key={key} gutter={16} className="mb-4">
-                        <Col span={4}>
-                          <Form.Item
-                            {...restField}
-                            name={[name, "ageFrom"]}
-                            label="Age From"
-                            rules={[
-                              {
-                                required: true,
-                                message: "Please enter age from",
-                              },
-                            ]}
-                          >
-                            <InputNumber disabled min={0} className="w-full" />
-                          </Form.Item>
-                        </Col>
-                        <Col span={4}>
-                          <Form.Item
-                            {...restField}
-                            name={[name, "ageTo"]}
-                            label="Age To"
-                            rules={[
-                              {
-                                required: true,
-                                message: "Please enter age to",
-                              },
-                            ]}
-                          >
-                            <InputNumber disabled min={0} className="w-full" />
-                          </Form.Item>
-                        </Col>
-                        <Col span={6}>
-                          <Form.Item
-                            {...restField}
-                            name={[name, "pricingRate"]}
-                            label="Pricing Rate (%)"
-                            rules={[
-                              {
-                                required: true,
-                                message: "Please enter pricing rate",
-                              },
-                            ]}
-                          >
-                            <InputNumber min={0} max={100} className="w-full" />
-                          </Form.Item>
-                        </Col>
-                        <Col span={8}>
-                          <Form.Item
-                            {...restField}
-                            name={[name, "description"]}
-                            label="Description"
-                            rules={[
-                              {
-                                required: true,
-                                message: "Please enter description",
-                              },
-                            ]}
-                          >
-                            <Input placeholder="Enter description" />
-                          </Form.Item>
-                        </Col>
-                        <Col span={2}>
-                          <Button
-                            type="text"
-                            danger
-                            icon={<DeleteOutlined />}
-                            onClick={() => remove(name)}
-                            className="mt-7"
-                          />
-                        </Col>
-                      </Row>
-                    ))}
-                    <Button
-                      type="dashed"
-                      onClick={() => add()}
-                      icon={<PlusOutlined />}
-                      block
-                    >
-                      Add Price
-                    </Button>
-                  </>
-                )}
-              </Form.List>
-            </Panel>
-          </Collapse>
-
-          <Collapse className="mb-6" destroyInactivePanel={false}>
-            <Panel header="Payment Policies" key="3" forceRender>
-              <Form.List name="tourPaymentRequests">
-                {(fields, { add, remove }) => (
-                  <>
-                    {fields.map(({ key, name, ...restField }) => (
-                      <Row key={key} gutter={16} className="mb-4">
-                        <Col span={4}>
-                          <Form.Item
-                            {...restField}
-                            name={[name, "dayFrom"]}
-                            label="Day From"
-                            rules={[
-                              {
-                                required: true,
-                                message: "Please enter day from",
-                              },
-                            ]}
-                          >
-                            <InputNumber disabled min={0} className="w-full" />
-                          </Form.Item>
-                        </Col>
-                        <Col span={4}>
-                          <Form.Item
-                            {...restField}
-                            name={[name, "dayTo"]}
-                            label="Day To"
-                            rules={[
-                              {
-                                required: true,
-                                message: "Please enter day to",
-                              },
-                            ]}
-                          >
-                            <InputNumber disabled min={0} className="w-full" />
-                          </Form.Item>
-                        </Col>
-                        <Col span={6}>
-                          <Form.Item
-                            {...restField}
-                            name={[name, "depositRate"]}
-                            label="Deposit Rate (%)"
-                            rules={[
-                              {
-                                required: true,
-                                message: "Please enter deposit rate",
-                              },
-                            ]}
-                          >
-                            <InputNumber min={0} max={100} className="w-full" />
-                          </Form.Item>
-                        </Col>
-                        <Col span={8}>
-                          <Form.Item
-                            {...restField}
-                            name={[name, "description"]}
-                            label="Description"
-                            rules={[
-                              {
-                                required: true,
-                                message: "Please enter description",
-                              },
-                            ]}
-                          >
-                            <Input placeholder="Enter description" />
-                          </Form.Item>
-                        </Col>
-                        <Col span={2}>
-                          <Button
-                            type="text"
-                            danger
-                            icon={<DeleteOutlined />}
-                            onClick={() => remove(name)}
-                            className="mt-7"
-                          />
-                        </Col>
-                      </Row>
-                    ))}
-                    <Button
-                      type="dashed"
-                      onClick={() => add()}
-                      icon={<PlusOutlined />}
-                      block
-                    >
-                      Add Payment Policy
-                    </Button>
-                  </>
-                )}
-              </Form.List>
-            </Panel>
-          </Collapse>
-
-          <Collapse className="mb-6" destroyInactivePanel={false}>
-            <Panel header="Cancellation Policies" key="4" forceRender>
-              <Form.List name="tourCancellationRequests">
-                {(fields, { add, remove }) => (
-                  <>
-                    {fields.map(({ key, name, ...restField }) => (
-                      <Row key={key} gutter={16} className="mb-4">
-                        <Col span={4}>
-                          <Form.Item
-                            {...restField}
-                            name={[name, "dayFrom"]}
-                            label="Day From"
-                            rules={[
-                              {
-                                required: true,
-                                message: "Please enter day from",
-                              },
-                            ]}
-                          >
-                            <InputNumber min={0} className="w-full" />
-                          </Form.Item>
-                        </Col>
-                        <Col span={4}>
-                          <Form.Item
-                            {...restField}
-                            name={[name, "dayTo"]}
-                            label="Day To"
-                            rules={[
-                              {
-                                required: true,
-                                message: "Please enter day to",
-                              },
-                            ]}
-                          >
-                            <InputNumber min={0} className="w-full" />
-                          </Form.Item>
-                        </Col>
-                        <Col span={6}>
-                          <Form.Item
-                            {...restField}
-                            name={[name, "penaltyRate"]}
-                            label="Penalty Rate (%)"
-                            rules={[
-                              {
-                                required: true,
-                                message: "Please enter penalty rate",
-                              },
-                            ]}
-                          >
-                            <InputNumber min={0} max={100} className="w-full" />
-                          </Form.Item>
-                        </Col>
-                        <Col span={8}>
-                          <Form.Item
-                            {...restField}
-                            name={[name, "description"]}
-                            label="Description"
-                            rules={[
-                              {
-                                required: true,
-                                message: "Please enter description",
-                              },
-                            ]}
-                          >
-                            <Input placeholder="Enter description" />
-                          </Form.Item>
-                        </Col>
-                        <Col span={2}>
-                          <Button
-                            type="text"
-                            danger
-                            icon={<DeleteOutlined />}
-                            onClick={() => remove(name)}
-                            className="mt-7"
-                          />
-                        </Col>
-                      </Row>
-                    ))}
-                    <Button
-                      type="dashed"
-                      onClick={() => add()}
-                      icon={<PlusOutlined />}
-                      block
-                    >
-                      Add Cancellation Policy
-                    </Button>
-                  </>
-                )}
-              </Form.List>
-            </Panel>
-          </Collapse>
-
-          <Collapse className="mb-6">
-            <Panel header="Promotions" key="5" forceRender>
-              <Form.List name="tourPromotionRequests">
-                {(fields, { add, remove }) => (
-                  <>
-                    {fields.map(({ key, name, ...restField }) => (
-                      <Row key={key} gutter={16} className="mb-4">
-                        <Col span={4}>
-                          <Form.Item
-                            {...restField}
-                            name={[name, "from"]}
-                            label="From (days)"
-                            rules={[
-                              { required: true, message: "Please enter from" },
-                            ]}
-                          >
-                            <InputNumber min={0} className="w-full" />
-                          </Form.Item>
-                        </Col>
-                        <Col span={4}>
-                          <Form.Item
-                            {...restField}
-                            name={[name, "to"]}
-                            label="To (days)"
-                            rules={[
-                              { required: true, message: "Please enter to" },
-                            ]}
-                          >
-                            <InputNumber min={0} className="w-full" />
-                          </Form.Item>
-                        </Col>
-                        <Col span={6}>
-                          <Form.Item
-                            {...restField}
-                            name={[name, "discountRate"]}
-                            label="Discount Rate (%)"
-                            rules={[
-                              {
-                                required: true,
-                                message: "Please enter discount rate",
-                              },
-                            ]}
-                          >
-                            <InputNumber min={0} max={100} className="w-full" />
-                          </Form.Item>
-                        </Col>
-                        <Col span={8}>
-                          <Form.Item
-                            {...restField}
-                            name={[name, "description"]}
-                            label="Description"
-                            rules={[
-                              {
-                                required: true,
-                                message: "Please enter description",
-                              },
-                            ]}
-                          >
-                            <Input placeholder="Enter description" />
-                          </Form.Item>
-                        </Col>
-                        <Col span={2}>
-                          <Button
-                            type="text"
-                            danger
-                            icon={<DeleteOutlined />}
-                            onClick={() => remove(name)}
-                            className="mt-7"
-                          />
-                        </Col>
-                      </Row>
-                    ))}
-                    <Button
-                      type="dashed"
-                      onClick={() => add()}
-                      icon={<PlusOutlined />}
-                      block
-                    >
-                      Add Promotion
-                    </Button>
-                  </>
-                )}
-              </Form.List>
-            </Panel>
-          </Collapse>
-
-          <div className="flex justify-end space-x-4 mt-6">
-            <Button onClick={() => router.push("/tours")}>Cancel</Button>
-            <Button type="primary" htmlType="submit" loading={loading}>
-              Update Tour
-            </Button>
-          </div>
-        </Form>
-      </div>
-    </SaleStaffLayout>
+            <div className="flex justify-end space-x-4 mt-6">
+              <Button onClick={() => router.push("/tours")}>Cancel</Button>
+              <Button type="primary" htmlType="submit" loading={loading}>
+                Update Tour
+              </Button>
+            </div>
+          </Form>
+        </div>
+      </SaleStaffLayout>
+    </ProtectedRoute>
   );
 };
 

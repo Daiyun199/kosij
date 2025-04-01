@@ -13,14 +13,17 @@ export default function ProtectedRoute({
   const router = useRouter();
 
   useEffect(() => {
-    // If not authenticated or role doesn't match, redirect to login
+    console.log("isAuthenticated:", isAuthenticated, "userRole:", userRole);
     if (!isAuthenticated || !userRole || !allowedRoles.includes(userRole)) {
-      router.push("/login?error=unauthenticated&path=" + window.location.pathname);
+      console.log("Redirecting to login...");
+      router.push(
+        "/login?error=unauthenticated&path=" + window.location.pathname
+      );
     }
   }, [isAuthenticated, userRole, allowedRoles, router]);
 
   if (!isAuthenticated || !userRole || !allowedRoles.includes(userRole)) {
-    return <div>Loading...</div>;  // Wait for the check to complete
+    return <div>Loading...</div>;
   }
 
   return <>{children}</>;

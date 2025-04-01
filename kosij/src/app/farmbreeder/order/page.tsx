@@ -9,6 +9,7 @@ import { fetchCurrentFarmOrders } from "@/features/farmbreeder/api/order/all.api
 import { updateOrderStatus } from "@/features/farmbreeder/api/order/update.api";
 import { Order } from "@/lib/domain/Order/Order.dto";
 import dayjs from "dayjs";
+import ProtectedRoute from "@/app/ProtectedRoute";
 
 const statusColors: { [key in Order["orderStatus"]]: string } = {
   Pending: "default",
@@ -146,21 +147,23 @@ function Page() {
   ];
 
   return (
-    <PageContainer title="Orders List">
-      <section className="mt-5">
-        <ProTable<Order>
-          columns={columns}
-          dataSource={data}
-          rowKey="orderId"
-          search={false}
-          pagination={{
-            pageSize: 5,
-            showTotal: (total) => `Total ${total} record(s)`,
-          }}
-          loading={isLoading}
-        />
-      </section>
-    </PageContainer>
+    <ProtectedRoute allowedRoles={["farmbreeder"]}>
+      <PageContainer title="Orders List">
+        <section className="mt-5">
+          <ProTable<Order>
+            columns={columns}
+            dataSource={data}
+            rowKey="orderId"
+            search={false}
+            pagination={{
+              pageSize: 5,
+              showTotal: (total) => `Total ${total} record(s)`,
+            }}
+            loading={isLoading}
+          />
+        </section>
+      </PageContainer>
+    </ProtectedRoute>
   );
 }
 

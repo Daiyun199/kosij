@@ -1,8 +1,11 @@
-import { createContext, useContext, useEffect, useState } from "react";
+"use client";
+import { createContext, useContext, useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { getAuthToken } from "@/lib/utils/auth.utils";
+import { Role } from "@/lib/domain/User/role.enum";
+import Cookies from "js-cookie";
+import { decodeJwt } from "@/lib/domain/User/decodeJwt.util";
 
-type UserRole = "manager" | "salesstaff" | "farmbreeder";
+type UserRole = Role;
 
 interface AuthContextType {
   userRole: UserRole | null;
@@ -19,13 +22,26 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const router = useRouter();
 
   useEffect(() => {
-    const token = getAuthToken();
+    const token =
+      (localStorage.getItem("authToken") &&
+        sessionStorage.getItem("authToken")) ||
+      Cookies.get("token");
     if (token) {
-      const storedRole = localStorage.getItem("userRole") as UserRole | null;
-      if (storedRole) {
-        setUserRole(storedRole);
-        setIsAuthenticated(true);
+      try {
+        const payload = decodeJwt(token);
+        if (payload) {
+          setUserRole(payload.role);
+          setIsAuthenticated(true);
+        } else {
+          logout();
+        }
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      } catch (error) {
+        logout();
       }
+    } else {
+      setIsAuthenticated(false);
+      setUserRole(null);
     }
   }, []);
 
@@ -38,8 +54,13 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const logout = () => {
     localStorage.removeItem("authToken");
     localStorage.removeItem("userRole");
+    Cookies.remove("token");
+    sessionStorage.removeItem("authToken");
+
     setUserRole(null);
     setIsAuthenticated(false);
+
+    router.push("/login?logout=success");
     router.push("/login");
   };
 

@@ -1,6 +1,7 @@
 "use client";
 import ManagerLayout from "@/app/components/ManagerLayout/ManagerLayout";
 import TourDetail from "@/app/components/TourDetail/TourDetail";
+import ProtectedRoute from "@/app/ProtectedRoute";
 import api from "@/config/axios.config";
 import { TourData } from "@/model/TourData";
 
@@ -117,9 +118,11 @@ function Page() {
   if (!tourData) return <p>Tour not found</p>;
 
   return (
-    <ManagerLayout title="Tour Detail">
-      <TourDetail data={tourData} />
-    </ManagerLayout>
+    <ProtectedRoute allowedRoles={["manager"]}>
+      <ManagerLayout title="Tour Detail">
+        <TourDetail data={tourData} />
+      </ManagerLayout>
+    </ProtectedRoute>
   );
 }
 

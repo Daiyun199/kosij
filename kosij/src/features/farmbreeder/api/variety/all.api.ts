@@ -25,3 +25,13 @@ export default async function FarmBreeder_Variety_All(): Promise<Response | null
     return { statusCode: 500, message: "Error fetching data", data: [] };
   }
 }
+
+export const fetchKoiVarieties = async () => {
+  try {
+    const response = await api.get(`/koi-varieties`);
+    return response.data.value;
+  } catch (error) {
+    console.error("Error fetching koi varieties:", error);
+    throw new Error("Failed to fetch koi varieties");
+  }
+};

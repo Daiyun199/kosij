@@ -16,6 +16,7 @@ interface UpdateVarietyModalProps {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   onSubmit: (values: any) => void;
   varietyId?: number;
+  fetchVarietyList: () => void;
 }
 
 function UpdateVarietyModal({
@@ -24,11 +25,12 @@ function UpdateVarietyModal({
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   onSubmit,
   varietyId,
+  fetchVarietyList,
 }: UpdateVarietyModalProps) {
   const [form] = Form.useForm();
   const [loading, setLoading] = useState(false);
-  const [imageFile, setImageFile] = useState<File | null>(null);
   const { message } = App.useApp();
+  const [imageFile, setImageFile] = useState<File | null>(null);
 
   const uploadImageToFirebase = async (file: File) => {
     const storage = getStorage(firebaseApp);
@@ -71,6 +73,7 @@ function UpdateVarietyModal({
 
       message.success("Variety updated successfully!");
       onCancel();
+      fetchVarietyList()
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (error) {
       message.error("Failed to update variety.");

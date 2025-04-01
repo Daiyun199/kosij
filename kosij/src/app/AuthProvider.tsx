@@ -1,8 +1,9 @@
 "use client";
-
-import { createContext, useContext, useState } from "react";
+import { createContext, useContext, useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Role } from "@/lib/domain/User/role.enum";
+import Cookies from "js-cookie";
+import { decodeJwt } from "@/lib/domain/User/decodeJwt.util";
 
 type UserRole = Role;
 
@@ -20,21 +21,29 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const router = useRouter();
 
-  // useEffect(() => {
-  //   const token = getAuthToken();
-  //   console.log("Token1:", token);
-  //   if (token) {
-  //     const storedRole = localStorage.getItem("userRole") as UserRole | null;
-  //     console.log("Stored role:", storedRole);
-  //     if (storedRole) {
-  //       setUserRole(storedRole);
-  //       setIsAuthenticated(true);
-  //     }
-  //   } else {
-  //     setUserRole(null);
-  //     setIsAuthenticated(false);
-  //   }
-  // }, []);
+  useEffect(() => {
+    const token =
+      (localStorage.getItem("authToken") &&
+        sessionStorage.getItem("authToken")) ||
+      Cookies.get("token");
+    if (token) {
+      try {
+        const payload = decodeJwt(token);
+        if (payload) {
+          setUserRole(payload.role);
+          setIsAuthenticated(true);
+        } else {
+          logout();
+        }
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      } catch (error) {
+        logout();
+      }
+    } else {
+      setIsAuthenticated(false);
+      setUserRole(null);
+    }
+  }, []);
 
   const login = (role: UserRole) => {
     localStorage.setItem("userRole", role);
@@ -45,8 +54,13 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const logout = () => {
     localStorage.removeItem("authToken");
     localStorage.removeItem("userRole");
+    Cookies.remove("token");
+    sessionStorage.removeItem("authToken");
+
     setUserRole(null);
     setIsAuthenticated(false);
+
+    router.push("/login?logout=success");
     router.push("/login");
   };
 

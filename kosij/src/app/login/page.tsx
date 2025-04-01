@@ -68,7 +68,62 @@ function Home() {
     checkCssLoaded();
   }, []);
 
-  function handleLogin(event: React.FormEvent<HTMLFormElement>) {
+  // function handleLogin(event: React.FormEvent<HTMLFormElement>) {
+  //   event.preventDefault();
+  //   setLoading(true);
+
+  //   const formData = new FormData(event.currentTarget);
+  //   const values: FieldType = {
+  //     email: formData.get("email") as string,
+  //     password: formData.get("password") as string,
+  //   };
+
+  //   mutations.LoginCredentials.mutate(values, {
+  //     onSuccess: async (token: string | null) => {
+  //       if (!token) {
+  //         message.error("Login failed: Invalid token received from server.");
+  //         setLoading(false);
+  //         return;
+  //       }
+  //       localStorage.setItem("authToken", token);
+  //       Cookies.set("token", token);
+  //       const payload = decodeJwt(token);
+  //       localStorage.setItem("userRole", payload.role);
+  //       login(payload.role);
+  //       let redirectPath = "";
+  //       switch (payload.role) {
+  //         case Role.manager:
+  //           redirectPath = path?.includes("manager")
+  //             ? path
+  //             : manager_uri.sidebar.dashboard;
+  //           break;
+  //         case Role.farmbreeder:
+  //           redirectPath = path?.includes("farmbreeder")
+  //             ? path
+  //             : farmbreeder_uri.sidebar.dashboard;
+  //           break;
+  //         case Role.salesstaff:
+  //           redirectPath = path?.includes("salesstaff")
+  //             ? path
+  //             : salesstaff_uri.sidebar.dashboard;
+  //           break;
+  //         default:
+  //           message.info(
+  //             "This account has not been assigned a role. Please contact the manager."
+  //           );
+  //           setLoading(false);
+  //           return;
+  //       }
+  //       router.push(redirectPath);
+  //     },
+  //     onError: () => {
+  //       message.error("Login failed. Please try again.");
+  //       setLoading(false);
+  //     },
+  //   });
+  // }
+
+  const handleLogin = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     setLoading(true);
 
@@ -90,7 +145,8 @@ function Home() {
         const payload = decodeJwt(token);
         localStorage.setItem("userRole", payload.role);
         login(payload.role);
-        let redirectPath = "";
+
+        let redirectPath = path;
         switch (payload.role) {
           case Role.manager:
             redirectPath = path?.includes("manager")
@@ -108,9 +164,7 @@ function Home() {
               : salesstaff_uri.sidebar.dashboard;
             break;
           default:
-            message.info(
-              "This account has not been assigned a role. Please contact the manager."
-            );
+            message.info("This account has not been assigned a role.");
             setLoading(false);
             return;
         }
@@ -121,7 +175,7 @@ function Home() {
         setLoading(false);
       },
     });
-  }
+  };
 
   if (!cssLoaded) {
     return <div>Loading...</div>;

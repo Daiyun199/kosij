@@ -72,8 +72,11 @@ function Page() {
     setIsCreateModalOpen(false);
   };
 
-  const handleCreatedSubmit = () => {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const handleCreatedSubmit = (values: any) => {
+    console.log("Form Submitted:", values);
     setIsCreateModalOpen(false);
+    fetchVarietyList()
   };
   return (
     <ProtectedRoute allowedRoles={["farmbreeder"]}>
@@ -109,7 +112,7 @@ function Page() {
               fontWeight: "normal",
             }}
             icon={<PlusCircleOutlined />}
-            onClick={() => handleCreatedOpen}
+            onClick={handleCreatedOpen}
           >
             Add Variety
           </Button>
@@ -161,11 +164,13 @@ function Page() {
           onCancel={handleUpdatedClose}
           onSubmit={handleUpdatedSubmit}
           varietyId={selectedVarietyFarm?.varietyId}
+          fetchVarietyList={fetchVarietyList}
         />
         <CreateVarietyModal
           visible={isCreateModalOpen}
           onCancel={handleCreatedClose}
           onSubmit={handleCreatedSubmit}
+          fetchVarietyList={fetchVarietyList}
         />
       </PageContainer>
     </ProtectedRoute>

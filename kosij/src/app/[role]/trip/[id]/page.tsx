@@ -21,7 +21,9 @@ function Page() {
   const searchParams = useSearchParams();
   const tourId = searchParams.get("tourId");
   const LayoutComponent = role === "manager" ? ManagerLayout : SaleStaffLayout;
-
+  const handleUpdateTrip = () => {
+    router.push(`/manager/trip/${id}/update`);
+  };
   useEffect(() => {
     if (!id) return;
 
@@ -197,28 +199,41 @@ function Page() {
             Back
           </Button>
 
-          {role === "manager" && tripData.tripType !== "Customized" && (
-            <Button
-              type="primary"
-              size="large"
-              className="h-10"
-              onClick={handleSelectStaff}
-            >
-              Assign
-            </Button>
-          )}
+          <div className="flex gap-2">
+            {role === "manager" && (
+              <Button
+                type="primary"
+                size="large"
+                className="h-10"
+                onClick={handleUpdateTrip}
+              >
+                Update
+              </Button>
+            )}
 
-          {tripData.customers.length === 0 && (
-            <Button
-              type="default"
-              danger
-              size="large"
-              className="h-10"
-              onClick={handleDeleteTrip}
-            >
-              Delete
-            </Button>
-          )}
+            {role === "manager" && tripData.tripType !== "Customized" && (
+              <Button
+                type="primary"
+                size="large"
+                className="h-10"
+                onClick={handleSelectStaff}
+              >
+                Assign
+              </Button>
+            )}
+
+            {tripData.customers.length === 0 && (
+              <Button
+                type="default"
+                danger
+                size="large"
+                className="h-10"
+                onClick={handleDeleteTrip}
+              >
+                Delete
+              </Button>
+            )}
+          </div>
         </div>
       </div>
     </LayoutComponent>

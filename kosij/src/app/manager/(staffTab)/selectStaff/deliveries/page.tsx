@@ -82,7 +82,7 @@ function Page() {
 
       setIsModalOpen(false);
       setNote("");
-      router.push(`/manager/tours`);
+      router.back();
     } catch (error: any) {
       setIsModalOpen(false);
       const errorMessage =

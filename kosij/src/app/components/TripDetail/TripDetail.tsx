@@ -1,9 +1,16 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { Card, Collapse, Rate, Tag } from "antd";
-import { EyeOutlined } from "@ant-design/icons";
+import { EyeOutlined, FileSearchOutlined } from "@ant-design/icons";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
-
+import {
+  UserOutlined,
+  PhoneOutlined,
+  MailOutlined,
+  TagOutlined,
+  FileTextOutlined,
+} from "@ant-design/icons";
 const { Panel } = Collapse;
 
 const TripDetail = ({
@@ -22,6 +29,10 @@ const TripDetail = ({
     router.push(
       `${basePath}/${tripBookingId}?tripId=${data.id}&custom=${custom}&requestId=${data.requestId}`
     );
+  };
+  const getRandomColor = () => {
+    const colors = ["blue", "green", "purple", "yellow", "pink"];
+    return colors[Math.floor(Math.random() * colors.length)];
   };
   return (
     <div className="p-6 max-w-5xl mx-auto">
@@ -115,7 +126,6 @@ const TripDetail = ({
             ))}
           </ul>
         </Card>
-
         <Card className="mt-4 border border-gray-200 shadow-sm">
           <h3 className="font-semibold">Tour Price Not Includes</h3>
           <ul className="list-disc pl-5">
@@ -128,7 +138,6 @@ const TripDetail = ({
             )}
           </ul>
         </Card>
-
         <Card className="mt-4 border border-gray-200 shadow-sm">
           <h3 className="font-semibold">Cancellation Policy</h3>
           <ul className="list-disc pl-5">
@@ -153,7 +162,6 @@ const TripDetail = ({
             ))}
           </ul>
         </Card>
-
         <div className="mt-4">
           <Collapse accordion>
             {data.tour.itinerary.map((item: any, index: string | number) => (
@@ -315,49 +323,112 @@ const TripDetail = ({
             )}
           </Card>
         )}
-
-        <div className="mt-4">
-          <h3 className="font-semibold text-lg mb-4">Customer List</h3>
+        <div className="mt-6">
+          <h3 className="font-semibold text-xl mb-6 text-gray-800">
+            Customer List
+          </h3>
           {data.customers && data.customers.length > 0 ? (
-            <div className="grid grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {data.customers.map((customer: any, index: number) => {
                 const customerNote = data.notes?.find(
                   (note: any) => note.userName === customer.customerName
                 )?.note;
 
+                // Status color mapping
+                const getStatusClass = (status: string) => {
+                  switch (status) {
+                    case "Pending":
+                      return "bg-amber-100 text-amber-800";
+                    case "Deposited":
+                      return "bg-blue-100 text-blue-800";
+                    case "Processing":
+                      return "bg-purple-100 text-purple-800";
+                    case "Paid":
+                      return "bg-green-100 text-green-800";
+                    case "CheckIn":
+                      return "bg-teal-100 text-teal-800";
+                    case "CheckOut":
+                      return "bg-cyan-100 text-cyan-800";
+                    case "Drafted":
+                      return "bg-gray-100 text-gray-800";
+                    case "Completed":
+                      return "bg-emerald-100 text-emerald-800";
+                    case "Cancelled":
+                      return "bg-red-100 text-red-800";
+                    case "Refunded":
+                      return "bg-fuchsia-100 text-fuchsia-800";
+                    default:
+                      return "bg-gray-100 text-gray-800";
+                  }
+                };
+
+                const statusClass = getStatusClass(customer.tripBookingStatus);
+
                 return (
                   <div
                     key={index}
-                    className="border p-4 rounded-lg shadow-md bg-white flex flex-col"
+                    className="border border-gray-200 p-5 rounded-lg shadow-sm hover:shadow-md transition-shadow bg-white flex flex-col relative"
                   >
-                    <p>
-                      <strong>Name:</strong> {customer.customerName}
-                    </p>
-                    <p>
-                      <strong>Phone:</strong> {customer.phoneNumber}
-                    </p>
-                    <p>
-                      <strong>Email:</strong> {customer.email}
-                    </p>
+                    {customer.isDeleted && (
+                      <span className="absolute top-2 right-2 px-2 py-1 text-xs font-medium text-gray-600 bg-gray-100 rounded-md">
+                        Deleted
+                      </span>
+                    )}
+
+                    <div className="space-y-3">
+                      <div className="flex items-center">
+                        <UserOutlined className="text-gray-400 mr-2" />
+                        <span className="font-medium text-gray-900">
+                          {customer.customerName}
+                        </span>
+                      </div>
+
+                      <div className="flex items-center">
+                        <PhoneOutlined className="text-gray-400 mr-2" />
+                        <span className="text-gray-600">
+                          {customer.phoneNumber}
+                        </span>
+                      </div>
+
+                      <div className="flex items-center">
+                        <MailOutlined className="text-gray-400 mr-2" />
+                        <span className="text-gray-600">{customer.email}</span>
+                      </div>
+
+                      <div className="flex items-center">
+                        <TagOutlined className="text-gray-400 mr-2" />
+                        <span
+                          className={`text-sm font-medium px-2.5 py-0.5 rounded-full ${statusClass}`}
+                        >
+                          {customer.tripBookingStatus}
+                        </span>
+                      </div>
+                    </div>
 
                     {customerNote && (
-                      <p className="mt-2 p-2 bg-gray-100 rounded-md">
-                        <strong>Note:</strong> {customerNote}
-                      </p>
+                      <div className="mt-4 p-3 bg-gray-50 rounded-md border border-gray-100">
+                        <div className="flex items-center text-sm font-medium text-gray-500 mb-1">
+                          <FileTextOutlined className="mr-1" /> Note
+                        </div>
+                        <p className="text-gray-700">{customerNote}</p>
+                      </div>
                     )}
 
                     <button
-                      className="mt-2 flex items-center text-blue-500 hover:text-blue-700"
+                      className="mt-4 flex items-center text-indigo-600 hover:text-indigo-800 text-sm font-medium"
                       onClick={() => handleViewDetail(customer.tripBookingId)}
                     >
-                      <EyeOutlined className="mr-1" /> Detail
+                      <EyeOutlined className="mr-1.5" /> View Details
                     </button>
                   </div>
                 );
               })}
             </div>
           ) : (
-            <p>No customers available</p>
+            <div className="bg-gray-50 border border-gray-200 rounded-lg p-8 text-center">
+              <FileSearchOutlined className="text-3xl text-gray-400 mb-3" />
+              <p className="text-gray-600">No customers available</p>
+            </div>
           )}
         </div>
       </div>

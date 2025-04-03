@@ -51,6 +51,10 @@ export default function UpdateTourPage() {
     standardPrice: 0,
     registrationDaysBefore: 0,
   });
+  const parseCustomDate = (dateString: string) => {
+    const [day, month, year] = dateString.split("-");
+    return new Date(`${year}-${month}-${day}`);
+  };
   const [currentData, setCurrentData] = useState<CurrentData>({
     standardPrice: 0,
     maxGroupSize: 0,
@@ -81,10 +85,17 @@ export default function UpdateTourPage() {
           totalPassengers,
           registrationDaysBefore: tourData.tourResponse.registrationDaysBefore,
         });
+        const departureDate = tourData.departureDate
+          ? dayjs(parseCustomDate(tourData.departureDate))
+          : null;
 
         form.setFieldsValue({
           ...tourData,
-          departureDate: dayjs(tourData.departureDate),
+          departureDate: departureDate,
+        });
+        form.setFieldsValue({
+          ...tourData,
+          departureDate: departureDate,
         });
       } catch (error) {
         toast.error("Failed to load tour data");
@@ -124,6 +135,7 @@ export default function UpdateTourPage() {
         minGroupSize: updatedData.minGroupSize,
         pricingRate: updatedData.pricingRate,
       }));
+      router.back();
     } catch (error) {
       toast.error("Error updating tour data");
       console.error("Update error:", error);

@@ -18,4 +18,5 @@ export interface TourData {
   depositPolicy: string;
   promotionPolicy: string;
   numberOfTrips: number;
+  isDeleted: boolean;
 }

@@ -27,6 +27,7 @@ function Page() {
 
         setTourData({
           id: data.id,
+          isDeleted: data.isDeleted,
           title: data.tourName,
           tourCode: `TRP-${data.id}`,
           duration: `${data.days} Days ${data.nights} Nights`,

@@ -11,12 +11,12 @@ export default function ProtectedRoute({
 }) {
   const { isAuthenticated, userRole } = useAuth();
   const router = useRouter();
-  const [loading, setLoading] = useState(true);  // Add loading state
+  const [loading, setLoading] = useState(true); 
 
   useEffect(() => {
     console.log("isAuthenticated:", isAuthenticated, "userRole:", userRole);
     if (isAuthenticated !== undefined && userRole !== null) {
-      setLoading(false);  // Set loading to false when auth state is ready
+      setLoading(false); 
     }
     if (isAuthenticated === false || userRole === null || !allowedRoles.includes(userRole)) {
       console.log("Redirecting to login...");

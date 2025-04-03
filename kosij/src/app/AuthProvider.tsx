@@ -67,7 +67,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   };
 
   if (loading) {
-    return <div>Loading...</div>; // You can show a loading spinner or screen here
+    return <div>Loading...</div>;
   }
 
   return (

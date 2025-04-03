@@ -11,7 +11,11 @@ export function middleware(request: NextRequest) {
 
   const userRole = request.cookies.get("userRole")?.value;
 
-  if (userRole !== "farmbreeder" && url.includes("/farmbreeder")) {
+  if (
+    (userRole !== "farmbreeder" && url.includes("/farmbreeder")) &&
+    (userRole !== "manager" && url.includes("/manager")) &&
+    (userRole !== "salesstaff" && url.includes("/salesstaff"))
+  ) {
     return NextResponse.redirect(new URL("/login", url));
   }
 

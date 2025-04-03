@@ -20,6 +20,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [userRole, setUserRole] = useState<UserRole | null>(null);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const router = useRouter();
+  const [loading, setLoading] = useState(true); // Add loading state
 
   useEffect(() => {
     const token =
@@ -43,6 +44,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       setIsAuthenticated(false);
       setUserRole(null);
     }
+    setLoading(false);
   }, []);
 
   const login = (role: UserRole) => {
@@ -63,6 +65,10 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     router.push("/login?logout=success");
     router.push("/login");
   };
+
+  if (loading) {
+    return <div>Loading...</div>; // You can show a loading spinner or screen here
+  }
 
   return (
     <AuthContext.Provider value={{ userRole, isAuthenticated, login, logout }}>

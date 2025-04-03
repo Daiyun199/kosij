@@ -1,5 +1,5 @@
 "use client";
-import { Table, Button, Spin } from "antd";
+import { Table, Button, Spin, Tag } from "antd";
 import { useRouter } from "next/navigation";
 import ManagerLayout from "@/app/components/ManagerLayout/ManagerLayout";
 import React, { useEffect, useState } from "react";
@@ -15,6 +15,7 @@ interface Tour {
   tourStatus: string;
   numberOfTrips: number;
   totalFarmVisit: number;
+  isDeleted: boolean;
 }
 
 function Page() {
@@ -36,6 +37,7 @@ function Page() {
             tourStatus: tour.tourStatus,
             totalFarmVisit: tour.totalFarmVisit,
             numberOfTrips: tour.numberOfTrips,
+            isDeleted: tour.isDeleted,
           }))
         );
       } catch (error) {
@@ -64,6 +66,21 @@ function Page() {
         new Intl.NumberFormat("vi-VN").format(amount) + " VND",
     },
     {
+      title: "Status",
+      dataIndex: "isDeleted",
+      key: "status",
+      filters: [
+        { text: "Active", value: false },
+        { text: "Deleted", value: true },
+      ],
+      onFilter: (value, record) => record.isDeleted === value,
+      render: (isDeleted: boolean) => (
+        <Tag color={isDeleted ? "red" : "green"}>
+          {isDeleted ? "Deleted" : "Active"}
+        </Tag>
+      ),
+    },
+    {
       title: "Visa Fee",
       dataIndex: "visaFee",
       key: "visaFee",
@@ -71,16 +88,16 @@ function Page() {
       render: (amount: number) =>
         new Intl.NumberFormat("vi-VN").format(amount) + " VND",
     },
-    {
-      title: "Tour Status",
-      dataIndex: "tourStatus",
-      key: "tourStatus",
-      filters: [
-        { text: "Active", value: "Active" },
-        { text: "Inactive", value: "Inactive" },
-      ],
-      onFilter: (value, record) => record.tourStatus === value,
-    },
+    // {
+    //   title: "Tour Status",
+    //   dataIndex: "tourStatus",
+    //   key: "tourStatus",
+    //   filters: [
+    //     { text: "Active", value: "Active" },
+    //     { text: "Inactive", value: "Inactive" },
+    //   ],
+    //   onFilter: (value, record) => record.tourStatus === value,
+    // },
     {
       title: "Total Farm Visit",
       dataIndex: "totalFarmVisit",

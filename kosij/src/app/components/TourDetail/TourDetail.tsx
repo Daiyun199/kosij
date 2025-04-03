@@ -258,7 +258,7 @@ const TourDetail = ({ data }: { data: TourData }) => {
           Back
         </Button>
 
-        {data.numberOfTrips === 0 && (
+        {data.numberOfTrips === 0 && data.isDeleted === false && (
           <>
             <Button
               type="primary"

@@ -62,7 +62,7 @@ function Page() {
             email: customer.email,
           })),
           id: data.id,
-
+          isDeleted: data.isDeleted,
           notes: data.notes.map((note: any) => ({
             userName: note.userName,
             note: note.note,
@@ -200,16 +200,17 @@ function Page() {
           </Button>
 
           <div className="flex gap-2">
-            {role === "manager" && (
-              <Button
-                type="primary"
-                size="large"
-                className="h-10"
-                onClick={handleUpdateTrip}
-              >
-                Update
-              </Button>
-            )}
+            {role === "manager" &&
+              ["Available", "Full"].includes(tripData.tripStatus) && (
+                <Button
+                  type="primary"
+                  size="large"
+                  className="h-10"
+                  onClick={handleUpdateTrip}
+                >
+                  Update
+                </Button>
+              )}
 
             {role === "manager" && tripData.tripType !== "Customized" && (
               <Button
@@ -222,17 +223,18 @@ function Page() {
               </Button>
             )}
 
-            {tripData.customers.length === 0 && (
-              <Button
-                type="default"
-                danger
-                size="large"
-                className="h-10"
-                onClick={handleDeleteTrip}
-              >
-                Delete
-              </Button>
-            )}
+            {tripData.customers.length === 0 &&
+              tripData.isDeleted === false && (
+                <Button
+                  type="default"
+                  danger
+                  size="large"
+                  className="h-10"
+                  onClick={handleDeleteTrip}
+                >
+                  Delete
+                </Button>
+              )}
           </div>
         </div>
       </div>

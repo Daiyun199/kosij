@@ -60,6 +60,8 @@ function Page() {
             customerName: customer.customerName,
             phoneNumber: customer.phoneNumber,
             email: customer.email,
+            tripBookingStatus: customer.tripBookingStatus,
+            isDeleted: customer.isDeleted,
           })),
           id: data.id,
           isDeleted: data.isDeleted,

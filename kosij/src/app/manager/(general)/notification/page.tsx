@@ -14,6 +14,7 @@ import {
 import ManagerLayout from "@/app/components/ManagerLayout/ManagerLayout";
 import api from "@/config/axios.config";
 import ProtectedRoute from "@/app/ProtectedRoute";
+import { useRouter } from "next/navigation";
 
 interface Notification {
   id: number;
@@ -63,16 +64,27 @@ const formatTime = (dateString: string) => {
   return `${Math.floor(diffInSeconds / 86400)} days ago`;
 };
 
-const getActionText = (referenceType: string) => {
+const getActionText = (referenceType: string, refId: number) => {
   switch (referenceType) {
     case "Order":
-      return "View Order Details →";
+      return { text: "View Order Details →", url: `/manager/orders/${refId}` };
     case "Trip":
+      return { text: "Trip Details →", url: `/manager/trips/${refId}` };
     case "TripRequest":
+      return {
+        text: "Trip Request Details →",
+        url: `/manager/requests/${refId}`,
+      };
     case "TripBooking":
-      return "Trip Details →";
+      return {
+        text: "Trip Booking Details →",
+        url: `/manager/bookings/${refId}`,
+      };
     case "WithdrawalRequest":
-      return "Statement of money →";
+      return {
+        text: "Statement of money →",
+        url: `/manager/withdrawals/${refId}`,
+      };
     default:
       return null;
   }
@@ -84,7 +96,7 @@ const Page = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const notificationsPerPage = 10;
-
+  const router = useRouter();
   useEffect(() => {
     const fetchNotifications = async () => {
       try {
@@ -154,34 +166,37 @@ const Page = () => {
               </div>
               <ul>
                 {notifications.length > 0 ? (
-                  notifications.map((notif) => (
-                    <li
-                      key={notif.id}
-                      className={`flex items-start p-4 border-b last:border-none ${
-                        !notif.markAsRead ? "bg-blue-50" : ""
-                      }`}
-                    >
-                      <div className="mr-4 text-2xl">
-                        {getNotificationIcon(notif.referenceType)}
-                      </div>
-                      <div className="flex-1">
-                        <p className="font-medium text-gray-800">
-                          {notif.message}
-                          {getActionText(notif.referenceType) && (
-                            <a
-                              href="#"
-                              className="text-blue-600 hover:underline ml-2"
-                            >
-                              {getActionText(notif.referenceType)}
-                            </a>
-                          )}
-                        </p>
-                        <p className="text-sm text-gray-500 mt-1">
-                          {formatTime(notif.createdTime)}
-                        </p>
-                      </div>
-                    </li>
-                  ))
+                  notifications.map((notif) => {
+                    const action = getActionText(
+                      notif.referenceType,
+                      notif.refId
+                    );
+                    return (
+                      <li
+                        key={notif.id}
+                        className={`flex items-start p-4 border-b last:border-none ${
+                          !notif.markAsRead ? "bg-blue-50" : ""
+                        }`}
+                      >
+                        <div className="mr-4 text-2xl">
+                          {getNotificationIcon(notif.referenceType)}
+                        </div>
+                        <div className="flex-1">
+                          <p className="font-medium text-gray-800">
+                            {notif.message}
+                            {action && (
+                              <span
+                                onClick={() => router.push(action.url)}
+                                className="text-blue-600 hover:underline ml-2 cursor-pointer"
+                              >
+                                {action.text}
+                              </span>
+                            )}
+                          </p>
+                        </div>
+                      </li>
+                    );
+                  })
                 ) : (
                   <li className="p-8 text-center">No notifications found</li>
                 )}

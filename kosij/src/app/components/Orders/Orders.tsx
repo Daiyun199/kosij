@@ -1,10 +1,22 @@
-import React from "react";
-import { Card, Table, Descriptions, Collapse, Divider, Image } from "antd";
+import React, { useState } from "react";
+import {
+  Card,
+  Table,
+  Descriptions,
+  Collapse,
+  Divider,
+  Image,
+  Popconfirm,
+  Input,
+  Modal,
+} from "antd";
 import { Button } from "@/components/ui/button";
 
 import { BoxAllocation, OrderData, OrderDetail } from "@/model/OrderInfoProps";
 import { useParams, useRouter } from "next/navigation";
 import { EyeOutlined } from "@ant-design/icons";
+import { toast } from "react-toastify";
+import api from "@/config/axios.config";
 interface OrderInfoProps {
   data: OrderData;
 }
@@ -13,6 +25,62 @@ const OrderInfo: React.FC<OrderInfoProps> = ({ data }) => {
   const router = useRouter();
   const handleAssign = () => {
     router.push(`/manager/selectStaff/deliveries?trackId=${data.id}`);
+  };
+  const [isModalVisible, setIsModalVisible] = useState(false);
+  const [denyReason, setDenyReason] = useState("");
+  const [actionType, setActionType] = useState<"approve" | "deny">("approve");
+  const showModal = (type: "approve" | "deny") => {
+    setActionType(type);
+    if (type === "deny") {
+      setIsModalVisible(true);
+    }
+  };
+
+  const handleOk = () => {
+    if (actionType === "deny" && !denyReason.trim()) {
+      toast.error("Please enter a reason for denial");
+      return;
+    }
+    setIsModalVisible(false);
+  };
+
+  const handleCancel = () => {
+    setIsModalVisible(false);
+    setDenyReason("");
+  };
+
+  const handleConfirmAction = async () => {
+    try {
+      const requestBody = {
+        isApproved: actionType === "approve",
+        deniedReason: actionType === "deny" ? denyReason : "",
+      };
+
+      const response = await api.put(
+        `order/${data.id}/approve-fish-death-refund`,
+        requestBody,
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      if (response.status === 200) {
+        toast.success(
+          actionType === "approve"
+            ? "Refund approved successfully!"
+            : "Refund denied successfully!"
+        );
+      } else {
+        throw new Error("Failed to process refund");
+      }
+    } catch (error) {
+      toast.error("An error occurred while processing the refund");
+      console.error(error);
+    } finally {
+      setDenyReason("");
+    }
   };
   return (
     <Card title={`Order #${data.id}`} className="shadow-md p-4">
@@ -154,6 +222,62 @@ const OrderInfo: React.FC<OrderInfoProps> = ({ data }) => {
           </Button>
         </div>
       )}
+      {role === "manager" && data.orderStatus === "PendingRefund" && (
+        <div className="mt-4 flex justify-end space-x-2">
+          <Popconfirm
+            title="Are you sure to approve this refund?"
+            onConfirm={handleConfirmAction}
+            okText="Yes"
+            cancelText="No"
+          >
+            <Button
+              variant="outline"
+              onClick={() => showModal("approve")}
+              className="bg-green-500 text-white hover:bg-green-600"
+            >
+              Approve Refund
+            </Button>
+          </Popconfirm>
+
+          <Button
+            variant="outline"
+            onClick={() => showModal("deny")}
+            className="bg-red-500 text-white hover:bg-red-600"
+          >
+            Deny Refund
+          </Button>
+        </div>
+      )}
+
+      <Modal
+        title="Deny Refund Reason"
+        visible={isModalVisible}
+        onOk={handleOk}
+        onCancel={handleCancel}
+        footer={[
+          <Button key="back" onClick={handleCancel}>
+            Cancel
+          </Button>,
+          <Popconfirm
+            key="submit"
+            title="Are you sure to deny this refund?"
+            onConfirm={handleConfirmAction}
+            okText="Yes"
+            cancelText="No"
+          >
+            <Button key="submit" type="button">
+              Submit
+            </Button>
+          </Popconfirm>,
+        ]}
+      >
+        <Input.TextArea
+          rows={4}
+          value={denyReason}
+          onChange={(e) => setDenyReason(e.target.value)}
+          placeholder="Please enter the reason for denying the refund..."
+        />
+      </Modal>
     </Card>
   );
 };

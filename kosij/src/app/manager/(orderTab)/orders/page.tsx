@@ -48,7 +48,9 @@ const OrdersPage = () => {
     { text: "Packaged", value: "Packaged" },
     { text: "Delivering", value: "Delivering" },
     { text: "Delivered", value: "Delivered" },
-    { text: "Cancelled", value: "Cancelled" },
+    { text: "Cancelled by Company", value: "CancelledbyCompany" },
+    { text: "Cancelled by Customer", value: "CancelledbyCustomer" },
+    { text: "Pending Refund", value: "PendingRefund" },
     { text: "Refunded", value: "Refunded" },
   ];
 

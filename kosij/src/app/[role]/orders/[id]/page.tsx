@@ -22,7 +22,7 @@ function Page() {
   const [loading, setLoading] = useState(true);
 
   const [orders, setOrders] = useState<OrderData>();
-
+  const [refreshKey, setRefreshKey] = useState(0);
   useEffect(() => {
     if (!id) return;
 
@@ -38,8 +38,10 @@ function Page() {
     };
 
     fetchData();
-  }, [id]);
-
+  }, [id, refreshKey]);
+  const handleActionComplete = () => {
+    setRefreshKey((prev) => prev + 1);
+  };
   if (loading) return <p>Loading...</p>;
 
   return (
@@ -49,7 +51,7 @@ function Page() {
           <Spin size="large" />
         ) : orders ? (
           <>
-            <OrderInfo data={orders} />
+            <OrderInfo data={orders} onActionComplete={handleActionComplete} />
           </>
         ) : (
           <Empty description="No order data available" />

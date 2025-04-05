@@ -19,8 +19,9 @@ import { toast } from "react-toastify";
 import api from "@/config/axios.config";
 interface OrderInfoProps {
   data: OrderData;
+  onActionComplete?: () => void;
 }
-const OrderInfo: React.FC<OrderInfoProps> = ({ data }) => {
+const OrderInfo: React.FC<OrderInfoProps> = ({ data, onActionComplete }) => {
   const { role } = useParams();
   const router = useRouter();
   const handleAssign = () => {
@@ -72,6 +73,9 @@ const OrderInfo: React.FC<OrderInfoProps> = ({ data }) => {
             ? "Refund approved successfully!"
             : "Refund denied successfully!"
         );
+        if (onActionComplete) {
+          onActionComplete();
+        }
       } else {
         throw new Error("Failed to process refund");
       }

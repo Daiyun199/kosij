@@ -93,6 +93,7 @@ const TripBookingInfo: React.FC<TripBookingInfoProps> = ({
         const updatedTripBooking = {
           ...tripBooking,
           tripBookingStatus: "Cancelled",
+          note: note,
         };
         onUpdateTripBooking(updatedTripBooking);
         toast.success(
@@ -105,6 +106,7 @@ const TripBookingInfo: React.FC<TripBookingInfoProps> = ({
         const updatedTripBooking = {
           ...tripBooking,
           tripBookingStatus: "Processing",
+          note: note,
         };
 
         await updateTripBooking(tripBooking.id, updatedTripBooking);

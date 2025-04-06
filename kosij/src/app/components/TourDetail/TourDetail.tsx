@@ -190,18 +190,38 @@ const TourDetail = ({ data }: { data: TourData }) => {
       <Card className="mt-4 border border-gray-200 shadow-sm">
         <h3 className="font-semibold">Tour Price Includes</h3>
         <ul className="list-disc pl-5">
-          {data.tourPriceIncludes.map((item, index) => (
-            <li key={index}>{item}</li>
-          ))}
+          {data.tourPriceIncludes
+            .flatMap((item) =>
+              item
+                .split(". ")
+                .map((sentence) => sentence.trim())
+                .filter((sentence) => sentence.length > 0)
+            )
+            .map((sentence, index) => (
+              <li key={index}>
+                {sentence.endsWith(".") ? sentence : sentence + "."}
+              </li>
+            ))}
         </ul>
       </Card>
 
       <Card className="mt-4 border border-gray-200 shadow-sm">
         <h3 className="font-semibold">Tour Price Not Includes</h3>
         <ul className="list-disc pl-5">
-          {data.tourPriceNotIncludes.map((item, index) => (
-            <li key={index}>{item}</li>
-          ))}
+          {(() => {
+            const raw = Array.isArray(data.tourPriceNotIncludes)
+              ? (data.tourPriceNotIncludes as string[]).join(" ")
+              : (data.tourPriceNotIncludes as string);
+
+            const sentences = raw
+              .split(/(?<=\.)\s*/g) 
+              .map((sentence) => sentence.trim())
+              .filter(Boolean);
+
+            return sentences.map((sentence, index) => (
+              <li key={index}>{sentence}</li>
+            ));
+          })()}
         </ul>
       </Card>
 

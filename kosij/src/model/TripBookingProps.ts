@@ -12,5 +12,6 @@ export interface TripBookingProps {
     remaining: number;
     totalAmount: number;
     cancellationReason?: string | null;
+    note?: string;
   };
 }

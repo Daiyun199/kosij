@@ -44,6 +44,7 @@ export default function CreateTourStep0() {
   const tripBookingId = searchParams.get("tripBookingId");
   const [tripBookingStatus, setTripBookingStatus] = useState();
   const [tripRequestStatus, setTripRequestStatus] = useState();
+  const [initialNote, setInitialNote] = useState("");
   const router = useRouter();
   useEffect(() => {
     const fetchPassengers = async () => {
@@ -58,6 +59,8 @@ export default function CreateTourStep0() {
 
         if (responseTripRequest.data?.value) {
           setTripRequestStatus(responseTripRequest.data.value.requestStatus);
+          setInitialNote(responseTripRequest.data.value.note || "");
+          form.setFieldValue("note", responseTripRequest.data.value.note || "");
         }
         return;
       }
@@ -105,6 +108,8 @@ export default function CreateTourStep0() {
 
         if (responseTripRequest.data?.value) {
           setTripRequestStatus(responseTripRequest.data.value.requestStatus);
+          setInitialNote(responseTripRequest.data.value.note || "");
+          form.setFieldValue("note", responseTripRequest.data.value.note || "");
         }
       } catch (error) {
         toast.error("There's are no passengers");
@@ -139,7 +144,8 @@ export default function CreateTourStep0() {
     newPassengers[index] = { ...newPassengers[index], [field]: value };
     setPassengers(newPassengers);
   };
-
+  const isNoteEditable =
+    tripBookingStatus === null || tripBookingStatus === undefined;
   const handleSubmit = async () => {
     try {
       await form.validateFields();
@@ -439,7 +445,7 @@ export default function CreateTourStep0() {
             <Form.Item name="note" label="Notes">
               <Input.TextArea
                 placeholder="Enter notes"
-                disabled={!isEditable}
+                disabled={!isNoteEditable}
                 rows={4}
                 className="w-full"
               />

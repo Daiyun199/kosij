@@ -3,6 +3,7 @@ import ManagerLayout from "@/app/components/ManagerLayout/ManagerLayout";
 import TourDetail from "@/app/components/TourDetail/TourDetail";
 import ProtectedRoute from "@/app/ProtectedRoute";
 import api from "@/config/axios.config";
+import { getAuthToken } from "@/lib/utils/auth.utils";
 import { TourData } from "@/model/TourData";
 
 import { useParams } from "next/navigation";
@@ -19,8 +20,15 @@ function Page() {
     if (!id) return;
 
     const fetchTourData = async () => {
+      const token = getAuthToken();
       try {
-        const response = await api.get(`/tour/${id}`);
+        const response = await api.get(`/tour/${id}`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+            Accept: "text/plain",
+          },
+        });
         const data = response.data.value;
 
         if (!data) throw new Error("No data returned from API");

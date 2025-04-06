@@ -42,7 +42,7 @@ const TripBookingInfo: React.FC<TripBookingInfoProps> = ({
   const { role } = useParams();
   const isManager = role === "manager";
   const searchParams = useSearchParams();
-  const [note, setNote] = useState("");
+  const [note, setNote] = useState(tripBooking.note || "");
   const custom = searchParams.get("custom") === "true";
   const tripRequestId = searchParams.get("requestId");
   const uploadFileToFirebase = async (file: File) => {

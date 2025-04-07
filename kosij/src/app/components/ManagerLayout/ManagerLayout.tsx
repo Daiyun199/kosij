@@ -114,6 +114,11 @@ const ManagerLayout: React.FC<ManagerLayoutProps> = ({ title, children }) => {
           ],
         },
         {
+          label: "Template Configuration",
+          icon: "fa-solid fa-file-code",
+          path: "/manager/templates",
+        },
+        {
           label: "Tour",
           icon: "fa-solid fa-map",
           children: [

@@ -9,6 +9,7 @@ import {
   Button,
   message,
   Popconfirm,
+  Input,
 } from "antd";
 import { UploadOutlined } from "@ant-design/icons";
 import { TripBookingProps } from "@/model/TripBookingProps";
@@ -41,6 +42,7 @@ const TripBookingInfo: React.FC<TripBookingInfoProps> = ({
   const { role } = useParams();
   const isManager = role === "manager";
   const searchParams = useSearchParams();
+  const [note, setNote] = useState(tripBooking.note || "");
   const custom = searchParams.get("custom") === "true";
   const tripRequestId = searchParams.get("requestId");
   const uploadFileToFirebase = async (file: File) => {
@@ -91,6 +93,7 @@ const TripBookingInfo: React.FC<TripBookingInfoProps> = ({
         const updatedTripBooking = {
           ...tripBooking,
           tripBookingStatus: "Cancelled",
+          note: note,
         };
         onUpdateTripBooking(updatedTripBooking);
         toast.success(
@@ -103,6 +106,7 @@ const TripBookingInfo: React.FC<TripBookingInfoProps> = ({
         const updatedTripBooking = {
           ...tripBooking,
           tripBookingStatus: "Processing",
+          note: note,
         };
 
         await updateTripBooking(tripBooking.id, updatedTripBooking);
@@ -133,7 +137,7 @@ const TripBookingInfo: React.FC<TripBookingInfoProps> = ({
           ...tripBooking,
           outboundTicketUrl: outboundUrl,
           inboundTicketUrl: inboundUrl,
-          note: "Updated ticket images",
+          note: note,
         };
 
         await updateTripBooking(tripBooking.id, updatedTripBooking);
@@ -221,6 +225,19 @@ const TripBookingInfo: React.FC<TripBookingInfoProps> = ({
                 Upload Inbound Ticket
               </Button>
             </Upload>
+          )}
+        </Descriptions.Item>
+        <Descriptions.Item label="Note">
+          {tripBooking.tripBookingStatus === "Paid" ||
+          tripBooking.tripBookingStatus === "Deposited" ? (
+            <Input.TextArea
+              value={note}
+              onChange={(e) => setNote(e.target.value)}
+              rows={3}
+              placeholder="Enter note here"
+            />
+          ) : (
+            <Text>{tripBooking.note}</Text>
           )}
         </Descriptions.Item>
       </Descriptions>

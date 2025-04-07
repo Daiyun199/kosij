@@ -45,6 +45,7 @@ export default function CreateTourStep0() {
   const [tripBookingStatus, setTripBookingStatus] = useState();
   const [tripRequestStatus, setTripRequestStatus] = useState();
   const [initialNote, setInitialNote] = useState("");
+  const [modifiedNote, setModifiedNote] = useState("");
   const router = useRouter();
   useEffect(() => {
     const fetchPassengers = async () => {
@@ -60,6 +61,7 @@ export default function CreateTourStep0() {
         if (responseTripRequest.data?.value) {
           setTripRequestStatus(responseTripRequest.data.value.requestStatus);
           setInitialNote(responseTripRequest.data.value.note || "");
+          setModifiedNote(responseTripRequest.data.value.note || "");
           form.setFieldValue("note", responseTripRequest.data.value.note || "");
         }
         return;
@@ -109,7 +111,17 @@ export default function CreateTourStep0() {
         if (responseTripRequest.data?.value) {
           setTripRequestStatus(responseTripRequest.data.value.requestStatus);
           setInitialNote(responseTripRequest.data.value.note || "");
-          form.setFieldValue("note", responseTripRequest.data.value.note || "");
+          setModifiedNote(
+            responseTripRequest.data.value.modifiedNote ||
+              responseTripRequest.data.value.note ||
+              ""
+          );
+          form.setFieldValue(
+            "note",
+            responseTripRequest.data.value.modifiedNote ||
+              responseTripRequest.data.value.note ||
+              ""
+          );
         }
       } catch (error) {
         toast.error("There's are no passengers");
@@ -212,7 +224,7 @@ export default function CreateTourStep0() {
 
       const payload = {
         passengerDetailsRequests: formattedPassengers,
-        note: form.getFieldValue("note"),
+        note: modifiedNote || initialNote,
       };
 
       if (
@@ -231,9 +243,11 @@ export default function CreateTourStep0() {
         });
       } else {
         await api.put(`staff/trip-request/${tripRequestId}/modified-note`, {
-          modifiedNote: payload.note,
+          modifiedNote: modifiedNote || initialNote,
         });
-        delete payload.note;
+        const payload = {
+          passengerDetailsRequests: formattedPassengers,
+        };
         await api.put(`/trip-booking/${tripBookingId}/passengers`, payload);
       }
 
@@ -450,6 +464,11 @@ export default function CreateTourStep0() {
                 disabled={!isEditable}
                 rows={4}
                 className="w-full"
+                value={modifiedNote || initialNote}
+                onChange={(e) => {
+                  setModifiedNote(e.target.value);
+                  form.setFieldValue("note", e.target.value);
+                }}
               />
             </Form.Item>
 

@@ -144,8 +144,7 @@ export default function CreateTourStep0() {
     newPassengers[index] = { ...newPassengers[index], [field]: value };
     setPassengers(newPassengers);
   };
-  const isNoteEditable =
-    tripBookingStatus === null || tripBookingStatus === undefined;
+
   const handleSubmit = async () => {
     try {
       await form.validateFields();
@@ -231,6 +230,9 @@ export default function CreateTourStep0() {
           ...payload,
         });
       } else {
+        await api.put(`staff/trip-request/${tripRequestId}/modified-note`, {
+          modifiedNote: payload.note,
+        });
         delete payload.note;
         await api.put(`/trip-booking/${tripBookingId}/passengers`, payload);
       }
@@ -445,7 +447,7 @@ export default function CreateTourStep0() {
             <Form.Item name="note" label="Notes">
               <Input.TextArea
                 placeholder="Enter notes"
-                disabled={!isNoteEditable}
+                disabled={!isEditable}
                 rows={4}
                 className="w-full"
               />

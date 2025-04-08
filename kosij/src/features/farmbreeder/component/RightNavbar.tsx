@@ -155,7 +155,7 @@ function RightNavbar({ children }: PropsWithChildren) {
               },
               {
                 key: "notification",
-                path: "farmbreeder/dashboard",
+                path: "farmbreeder/notification",
                 name: "Notifications",
                 icon: <BellOutlined />,
               },

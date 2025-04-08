@@ -7,7 +7,7 @@ import {
 import { useRef } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { getCurrentFarmTrips } from "@/features/farmbreeder/api/trip/all.api";
-import { Tag } from "antd";
+import { Button, Space, Tag } from "antd";
 import ProtectedRoute from "@/app/ProtectedRoute";
 
 type TripItem = {
@@ -139,8 +139,29 @@ export default function Page() {
 
   return (
     <ProtectedRoute allowedRoles={["farmbreeder"]}>
-      <PageContainer title="Trip Tracking List">
-        <section className="mt-5">
+      <PageContainer
+        title="Trip Tracking List"
+        extra={
+          <Space>
+            <Button
+              style={{
+                borderRadius: "2rem",
+                width: "5rem",
+                borderColor: "#000000",
+              }}
+            >
+              ENG
+            </Button>
+          </Space>
+        }
+        header={{
+          style: {
+            boxShadow: "0px 4px 6px rgba(0, 0, 0, 0.1)",
+            background: "white",
+            zIndex: 10,
+          },
+        }}
+      >        <section className="mt-5">
           <ProTable<TripItem>
             columns={columns}
             actionRef={actionRef}

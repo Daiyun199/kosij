@@ -100,7 +100,7 @@ function Page() {
       const res = await api.get(
         `/trips/dashboard/current-sales?startDate=${startDate}&endDate=${endDate}`
       );
-      return res.data || {};
+      return res.data.value || {};
     } catch (error: any) {
       console.error("Error fetching data:", error.message);
       return {};

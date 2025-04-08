@@ -94,7 +94,7 @@ function Page() {
       const res = await api.get(
         `/manager/finance-dashboard?startDate=${startDate}&endDate=${endDate}`
       );
-      return res.data || {};
+      return res.data.value || {};
     } catch (error: any) {
       console.error("Error fetching data:", error.message);
       return {};
@@ -121,7 +121,7 @@ function Page() {
         fetchDashboardData(startDate, endDate),
         fetchDashboardData(prevStart, prevEnd),
       ]);
-
+      console.log(currentData);
       setMetricsData({
         "Total Revenue From Orders": {
           today: currentData?.totalRevenueFromOrders ?? 0,

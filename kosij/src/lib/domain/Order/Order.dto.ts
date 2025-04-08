@@ -17,6 +17,8 @@ export interface OrderDetailImage {
   }
   
   export interface Order {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    key: any;
     orderId: number;
     fullName: string;
     phoneNumber: string;
@@ -24,6 +26,9 @@ export interface OrderDetailImage {
     paidAmount: number;
     remaining: number;
     totalOrderAmount: number;
+    commissionPercentage: number;
+    totalCommission: number;
+    totalAfterCommission: number;
     note: string;
     expectedDeliveryDate: string;
     orderStatus: string;

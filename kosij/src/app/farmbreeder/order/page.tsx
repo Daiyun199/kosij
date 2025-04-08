@@ -10,17 +10,20 @@ import { updateOrderStatus } from "@/features/farmbreeder/api/order/update.api";
 import { Order } from "@/lib/domain/Order/Order.dto";
 import dayjs from "dayjs";
 import ProtectedRoute from "@/app/ProtectedRoute";
+import { useRouter } from "next/navigation";
 
 const statusColors: { [key in Order["orderStatus"]]: string } = {
   Pending: "default",
-  Unpacked: "default",
+  Deposited: "orange",
   Packed: "blue",
-  Shipping: "gold",
-  Completed: "green",
+  Delivering: "gold",
+  Delivered: "green",
   Cancelled: "red",
+  Refunded: "purple"
 };
 
 function Page() {
+  const router = useRouter();
   const { data, isLoading, refetch } = useQuery({
     queryKey: ["currentFarmOrders"],
     queryFn: fetchCurrentFarmOrders,
@@ -138,9 +141,15 @@ function Page() {
     {
       title: "Actions",
       key: "actions",
-      render: () => (
+      render: (_, record) => (
         <Space>
-          <Button icon={<EyeOutlined />} />
+          <Button
+            icon={<EyeOutlined />}
+            onClick={() => {
+              router.push(`/farmbreeder/order/${record.orderId}`);
+              console.log("id: ", record.orderId);
+            }}
+          />
         </Space>
       ),
     },

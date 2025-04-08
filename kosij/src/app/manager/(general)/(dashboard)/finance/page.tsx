@@ -92,7 +92,7 @@ function Page() {
   const fetchDashboardData = async (startDate: string, endDate: string) => {
     try {
       const res = await api.get(
-        `/manager/trips/dashboard?startDate=${startDate}&endDate=${endDate}`
+        `/manager/finance-dashboard?startDate=${startDate}&endDate=${endDate}`
       );
       return res.data || {};
     } catch (error: any) {

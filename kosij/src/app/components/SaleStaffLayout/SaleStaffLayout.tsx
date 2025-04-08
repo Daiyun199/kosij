@@ -24,7 +24,7 @@ const SaleStaffLayout: React.FC<SaleStaffLayoutProps> = ({
         {
           label: "Dashboard",
           icon: "fa-solid fa-chart-pie",
-          path: "/sale-staff/dashboard",
+          path: "/sale/dashboard",
         },
         {
           label: "Notifications",

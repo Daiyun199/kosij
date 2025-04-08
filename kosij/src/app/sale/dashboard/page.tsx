@@ -8,15 +8,21 @@ import dayjs from "dayjs";
 import { Select, DatePicker } from "antd";
 import api from "@/config/axios.config";
 import ProtectedRoute from "@/app/ProtectedRoute";
+import SaleStaffLayout from "@/app/components/SaleStaffLayout/SaleStaffLayout";
 
 const { Option } = Select;
 
 function Page() {
   const [metricsData, setMetricsData] = useState({
-    "Total Revenue From Orders": { today: 0, comparison: "0%" },
-    "Total Revenue From Trips": { today: 0, comparison: "0%" },
+    "Total Scheduled Trips": { today: 0, comparison: "0%" },
+    "Total Customized Trips": { today: 0, comparison: "0%" },
+    "Total Completed Trips": { today: 0, comparison: "0%" },
+    "Total Cancelled Trips": { today: 0, comparison: "0%" },
+    "Pending Trip Requests": { today: 0, comparison: "0%" },
+    "Completed Trip Requests": { today: 0, comparison: "0%" },
+    "Cancelled Trip Requests": { today: 0, comparison: "0%" },
+    "Total Trip Requests": { today: 0, comparison: "0%" },
     "Total Revenue": { today: 0, comparison: "0%" },
-    "Total Commission To Farm": { today: 0, comparison: "0%" },
   });
 
   const [selectedTime, setSelectedTime] = useState("day");
@@ -92,7 +98,7 @@ function Page() {
   const fetchDashboardData = async (startDate: string, endDate: string) => {
     try {
       const res = await api.get(
-        `/manager/trips/dashboard?startDate=${startDate}&endDate=${endDate}`
+        `/trips/dashboard/current-sales?startDate=${startDate}&endDate=${endDate}`
       );
       return res.data || {};
     } catch (error: any) {
@@ -123,18 +129,60 @@ function Page() {
       ]);
 
       setMetricsData({
-        "Total Revenue From Orders": {
-          today: currentData?.totalRevenueFromOrders ?? 0,
+        "Total Scheduled Trips": {
+          today: currentData?.totalScheduledTrips ?? 0,
           comparison: calculateComparison(
-            currentData?.totalRevenueFromOrders ?? 0,
-            previousData?.totalRevenueFromOrders ?? 0
+            currentData?.totalScheduledTrips ?? 0,
+            previousData?.totalScheduledTrips ?? 0
           ),
         },
-        "Total Revenue From Trips": {
-          today: currentData?.totalRevenueFromTrips ?? 0,
+        "Total Customized Trips": {
+          today: currentData?.totalCustomizedTrips ?? 0,
           comparison: calculateComparison(
-            currentData?.totalRevenueFromTrips ?? 0,
-            previousData?.totalRevenueFromTrips ?? 0
+            currentData?.totalCustomizedTrips ?? 0,
+            previousData?.totalCustomizedTrips ?? 0
+          ),
+        },
+        "Total Completed Trips": {
+          today: currentData?.totalCompletedTrips ?? 0,
+          comparison: calculateComparison(
+            currentData?.totalCompletedTrips ?? 0,
+            previousData?.totalCompletedTrips ?? 0
+          ),
+        },
+        "Total Cancelled Trips": {
+          today: currentData?.totalCancelledTrips ?? 0,
+          comparison: calculateComparison(
+            currentData?.totalCancelledTrips ?? 0,
+            previousData?.totalCancelledTrips ?? 0
+          ),
+        },
+        "Pending Trip Requests": {
+          today: currentData?.pendingTripRequests ?? 0,
+          comparison: calculateComparison(
+            currentData?.pendingTripRequests ?? 0,
+            previousData?.pendingTripRequests ?? 0
+          ),
+        },
+        "Completed Trip Requests": {
+          today: currentData?.completedTripRequests ?? 0,
+          comparison: calculateComparison(
+            currentData?.completedTripRequests ?? 0,
+            previousData?.completedTripRequests ?? 0
+          ),
+        },
+        "Cancelled Trip Requests": {
+          today: currentData?.cancelledTripRequests ?? 0,
+          comparison: calculateComparison(
+            currentData?.cancelledTripRequests ?? 0,
+            previousData?.cancelledTripRequests ?? 0
+          ),
+        },
+        "Total Trip Requests": {
+          today: currentData?.totalTripRequests ?? 0,
+          comparison: calculateComparison(
+            currentData?.totalTripRequests ?? 0,
+            previousData?.totalTripRequests ?? 0
           ),
         },
         "Total Revenue": {
@@ -144,14 +192,8 @@ function Page() {
             previousData?.totalRevenue ?? 0
           ),
         },
-        "Total Commission To Farm": {
-          today: currentData?.totalCommissionToFarm ?? 0,
-          comparison: calculateComparison(
-            currentData?.totalCommissionToFarm ?? 0,
-            previousData?.totalCommissionToFarm ?? 0
-          ),
-        },
       });
+
       setChartData({
         labels: ["Current Period", "Previous Period"],
         datasets: [
@@ -166,10 +208,10 @@ function Page() {
             borderWidth: 1,
           },
           {
-            label: "Commission To Farm",
+            label: "Completed Trips",
             data: [
-              currentData?.totalCommissionToFarm ?? 0,
-              previousData?.totalCommissionToFarm ?? 0,
+              currentData?.totalCompletedTrips ?? 0,
+              previousData?.totalCompletedTrips ?? 0,
             ],
             backgroundColor: "rgba(153, 102, 255, 0.6)",
             borderColor: "rgba(153, 102, 255, 1)",
@@ -185,8 +227,8 @@ function Page() {
   }, [selectedTime, selectedValue]);
 
   return (
-    <ProtectedRoute allowedRoles={["manager"]}>
-      <ManagerLayout title="Trip Revenue">
+    <ProtectedRoute allowedRoles={["salesstaff"]}>
+      <SaleStaffLayout title="Trips Dashboard">
         <div className="p-6 bg-gray-100 min-h-screen">
           <div className="flex items-center space-x-4 mb-4">
             <Select
@@ -225,7 +267,7 @@ function Page() {
             <p>Loading...</p>
           ) : (
             <Dashboard
-              title="Trip Revenue Dashboard"
+              title="Trips Overview"
               metricsData={metricsData}
               selectedTime={selectedTime}
               chartData={chartData}
@@ -233,16 +275,13 @@ function Page() {
                 responsive: true,
                 plugins: {
                   legend: { position: "top" },
-                  title: {
-                    display: true,
-                    text: "Revenue and Commission Overview",
-                  },
+                  title: { display: true, text: "Trips and Revenue Overview" },
                 },
               }}
             />
           )}
         </div>
-      </ManagerLayout>
+      </SaleStaffLayout>
     </ProtectedRoute>
   );
 }

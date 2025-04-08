@@ -53,11 +53,23 @@ const Dashboard: React.FC<DashboardProps> = ({
     },
   };
 
+  const metricCount = Object.keys(metricsData).length;
+
+  const getGridClass = () => {
+    if (metricCount === 4) {
+      return "grid-cols-2";
+    } else if (metricCount % 3 === 0) {
+      return "grid-cols-3";
+    }
+
+    return "grid-cols-3";
+  };
+
   return (
     <div className="space-y-8">
       <h2 className="text-2xl font-bold">{title}</h2>
 
-      <div className="grid grid-cols-3 gap-6">
+      <div className={`grid ${getGridClass()} gap-6`}>
         {Object.entries(metricsData).map(([metricTitle, data]) => (
           <MetricCard
             key={metricTitle}

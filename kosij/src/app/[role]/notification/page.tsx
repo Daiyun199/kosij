@@ -151,13 +151,13 @@ const Page = () => {
 
   if (loading) {
     return (
-      <ManagerLayout title="Notification">
+      <LayoutComponent title="Notification">
         <div className="bg-gray-50 min-h-screen p-6">
           <div className="max-w-4xl mx-auto bg-white rounded-2xl shadow-lg">
             <div className="p-8 text-center">Loading notifications...</div>
           </div>
         </div>
-      </ManagerLayout>
+      </LayoutComponent>
     );
   }
 

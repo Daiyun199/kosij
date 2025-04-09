@@ -455,37 +455,44 @@ export default function CreateTourStep0() {
   return (
     <ProtectedRoute allowedRoles={["salesstaff"]}>
       <SaleStaffLayout title="Trip Custom">
-        <div className="p-6 bg-white rounded-lg shadow-md">
+        <div className="p-6 bg-white rounded-lg shadow-md min-h-[800px] flex flex-col">
           <h2 className="text-xl font-semibold mb-4">Trip Booking</h2>
-          <Form form={form} layout="vertical" onFinish={handleSubmit}>
-            <Form.Item name="note" label="Notes">
-              <Input.TextArea
-                placeholder="Enter notes"
-                disabled={!isEditable}
-                rows={4}
-                className="w-full"
-                value={modifiedNote || initialNote}
-                onChange={(e) => {
-                  setModifiedNote(e.target.value);
-                  form.setFieldValue("note", e.target.value);
-                }}
-              />
-            </Form.Item>
 
-            <div className="flex flex-col md:flex-row md:justify-between md:items-center mb-4 gap-2">
-              <h3 className="text-lg font-semibold">Passenger Information</h3>
-              <Button
-                onClick={addPassenger}
-                type="button"
-                className="bg-blue-500 hover:bg-blue-600 text-white w-full md:w-auto"
-                disabled={!isEditable}
-              >
-                <PlusOutlined /> Add Passenger
-              </Button>
+          <Form
+            form={form}
+            layout="vertical"
+            onFinish={handleSubmit}
+            className="flex flex-col flex-1"
+          >
+            <div className="flex-shrink-0">
+              <Form.Item name="note" label="Notes">
+                <Input.TextArea
+                  placeholder="Enter notes"
+                  disabled={!isEditable}
+                  rows={4}
+                  className="w-full"
+                  value={modifiedNote || initialNote}
+                  onChange={(e) => {
+                    setModifiedNote(e.target.value);
+                    form.setFieldValue("note", e.target.value);
+                  }}
+                />
+              </Form.Item>
+
+              <div className="flex flex-col md:flex-row md:justify-between md:items-center mb-4 gap-2">
+                <h3 className="text-lg font-semibold">Passenger Information</h3>
+                <Button
+                  onClick={addPassenger}
+                  type="button"
+                  className="bg-blue-500 hover:bg-blue-600 text-white w-full md:w-auto"
+                  disabled={!isEditable}
+                >
+                  <PlusOutlined /> Add Passenger
+                </Button>
+              </div>
             </div>
-
-            <div className="relative">
-              <div className="overflow-x-auto border rounded-lg">
+            <div className="flex-1 overflow-hidden border  rounded-lg relative">
+              <div className="absolute inset-0 overflow-x-auto overflow-y-visible">
                 <Table
                   columns={columns}
                   dataSource={passengers}
@@ -493,12 +500,17 @@ export default function CreateTourStep0() {
                   scroll={{ x: "max-content" }}
                   className="w-full whitespace-nowrap"
                   size="middle"
-                  style={{ minWidth: "1000px" }}
+                  style={{
+                    minWidth: "100%",
+                    tableLayout: "auto",
+                    marginBottom: 0,
+                    overflowY: "hidden",
+                  }}
                 />
               </div>
             </div>
 
-            <div className="mt-6 flex flex-col sm:flex-row justify-end gap-4">
+            <div className="flex-shrink-0 mt-4 flex flex-col sm:flex-row justify-end gap-4 sticky bottom-0 bg-white pt-4 z-10">
               <Button
                 type="button"
                 className="bg-gray-500 hover:bg-gray-600 text-white w-full sm:w-auto"

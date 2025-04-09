@@ -387,7 +387,7 @@ const CreateTourStep4: React.FC<CreateTourStep4Props> = ({
     <SaleStaffLayout title="Create Tour">
       <div className="p-6 bg-white shadow-md rounded-lg w-full max-w-4xl mx-auto">
         <h2 className="text-2xl font-bold text-center mb-6 uppercase">
-          Tour Information Form
+          TOUR INFORMATION FORM
         </h2>
 
         <Card title="Cancel Policy" className="mb-6">

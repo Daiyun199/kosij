@@ -5,8 +5,6 @@ import { Button, Space, Statistic, Table, Tag } from "antd";
 import ClickableArea from "@/app/components/ClickableArea";
 import { cn } from "@/lib/utils/cn.util";
 import {
-  ArrowDownOutlined,
-  ArrowUpOutlined,
   MoneyCollectOutlined,
   ShopOutlined,
   TeamOutlined,
@@ -145,12 +143,12 @@ function Page() {
               />
               <TeamOutlined className="text-blue-600 text-2xl cursor-pointer" />
             </div>
-            <Statistic
+            {/* <Statistic
               value={12}
               valueStyle={{ fontSize: "1rem", color: "green" }}
               prefix={<ArrowUpOutlined />}
               suffix="% from last month"
-            />
+            /> */}
           </ClickableArea>
           <ClickableArea className={cn("block h-32 shadow-md p-4")}>
             <div className="flex items-start justify-between">
@@ -163,12 +161,12 @@ function Page() {
               />
               <ShopOutlined className="text-violet-500 text-2xl cursor-pointer" />
             </div>
-            <Statistic
+            {/* <Statistic
               value={12}
               valueStyle={{ fontSize: "1rem", color: "red" }}
               prefix={<ArrowDownOutlined />}
               suffix="% from last month"
-            />
+            /> */}
           </ClickableArea>
           <ClickableArea className={cn("block h-32 shadow-md p-4")}>
             <div className="flex items-start justify-between">
@@ -181,12 +179,12 @@ function Page() {
               />
               <WalletOutlined className="text-green-600 text-2xl cursor-pointer" />
             </div>
-            <Statistic
+            {/* <Statistic
               value={12}
               valueStyle={{ fontSize: "1rem", color: "green" }}
               prefix={<ArrowUpOutlined />}
               suffix="% from last month"
-            />
+            /> */}
           </ClickableArea>
           <ClickableArea className={cn("block h-32 shadow-md p-4")}>
             <div className="flex items-start justify-between">
@@ -199,12 +197,12 @@ function Page() {
               />
               <MoneyCollectOutlined className="text-orange-500 text-2xl cursor-pointer" />
             </div>
-            <Statistic
+            {/* <Statistic
               value={12}
               valueStyle={{ fontSize: "1rem", color: "green" }}
               prefix={<ArrowUpOutlined />}
               suffix="% from last month"
-            />
+            /> */}
           </ClickableArea>
         </section>
         <section className="mt-3">

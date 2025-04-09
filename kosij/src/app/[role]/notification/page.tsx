@@ -65,32 +65,6 @@ const formatTime = (dateString: string) => {
   return `${Math.floor(diffInSeconds / 86400)} days ago`;
 };
 
-const getActionText = (referenceType: string, refId: number) => {
-  switch (referenceType) {
-    case "Order":
-      return { text: "View Order Details →", url: `/manager/orders/${refId}` };
-    case "Trip":
-      return { text: "Trip Details →", url: `/manager/trips/${refId}` };
-    case "TripRequest":
-      return {
-        text: "Trip Request Details →",
-        url: `/manager/requests/${refId}`,
-      };
-    case "TripBooking":
-      return {
-        text: "Trip Booking Details →",
-        url: `/manager/bookings/${refId}`,
-      };
-    case "WithdrawalRequest":
-      return {
-        text: "Statement of money →",
-        url: `/manager/withdrawals/${refId}`,
-      };
-    default:
-      return null;
-  }
-};
-
 const Page = () => {
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [loading, setLoading] = useState(true);
@@ -109,6 +83,35 @@ const Page = () => {
       console.error("Error marking notification as read:", error);
     }
   };
+  const getActionText = (referenceType: string, refId: number) => {
+    switch (referenceType) {
+      case "Order":
+        return {
+          text: "View Order Details →",
+          url: `/manager/orders/${refId}`,
+        };
+      case "Trip":
+        return { text: "Trip Details →", url: `/${role}/trip/${refId}` };
+      case "TripRequest":
+        return {
+          text: "Trip Request Details →",
+          url: `/${role}/requests/${refId}`,
+        };
+      case "TripBooking":
+        return {
+          text: "Trip Booking Details →",
+          url: `/${role}/passengers/${refId}`,
+        };
+      case "WithdrawalRequest":
+        return {
+          text: "Statement of money →",
+          url: `/manager/withdrawals/${refId}`,
+        };
+      default:
+        return null;
+    }
+  };
+
   useEffect(() => {
     const fetchNotifications = async () => {
       try {
@@ -151,13 +154,13 @@ const Page = () => {
 
   if (loading) {
     return (
-      <ManagerLayout title="Notification">
+      <LayoutComponent title="Notification">
         <div className="bg-gray-50 min-h-screen p-6">
           <div className="max-w-4xl mx-auto bg-white rounded-2xl shadow-lg">
             <div className="p-8 text-center">Loading notifications...</div>
           </div>
         </div>
-      </ManagerLayout>
+      </LayoutComponent>
     );
   }
 

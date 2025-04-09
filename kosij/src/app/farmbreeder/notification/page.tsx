@@ -5,7 +5,9 @@ import { PageContainer } from "@ant-design/pro-layout";
 import { useEffect, useState } from "react";
 import { Button, Space, Typography, Tooltip } from "antd";
 import { BellOutlined, CheckOutlined } from "@ant-design/icons";
-import { useNotifications } from "@/features/farmbreeder/api/notification/all.api";
+import { useNotification } from "@/features/farmbreeder/api/notification/all.api";
+import { useNotifications } from "@/features/farmbreeder/api/notification/update.api";
+import { useRouter } from "next/navigation";
 
 const { Text } = Typography;
 
@@ -13,24 +15,9 @@ function NotificationPage() {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [notifications, setNotifications] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-  const { fetchNotification } = useNotifications();
-
-  const updateNotification = async (id: number) => {
-    setNotifications((prevNotifications) =>
-      prevNotifications.map((notif) =>
-        notif.id === id ? { ...notif, markAsRead: true } : notif
-      )
-    );
-  };
-
-  const updateAllNotifications = async () => {
-    setNotifications((prevNotifications) =>
-      prevNotifications.map((notif) => ({
-        ...notif,
-        markAsRead: true,
-      }))
-    );
-  };
+  const { fetchNotification } = useNotification();
+  const { updateNotification, updateAllNotification } = useNotifications();
+  const router = useRouter();
 
   useEffect(() => {
     const loadNotifications = async () => {
@@ -46,11 +33,26 @@ function NotificationPage() {
   const handleNotificationClick = (notification: any) => {
     updateNotification(notification.id);
 
-    // Navigate to the respective details page (mocked here with logs)
-    if (notification.referenceType === "Trip") {
-      console.log("Navigate to Trip Details:", notification.refId);
+    if (notification.referenceType === "WithdrawalRequest") {
+      router.push(`/farmbreeder/wallet`);
+    } else if (notification.referenceType === "Feedback") {
+      router.push(`/farmbreeder/ratings`);
     } else if (notification.referenceType === "Order") {
-      console.log("Navigate to Order Details:", notification.refId);
+      router.push(`/farmbreeder/order/${notification.refId}`);
+    }
+  };
+
+  const handleReadAllClick = async () => {
+    try {
+      await updateAllNotification();
+      setNotifications((prevNotifications) =>
+        prevNotifications.map((notification) => ({
+          ...notification,
+          markAsRead: true,
+        }))
+      );
+    } catch (error) {
+      console.error("Error marking all notifications as read:", error);
     }
   };
 
@@ -89,7 +91,7 @@ function NotificationPage() {
           <div className="mb-3 flex justify-end">
             <Button
               type="primary"
-              onClick={updateAllNotifications}
+              onClick={handleReadAllClick}
               icon={<CheckOutlined />}
             >
               Mark All as Read ({unreadCount})
@@ -120,6 +122,7 @@ function NotificationPage() {
                     justifyContent: "space-between",
                     alignItems: "center",
                   }}
+                  onClick={() => handleNotificationClick(notification)}
                 >
                   <div style={{ display: "flex", alignItems: "center" }}>
                     {/* {isUnread && ( */}
@@ -134,7 +137,6 @@ function NotificationPage() {
                     <div>
                       <Tooltip title="Click to view details">
                         <Text
-                          onClick={() => handleNotificationClick(notification)}
                           style={{
                             fontWeight: isUnread ? "bold" : "normal",
                             cursor: "pointer",

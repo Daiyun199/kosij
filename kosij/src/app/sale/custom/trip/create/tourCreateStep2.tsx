@@ -302,7 +302,7 @@ export default function CreateTripStep2({
     <SaleStaffLayout title="Tour Create">
       <div className="p-6 bg-white shadow-lg rounded-lg max-w-3xl mx-auto">
         <Title level={2} className="text-center text-gray-800">
-          TOUR INFORMATION FORM
+          TRIP INFORMATION FORM
         </Title>
 
         {days.map((day, dayIndex) => (

@@ -106,6 +106,10 @@ export default function CreateTripStep1({
   };
 
   const handleNext = () => {
+    if (!img) {
+      toast.error("Please upload an image!");
+      return;
+    }
     form.validateFields().then((values) => {
       const newData = {
         ...values,
@@ -148,7 +152,7 @@ export default function CreateTripStep1({
       <div className="flex justify-center p-6">
         <Card className="p-6 w-full max-w-3xl">
           <h2 className="text-2xl font-bold text-center mb-4">
-            TOUR INFORMATION FORM
+            TRIP INFORMATION FORM
           </h2>
           <Form layout="vertical" form={form}>
             <Form.Item

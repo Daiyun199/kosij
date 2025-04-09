@@ -89,7 +89,7 @@ const CreateTourStep3: React.FC<CreateTourStep3Props> = ({
     <ManagerLayout title="Create Tour">
       <div className="p-6 bg-white shadow-md rounded-lg w-full max-w-4xl mx-auto">
         <h2 className="text-2xl font-bold text-center mb-6 uppercase">
-          Tour Information Form
+          TOUR INFORMATION FORM
         </h2>
         <Card className="p-4 mb-6">
           <h3 className="text-lg font-semibold mb-4">Tour Price</h3>

@@ -52,6 +52,10 @@ export default function CreateTourStep1({
   };
 
   const handleNext = () => {
+    if (!img) {
+      toast.error("Please upload an image!");
+      return;
+    }
     form.validateFields().then((values) => {
       const newData = {
         ...values,

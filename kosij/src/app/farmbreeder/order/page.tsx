@@ -157,8 +157,29 @@ function Page() {
 
   return (
     <ProtectedRoute allowedRoles={["farmbreeder"]}>
-      <PageContainer title="Orders List">
-        <section className="mt-5">
+      <PageContainer
+        title="Order List"
+        extra={
+          <Space>
+            <Button
+              style={{
+                borderRadius: "2rem",
+                width: "5rem",
+                borderColor: "#000000",
+              }}
+            >
+              ENG
+            </Button>
+          </Space>
+        }
+        header={{
+          style: {
+            boxShadow: "0px 4px 6px rgba(0, 0, 0, 0.1)",
+            background: "white",
+            zIndex: 10,
+          },
+        }}
+      >        <section className="mt-5">
           <ProTable<Order>
             columns={columns}
             dataSource={data}

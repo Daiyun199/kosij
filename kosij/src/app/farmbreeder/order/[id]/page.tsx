@@ -121,7 +121,7 @@ function Page() {
           title: (
             <div className="flex">
               <Button
-                onClick={() => router.back()} // Navigate back to the previous page
+                onClick={() => router.back()}
                 type="text"
                 style={{ fontSize: "20px" }}
               >

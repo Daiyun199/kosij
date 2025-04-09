@@ -370,7 +370,11 @@ export default function CreateTourStep0() {
           name={["passengers", index, "phoneNumber"]}
           rules={[
             { required: true, message: "Phone number is required!" },
-            { pattern: /^[0-9]{8,15}$/, message: "Must be 8-15 digits!" },
+            {
+              pattern: /^0\d{9}$/,
+              message:
+                "Phone number must start with 0 and be exactly 10 digits!",
+            },
           ]}
           validateTrigger="onBlur"
           style={{ marginBottom: 0 }}

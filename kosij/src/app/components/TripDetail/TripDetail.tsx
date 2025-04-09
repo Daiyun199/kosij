@@ -243,7 +243,7 @@ const TripDetail = ({
                           <p>
                             <strong>Farm:</strong>{" "}
                             <a
-                              href={`/manager/farms/${detail.farmId}`}
+                              href={`/${role}/farms/${detail.farmId}`}
                               className="text-blue-500 hover:underline"
                             >
                               {detail.name}

@@ -36,6 +36,9 @@ const TripBookingInfo: React.FC<TripBookingInfoProps> = ({
   const atLeastOnePassengerHasVisa = PassengerList.some(
     (passenger) => passenger.hasVisa
   );
+
+  const [outboundPreview, setOutboundPreview] = useState<string | null>(null);
+  const [inboundPreview, setInboundPreview] = useState<string | null>(null);
   const [outboundFile, setOutboundFile] = useState<File | null>(null);
   const [inboundFile, setInboundFile] = useState<File | null>(null);
   const [uploading, setUploading] = useState(false);
@@ -181,9 +184,9 @@ const TripBookingInfo: React.FC<TripBookingInfoProps> = ({
           </Text>
         </Descriptions.Item>
         <Descriptions.Item label="Outbound Ticket">
-          {tripBooking.outboundTicketUrl && (
+          {(tripBooking.outboundTicketUrl || outboundPreview) && (
             <Image
-              src={tripBooking.outboundTicketUrl}
+              src={outboundPreview || tripBooking.outboundTicketUrl || ""}
               alt="Outbound Ticket"
               width={150}
               height={150}
@@ -194,8 +197,10 @@ const TripBookingInfo: React.FC<TripBookingInfoProps> = ({
             <Upload
               beforeUpload={(file) => {
                 setOutboundFile(file);
+                setOutboundPreview(URL.createObjectURL(file));
                 return false;
               }}
+              showUploadList={false}
             >
               <Button icon={<UploadOutlined />} disabled={uploading}>
                 Upload Outbound Ticket
@@ -205,9 +210,9 @@ const TripBookingInfo: React.FC<TripBookingInfoProps> = ({
         </Descriptions.Item>
 
         <Descriptions.Item label="Inbound Ticket">
-          {tripBooking.inboundTicketUrl && (
+          {(tripBooking.inboundTicketUrl || inboundPreview) && (
             <Image
-              src={tripBooking.inboundTicketUrl}
+              src={inboundPreview || tripBooking.inboundTicketUrl || ""}
               alt="Inbound Ticket"
               width={150}
               height={150}
@@ -218,8 +223,10 @@ const TripBookingInfo: React.FC<TripBookingInfoProps> = ({
             <Upload
               beforeUpload={(file) => {
                 setInboundFile(file);
+                setInboundPreview(URL.createObjectURL(file));
                 return false;
               }}
+              showUploadList={false}
             >
               <Button icon={<UploadOutlined />} disabled={uploading}>
                 Upload Inbound Ticket

@@ -320,6 +320,19 @@ const TripRequestDetail = () => {
               </Button>
             </Popconfirm>
           )}
+        {role === "manager" && trip.requestStatus === "Pending" && (
+          <>
+            <Button
+              type="default"
+              className="bg-green-500 hover:bg-green-600 text-white"
+              onClick={() =>
+                router.push(`/manager/selectStaff?requestId=${id}`)
+              }
+            >
+              Assign
+            </Button>
+          </>
+        )}
         {role === "manager" && trip.requestStatus === "Processing" && (
           <>
             <Button

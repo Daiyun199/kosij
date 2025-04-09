@@ -348,8 +348,14 @@ export default function CreateTourStep0() {
         <Form.Item
           name={["passengers", index, "email"]}
           rules={[
-            { required: true, message: "Email is required!" },
-            { type: "email", message: "Invalid email format!" },
+            {
+              required: record.isRepresentative,
+              message: "Email is required for the representative!",
+            },
+            {
+              type: "email",
+              message: "Invalid email format!",
+            },
           ]}
           style={{ marginBottom: 0 }}
         >
@@ -369,11 +375,14 @@ export default function CreateTourStep0() {
         <Form.Item
           name={["passengers", index, "phoneNumber"]}
           rules={[
-            { required: true, message: "Phone number is required!" },
+            {
+              required: record.isRepresentative,
+              message: "Phone number is required for the representative!",
+            },
             {
               pattern: /^0\d{9}$/,
               message:
-                "Phone number must start with 0 and be exactly 10 digits!",
+                "Phone number must start with 0 and have exactly 10 digits!",
             },
           ]}
           validateTrigger="onBlur"

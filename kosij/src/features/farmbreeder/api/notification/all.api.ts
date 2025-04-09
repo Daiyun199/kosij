@@ -2,7 +2,7 @@ import api from "@/config/axios.config";
 import { Notifications } from "@/lib/domain/Notification/Notification.dto";
 import { getAuthToken } from "@/lib/utils/auth.utils";
 
-export function useNotifications() {
+export function useNotification() {
   async function fetchNotification(): Promise<Notifications[]> {
     const token = getAuthToken();
 

@@ -91,7 +91,7 @@ const Page = () => {
           url: `/manager/orders/${refId}`,
         };
       case "Trip":
-        return { text: "Trip Details →", url: `/manager/trips/${refId}` };
+        return { text: "Trip Details →", url: `/${role}/trip/${refId}` };
       case "TripRequest":
         return {
           text: "Trip Request Details →",

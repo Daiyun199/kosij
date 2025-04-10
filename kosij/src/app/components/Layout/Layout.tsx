@@ -14,7 +14,7 @@ interface MenuItem {
 
 interface LayoutProps {
   menuItems: MenuItem[];
-  title: string;
+  title: React.ReactNode;
   onLanguageChange?: () => void;
   children?: React.ReactNode;
 }

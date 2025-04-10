@@ -173,28 +173,49 @@ export default function CreateTourStep0() {
       }
 
       let hasAdult = false;
-      let invalidAge = false;
+      const invalidPassengers: {
+        name: string;
+        ageGroup: string;
+        error: string;
+      }[] = [];
 
       const formattedPassengers = passengers.map((p) => {
         if (!p.dateOfBirth) {
-          invalidAge = true;
+          invalidPassengers.push({
+            name: p.fullName || "Unnamed passenger",
+            ageGroup: p.ageGroup,
+            error: "Missing date of birth",
+          });
           return null;
         }
 
         const age = dayjs().year() - p.dateOfBirth.year();
 
         if (p.ageGroup === "Adult") {
-          hasAdult = true;
-          if (age < 18) {
-            invalidAge = true;
+          if (age >= 18) {
+            hasAdult = true;
+          } else {
+            invalidPassengers.push({
+              name: p.fullName || "Unnamed passenger",
+              ageGroup: p.ageGroup,
+              error: "must be 18 years or older",
+            });
           }
         } else if (p.ageGroup === "Child") {
           if (age < 2 || age > 11) {
-            invalidAge = true;
+            invalidPassengers.push({
+              name: p.fullName || "Unnamed passenger",
+              ageGroup: p.ageGroup,
+              error: "must be between 2-11 years old",
+            });
           }
         } else if (p.ageGroup === "Infant") {
           if (age >= 2) {
-            invalidAge = true;
+            invalidPassengers.push({
+              name: p.fullName || "Unnamed passenger",
+              ageGroup: p.ageGroup,
+              error: "must be under 2 years old",
+            });
           }
         }
 
@@ -223,8 +244,24 @@ export default function CreateTourStep0() {
         return;
       }
 
-      if (invalidAge) {
-        toast.error("Please check the age requirements for each age group.");
+      if (invalidPassengers.length > 0) {
+        const errorMessages = invalidPassengers.map(
+          (p) => `${p.name} (${p.ageGroup}): ${p.error}`
+        );
+        toast.error(
+          <div>
+            <p className="font-semibold">Invalid age requirements:</p>
+            <ul className="list-disc pl-5 mt-1">
+              {errorMessages.map((msg, i) => (
+                <li key={i}>{msg}</li>
+              ))}
+            </ul>
+          </div>,
+          {
+            autoClose: false,
+            className: "w-full max-w-xl",
+          }
+        );
         return;
       }
 

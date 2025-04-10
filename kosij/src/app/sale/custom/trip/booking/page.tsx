@@ -90,8 +90,14 @@ export default function CreateTourStep0() {
           setPassengers(fetchedPassengers);
           form.setFieldsValue({
             passengers: fetchedPassengers.map((p: any) => ({
+              fullName: p.fullName,
+              ageGroup: p.ageGroup,
+              dateOfBirth: p.dateOfBirth,
+              sex: p.sex,
+              nationality: p.nationality,
               email: p.email,
               phoneNumber: p.phoneNumber,
+              passport: p.passport,
             })),
           });
         }
@@ -277,67 +283,97 @@ export default function CreateTourStep0() {
       title: "Full Name",
       dataIndex: "fullName",
       render: (_, record, index) => (
-        <Input
-          value={record.fullName}
-          onChange={(e) => updatePassenger(index, "fullName", e.target.value)}
-          disabled={!isEditable}
-        />
+        <Form.Item
+          name={["passengers", index, "fullName"]}
+          rules={[{ required: true, message: "Full name is required!" }]}
+          style={{ marginBottom: 0 }}
+        >
+          <Input
+            value={record.fullName}
+            onChange={(e) => updatePassenger(index, "fullName", e.target.value)}
+            disabled={!isEditable}
+          />
+        </Form.Item>
       ),
     },
     {
       title: "Age Group",
       dataIndex: "ageGroup",
       render: (_, record, index) => (
-        <Select
-          value={record.ageGroup}
-          onChange={(value) => updatePassenger(index, "ageGroup", value)}
-          options={[
-            { label: "Adult", value: "Adult" },
-            { label: "Child", value: "Child" },
-            { label: "Infant", value: "Infant" },
-          ]}
-          style={{ width: 120 }}
-          disabled={!isEditable}
-        />
+        <Form.Item
+          name={["passengers", index, "ageGroup"]}
+          rules={[{ required: true, message: "Age group is required!" }]}
+          style={{ marginBottom: 0 }}
+        >
+          <Select
+            value={record.ageGroup}
+            onChange={(value) => updatePassenger(index, "ageGroup", value)}
+            options={[
+              { label: "Adult", value: "Adult" },
+              { label: "Child", value: "Child" },
+              { label: "Infant", value: "Infant" },
+            ]}
+            style={{ width: 120 }}
+            disabled={!isEditable}
+          />
+        </Form.Item>
       ),
     },
     {
       title: "Date of Birth",
       dataIndex: "dateOfBirth",
       render: (_, record, index) => (
-        <DatePicker
-          value={record.dateOfBirth}
-          onChange={(date) => updatePassenger(index, "dateOfBirth", date)}
-          disabled={!isEditable}
-        />
+        <Form.Item
+          name={["passengers", index, "dateOfBirth"]}
+          rules={[{ required: true, message: "Date of birth is required!" }]}
+          style={{ marginBottom: 0 }}
+        >
+          <DatePicker
+            value={record.dateOfBirth}
+            onChange={(date) => updatePassenger(index, "dateOfBirth", date)}
+            disabled={!isEditable}
+          />
+        </Form.Item>
       ),
     },
     {
       title: "Gender",
       dataIndex: "sex",
       render: (_, record, index) => (
-        <Select
-          value={record.sex}
-          onChange={(value) => updatePassenger(index, "sex", value)}
-          options={[
-            { value: "Male", label: "Male" },
-            { value: "Female", label: "Female" },
-          ]}
-          disabled={!isEditable}
-        />
+        <Form.Item
+          name={["passengers", index, "sex"]}
+          rules={[{ required: true, message: "Gender is required!" }]}
+          style={{ marginBottom: 0 }}
+        >
+          <Select
+            value={record.sex}
+            onChange={(value) => updatePassenger(index, "sex", value)}
+            options={[
+              { value: "Male", label: "Male" },
+              { value: "Female", label: "Female" },
+            ]}
+            disabled={!isEditable}
+          />
+        </Form.Item>
       ),
     },
     {
       title: "Nationality",
       dataIndex: "nationality",
       render: (_, record, index) => (
-        <Input
-          value={record.nationality}
-          onChange={(e) =>
-            updatePassenger(index, "nationality", e.target.value)
-          }
-          disabled={!isEditable}
-        />
+        <Form.Item
+          name={["passengers", index, "nationality"]}
+          rules={[{ required: true, message: "Nationality is required!" }]}
+          style={{ marginBottom: 0 }}
+        >
+          <Input
+            value={record.nationality}
+            onChange={(e) =>
+              updatePassenger(index, "nationality", e.target.value)
+            }
+            disabled={!isEditable}
+          />
+        </Form.Item>
       ),
     },
     {
@@ -402,11 +438,22 @@ export default function CreateTourStep0() {
       title: "Passport",
       dataIndex: "passport",
       render: (_, record, index) => (
-        <Input
-          value={record.passport}
-          onChange={(e) => updatePassenger(index, "passport", e.target.value)}
-          disabled={!isEditable}
-        />
+        <Form.Item
+          name={["passengers", index, "passport"]}
+          rules={[
+            {
+              required: record.ageGroup !== "Child",
+              message: "Passport is required (except for children)!",
+            },
+          ]}
+          style={{ marginBottom: 0 }}
+        >
+          <Input
+            value={record.passport}
+            onChange={(e) => updatePassenger(index, "passport", e.target.value)}
+            disabled={!isEditable}
+          />
+        </Form.Item>
       ),
     },
     {

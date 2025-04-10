@@ -76,78 +76,7 @@ const Page = () => {
   const router = useRouter();
   const { role } = useParams();
   const LayoutComponent = role === "manager" ? ManagerLayout : SaleStaffLayout;
-  const [unreadCount, setUnreadCount] = useState(0);
-  const [lastChecked, setLastChecked] = useState(new Date().toISOString());
-  const pollingInterval = useRef<NodeJS.Timeout>();
 
-  const checkNewNotifications = async () => {
-    try {
-      const response = await api.get(`/notifications/new/${lastChecked}`);
-      const newNotifications = response.data.value;
-
-      if (newNotifications.length > 0) {
-        setLastChecked(new Date().toISOString());
-
-        newNotifications.forEach((notif: Notification) => {
-          toast.info(notif.message, {
-            onClick: () => {
-              const action = getActionText(notif.referenceType, notif.refId);
-              if (action) {
-                markNotificationAsRead(notif.id);
-                router.push(action.url);
-              }
-            },
-          });
-        });
-
-        setUnreadCount((prev) => prev + newNotifications.length);
-
-        setNotifications((prev) => [
-          ...newNotifications.map((n: any) => ({
-            ...n,
-            createdTime: new Date(n.createdTime).toISOString(),
-          })),
-          ...prev,
-        ]);
-      }
-    } catch (error) {
-      console.error("Error checking new notifications:", error);
-    }
-  };
-
-  useEffect(() => {
-    pollingInterval.current = setInterval(checkNewNotifications, 30000);
-
-    return () => {
-      if (pollingInterval.current) {
-        clearInterval(pollingInterval.current);
-      }
-    };
-  }, [lastChecked]);
-
-  const LayoutComponentWithBadge = ({ title, children }: any) => (
-    <LayoutComponent
-      title={
-        <div className="flex items-center">
-          {title}
-          {unreadCount > 0 && (
-            <span className="ml-2 bg-red-500 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center">
-              {unreadCount > 9 ? "9+" : unreadCount}
-            </span>
-          )}
-        </div>
-      }
-    >
-      {children}
-      <ToastContainer
-        position="bottom-right"
-        autoClose={5000}
-        pauseOnHover
-        closeButton={false}
-        toastClassName="shadow-lg"
-      />
-    </LayoutComponent>
-  );
   const markNotificationAsRead = async (notificationId: number) => {
     try {
       await api.put(`/notification/${notificationId}/mark-as-read`, {

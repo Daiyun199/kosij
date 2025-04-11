@@ -17,7 +17,7 @@ import api from "@/config/axios.config";
 import { useParams, useRouter } from "next/navigation";
 import SaleStaffLayout from "@/app/components/SaleStaffLayout/SaleStaffLayout";
 import { toast, ToastContainer } from "react-toastify";
-import { useNotifications } from "@/context/NotificationContext";
+import { useNotifications2 } from "@/context/NotificationContext";
 
 interface Notification {
   id: number;
@@ -80,7 +80,7 @@ const Page = () => {
     markAsRead,
     refreshNotifications,
     isLoading,
-  } = useNotifications();
+  } = useNotifications2();
   const paginatedNotifications = useMemo(() => {
     const startIndex = (currentPage - 1) * notificationsPerPage;
     return contextNotifications.slice(

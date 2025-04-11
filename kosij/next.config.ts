@@ -61,6 +61,11 @@ const nextConfig: NextConfig = {
   async redirects() {
     return [
       {
+        source: "/",
+        destination: "/login",
+        permanent: false,
+      },
+      {
         source: "/login",
         destination: "/login",
         permanent: false,
@@ -68,7 +73,7 @@ const nextConfig: NextConfig = {
           {
             type: "cookie",
             key: "authToken",
-            value: "undefined", 
+            value: "undefined",
           },
         ],
       },

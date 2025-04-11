@@ -190,7 +190,7 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
   );
 }
 
-export function useNotifications() {
+export function useNotifications2() {
   const context = useContext(NotificationContext);
   if (!context) {
     throw new Error(

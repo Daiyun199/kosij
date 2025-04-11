@@ -1,10 +1,10 @@
 "use client";
 import { useEffect } from "react";
 import { toast } from "react-toastify";
-import { useNotifications } from "@/context/NotificationContext";
+import { useNotifications2 } from "@/context/NotificationContext";
 
 export default function NotificationManager() {
-  const { notifications, markAsRead } = useNotifications();
+  const { notifications, markAsRead } = useNotifications2();
 
   useEffect(() => {
     const unreadNotifications = notifications.filter((n) => !n.markAsRead);

@@ -1,9 +1,9 @@
 "use client";
 import { Bell } from "lucide-react";
-import { useNotifications } from "@/context/NotificationContext";
+import { useNotifications2 } from "@/context/NotificationContext";
 
 export default function NotificationIndicator() {
-  const { unreadCount } = useNotifications();
+  const { unreadCount } = useNotifications2();
 
   if (unreadCount === 0) return null;
 

@@ -57,6 +57,7 @@ export function NotificationProvider({
 
       const unreadRes = await api.get("/notifications/unread-count");
       setUnreadCount(unreadRes.data.count || unreadRes.data.value?.count);
+      setIsLoading(false);
     } catch (error) {
       console.error("Error fetching all notifications:", error);
     }

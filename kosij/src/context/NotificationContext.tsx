@@ -40,7 +40,7 @@ export function NotificationProvider({
         api.get(`/notifications/new/${lastUpdate}`),
       ]);
 
-      setUnreadCount(unreadRes.data.count);
+      setUnreadCount(unreadRes.data.value.count);
 
       if (newRes.data.value.length > 0) {
         setNotifications((prev) => [...newRes.data.value, ...prev]);

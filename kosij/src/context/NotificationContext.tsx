@@ -160,15 +160,20 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
     setUnreadCount(0);
     setDisplayedNotifications(new Set());
 
-    const initFetch = async () => {
-      await fetchAllNotifications();
-    };
-
-    initFetch();
-
+    const delayFetch = setTimeout(() => {
+      fetchAllNotifications();
+    }, 1000);
     const interval = setInterval(fetchNewNotifications, 30000);
-    return () => clearInterval(interval);
+
+    return () => {
+      clearTimeout(delayFetch);
+      clearInterval(interval);
+    };
   }, [token]);
+
+  if (!token) {
+    return <>{children}</>;
+  }
 
   return (
     <NotificationContext.Provider

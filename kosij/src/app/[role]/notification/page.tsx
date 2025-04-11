@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 "use client";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import {
   Bell,
   CheckCircle,
@@ -18,6 +18,7 @@ import ProtectedRoute from "@/app/ProtectedRoute";
 import { useParams, useRouter } from "next/navigation";
 import SaleStaffLayout from "@/app/components/SaleStaffLayout/SaleStaffLayout";
 import { toast, ToastContainer } from "react-toastify";
+import { useNotifications } from "@/context/NotificationContext";
 
 interface Notification {
   id: number;
@@ -68,7 +69,6 @@ const formatTime = (dateString: string) => {
 };
 
 const Page = () => {
-  const [notifications, setNotifications] = useState<Notification[]>([]);
   const [loading, setLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
@@ -76,16 +76,25 @@ const Page = () => {
   const router = useRouter();
   const { role } = useParams();
   const LayoutComponent = role === "manager" ? ManagerLayout : SaleStaffLayout;
+  const {
+    notifications: contextNotifications,
+    unreadCount,
+    markAsRead,
+    refreshNotifications,
+  } = useNotifications();
+  const paginatedNotifications = useMemo(() => {
+    const startIndex = (currentPage - 1) * notificationsPerPage;
+    return contextNotifications.slice(
+      startIndex,
+      startIndex + notificationsPerPage
+    );
+  }, [contextNotifications, currentPage]);
 
-  const markNotificationAsRead = async (notificationId: number) => {
-    try {
-      await api.put(`/notification/${notificationId}/mark-as-read`, {
-        markAsRead: true,
-      });
-    } catch (error) {
-      console.error("Error marking notification as read:", error);
-    }
-  };
+  useEffect(() => {
+    setTotalPages(
+      Math.ceil(contextNotifications.length / notificationsPerPage)
+    );
+  }, [contextNotifications]);
   const getActionText = (referenceType: string, refId: number) => {
     switch (referenceType) {
       case "Order":
@@ -115,42 +124,14 @@ const Page = () => {
     }
   };
 
-  useEffect(() => {
-    const fetchNotifications = async () => {
-      try {
-        const response = await api.get("/notifications");
-        const allNotifications = response.data.value;
-        setTotalPages(
-          Math.ceil(allNotifications.length / notificationsPerPage)
-        );
-
-        const startIndex = (currentPage - 1) * notificationsPerPage;
-        const paginatedNotifications = allNotifications.slice(
-          startIndex,
-          startIndex + notificationsPerPage
-        );
-        setNotifications(paginatedNotifications);
-      } catch (error) {
-        console.error("Error fetching notifications:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchNotifications();
-  }, [currentPage]);
-
   const handleMarkAllAsRead = async () => {
     try {
       await api.put("/notifications/mark-as-read", { markAsRead: true });
-      setNotifications((prev) =>
-        prev.map((notif) => ({ ...notif, markAsRead: true }))
-      );
+      refreshNotifications();
     } catch (error) {
       console.error("Error marking notifications as read:", error);
     }
   };
-
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
   };
@@ -182,8 +163,8 @@ const Page = () => {
               </button>
             </div>
             <ul>
-              {notifications.length > 0 ? (
-                notifications.map((notif) => {
+              {paginatedNotifications.length > 0 ? (
+                paginatedNotifications.map((notif) => {
                   const action = getActionText(
                     notif.referenceType,
                     notif.refId
@@ -205,7 +186,7 @@ const Page = () => {
                             <span
                               onClick={(e) => {
                                 e.stopPropagation();
-                                markNotificationAsRead(notif.id);
+                                markAsRead(notif.id);
                                 router.push(action.url);
                               }}
                               className="text-blue-600 hover:underline ml-2 cursor-pointer"
@@ -229,9 +210,9 @@ const Page = () => {
                   Showing {(currentPage - 1) * notificationsPerPage + 1}-
                   {Math.min(
                     currentPage * notificationsPerPage,
-                    notifications.length
+                    paginatedNotifications.length
                   )}{" "}
-                  of {notifications.length} notifications
+                  of {paginatedNotifications.length} notifications
                 </div>
 
                 <div className="flex items-center space-x-1">

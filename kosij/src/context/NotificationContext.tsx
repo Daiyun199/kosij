@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 "use client";
 import { createContext, useContext, useState, useEffect } from "react";
 import api from "@/config/axios.config";
@@ -32,6 +33,18 @@ export function NotificationProvider({
   const [lastUpdate, setLastUpdate] = useState(() =>
     new Date(Date.now() - 30000).toISOString()
   );
+  const fetchAllNotifications = async () => {
+    try {
+      const response = await api.get("/notifications");
+      setNotifications(response.data.value);
+
+      // Cập nhật unread count
+      const unreadRes = await api.get("/notifications/unread-count");
+      setUnreadCount(unreadRes.data.count);
+    } catch (error) {
+      console.error("Error fetching all notifications:", error);
+    }
+  };
 
   const fetchData = async () => {
     try {
@@ -43,7 +56,13 @@ export function NotificationProvider({
       setUnreadCount(unreadRes.data.value.count);
 
       if (newRes.data.value.length > 0) {
-        setNotifications((prev) => [...newRes.data.value, ...prev]);
+        setNotifications((prev) => {
+          const existingIds = new Set(prev.map((n) => n.id));
+          const newNotifications = newRes.data.value.filter(
+            (n: Notification) => !existingIds.has(n.id)
+          );
+          return [...newNotifications, ...prev];
+        });
       }
     } catch (error) {
       console.error("Notification fetch error:", error);

@@ -76,17 +76,35 @@ export function NotificationProvider({
       );
 
       if (filteredNewNotifications.length > 0) {
-        filteredNewNotifications.forEach((notif) => {
-          toast.info(notif.message, {
-            toastId: `notification-${notif.id}`,
-            autoClose: 5000,
-            onClick: () => markAsRead(notif.id),
-          });
-        });
+        filteredNewNotifications.forEach(
+          (notif: {
+            message:
+              | string
+              | number
+              | bigint
+              | boolean
+              | ReactElement<any, string | JSXElementConstructor<any>>
+              | Iterable<ReactNode>
+              | ReactPortal
+              | Promise<AwaitedReactNode>
+              | ((props: ToastContentProps<unknown>) => ReactNode)
+              | null
+              | undefined;
+            id: number;
+          }) => {
+            toast.info(notif.message, {
+              toastId: `notification-${notif.id}`,
+              autoClose: 5000,
+              onClick: () => markAsRead(notif.id),
+            });
+          }
+        );
 
         setDisplayedNotifications((prev) => {
           const newSet = new Set(prev);
-          filteredNewNotifications.forEach((n) => newSet.add(n.id));
+          filteredNewNotifications.forEach((n: { id: number }) =>
+            newSet.add(n.id)
+          );
           return newSet;
         });
 

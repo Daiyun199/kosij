@@ -1,7 +1,19 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
-import { createContext, useContext, useState, useEffect } from "react";
+import {
+  createContext,
+  useContext,
+  useState,
+  useEffect,
+  AwaitedReactNode,
+  JSXElementConstructor,
+  ReactElement,
+  ReactNode,
+  ReactPortal,
+} from "react";
 import api from "@/config/axios.config";
+import { toast, ToastContentProps } from "react-toastify";
 
 interface Notification {
   id: number;
@@ -17,6 +29,7 @@ interface NotificationContextType {
   notifications: Notification[];
   refreshNotifications: () => Promise<void>;
   markAsRead: (id: number) => Promise<void>;
+  isLoading: boolean;
 }
 
 const NotificationContext = createContext<NotificationContextType | undefined>(
@@ -33,36 +46,69 @@ export function NotificationProvider({
   const [lastUpdate, setLastUpdate] = useState(() =>
     new Date(Date.now() - 30000).toISOString()
   );
+  const [displayedNotifications, setDisplayedNotifications] = useState<
+    Set<number>
+  >(new Set());
+  const [isLoading, setIsLoading] = useState(true);
   const fetchAllNotifications = async () => {
     try {
       const response = await api.get("/notifications");
-      setNotifications(response.data.value);
+      setNotifications(response.data.value || response.data);
 
-      // Cập nhật unread count
       const unreadRes = await api.get("/notifications/unread-count");
-      setUnreadCount(unreadRes.data.count);
+      setUnreadCount(unreadRes.data.count || unreadRes.data.value?.count);
     } catch (error) {
       console.error("Error fetching all notifications:", error);
     }
   };
 
-  const fetchData = async () => {
+  const fetchNewNotifications = async () => {
     try {
       const [unreadRes, newRes] = await Promise.all([
         api.get("/notifications/unread-count"),
         api.get(`/notifications/new/${lastUpdate}`),
       ]);
 
-      setUnreadCount(unreadRes.data.value.count);
+      setUnreadCount(unreadRes.data.count || unreadRes.data.value?.count);
 
-      if (newRes.data.value.length > 0) {
-        setNotifications((prev) => {
-          const existingIds = new Set(prev.map((n) => n.id));
-          const newNotifications = newRes.data.value.filter(
-            (n: Notification) => !existingIds.has(n.id)
+      if (newRes.data?.value?.length > 0) {
+        const newNotifications = newRes.data.value.filter(
+          (n: Notification) => !displayedNotifications.has(n.id)
+        );
+
+        if (newNotifications.length > 0) {
+          newNotifications.forEach(
+            (notif: {
+              message:
+                | string
+                | number
+                | bigint
+                | boolean
+                | ReactElement<any, string | JSXElementConstructor<any>>
+                | Iterable<ReactNode>
+                | ReactPortal
+                | Promise<AwaitedReactNode>
+                | ((props: ToastContentProps<unknown>) => ReactNode)
+                | null
+                | undefined;
+              id: number;
+            }) => {
+              toast.info(notif.message, {
+                toastId: `notification-${notif.id}`,
+                autoClose: 5000,
+                onClick: () => markAsRead(notif.id),
+              });
+            }
           );
-          return [...newNotifications, ...prev];
-        });
+
+          setDisplayedNotifications((prev) => {
+            const newSet = new Set(prev);
+            newNotifications.forEach((n: { id: number }) => newSet.add(n.id));
+            return newSet;
+          });
+
+          setNotifications((prev) => [...newNotifications, ...prev]);
+        }
       }
     } catch (error) {
       console.error("Notification fetch error:", error);
@@ -84,10 +130,8 @@ export function NotificationProvider({
   };
 
   useEffect(() => {
-    fetchData();
-
-    const interval = setInterval(fetchData, 30000);
-
+    fetchAllNotifications();
+    const interval = setInterval(fetchNewNotifications, 30000);
     return () => clearInterval(interval);
   }, []);
 
@@ -96,8 +140,9 @@ export function NotificationProvider({
       value={{
         unreadCount,
         notifications,
-        refreshNotifications: fetchData,
+        refreshNotifications: fetchAllNotifications,
         markAsRead,
+        isLoading,
       }}
     >
       {children}

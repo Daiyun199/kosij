@@ -69,7 +69,6 @@ const formatTime = (dateString: string) => {
 };
 
 const Page = () => {
-  const [loading, setLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const notificationsPerPage = 10;
@@ -81,6 +80,7 @@ const Page = () => {
     unreadCount,
     markAsRead,
     refreshNotifications,
+    isLoading,
   } = useNotifications();
   const paginatedNotifications = useMemo(() => {
     const startIndex = (currentPage - 1) * notificationsPerPage;
@@ -136,7 +136,7 @@ const Page = () => {
     setCurrentPage(page);
   };
 
-  if (loading) {
+  if (isLoading) {
     return (
       <LayoutComponent title="Notification">
         <div className="bg-gray-50 min-h-screen p-6">

@@ -145,7 +145,7 @@ function Home() {
         const payload = decodeJwt(token);
         localStorage.setItem("userRole", payload.role);
         login(payload.role);
-
+        window.dispatchEvent(new Event("tokenChanged"));
         let redirectPath = path;
         switch (payload.role) {
           case Role.manager:

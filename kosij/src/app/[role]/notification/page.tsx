@@ -14,7 +14,6 @@ import {
 } from "lucide-react";
 import ManagerLayout from "@/app/components/ManagerLayout/ManagerLayout";
 import api from "@/config/axios.config";
-import ProtectedRoute from "@/app/ProtectedRoute";
 import { useParams, useRouter } from "next/navigation";
 import SaleStaffLayout from "@/app/components/SaleStaffLayout/SaleStaffLayout";
 import { toast, ToastContainer } from "react-toastify";

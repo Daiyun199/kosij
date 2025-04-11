@@ -43,9 +43,7 @@ export function NotificationProvider({
 }) {
   const [unreadCount, setUnreadCount] = useState(0);
   const [notifications, setNotifications] = useState<Notification[]>([]);
-  const [lastUpdate, setLastUpdate] = useState(() =>
-    new Date(Date.now() - 30000).toISOString()
-  );
+  const [loginTime, setLoginTime] = useState(() => new Date().toISOString());
   const [displayedNotifications, setDisplayedNotifications] = useState<
     Set<number>
   >(new Set());
@@ -62,59 +60,40 @@ export function NotificationProvider({
       console.error("Error fetching all notifications:", error);
     }
   };
-
   const fetchNewNotifications = async () => {
     try {
       const [unreadRes, newRes] = await Promise.all([
         api.get("/notifications/unread-count"),
-        api.get(`/notifications/new/${lastUpdate}`),
+        api.get(`/notifications/new/${loginTime}`),
       ]);
 
       setUnreadCount(unreadRes.data.count || unreadRes.data.value?.count);
 
-      if (newRes.data?.value?.length > 0) {
-        const newNotifications = newRes.data.value.filter(
-          (n: Notification) => !displayedNotifications.has(n.id)
-        );
+      const newNotifications = newRes.data?.value || [];
 
-        if (newNotifications.length > 0) {
-          newNotifications.forEach(
-            (notif: {
-              message:
-                | string
-                | number
-                | bigint
-                | boolean
-                | ReactElement<any, string | JSXElementConstructor<any>>
-                | Iterable<ReactNode>
-                | ReactPortal
-                | Promise<AwaitedReactNode>
-                | ((props: ToastContentProps<unknown>) => ReactNode)
-                | null
-                | undefined;
-              id: number;
-            }) => {
-              toast.info(notif.message, {
-                toastId: `notification-${notif.id}`,
-                autoClose: 5000,
-                onClick: () => markAsRead(notif.id),
-              });
-            }
-          );
+      const filteredNewNotifications = newNotifications.filter(
+        (n: Notification) => !displayedNotifications.has(n.id)
+      );
 
-          setDisplayedNotifications((prev) => {
-            const newSet = new Set(prev);
-            newNotifications.forEach((n: { id: number }) => newSet.add(n.id));
-            return newSet;
+      if (filteredNewNotifications.length > 0) {
+        filteredNewNotifications.forEach((notif) => {
+          toast.info(notif.message, {
+            toastId: `notification-${notif.id}`,
+            autoClose: 5000,
+            onClick: () => markAsRead(notif.id),
           });
+        });
 
-          setNotifications((prev) => [...newNotifications, ...prev]);
-        }
+        setDisplayedNotifications((prev) => {
+          const newSet = new Set(prev);
+          filteredNewNotifications.forEach((n) => newSet.add(n.id));
+          return newSet;
+        });
+
+        setNotifications((prev) => [...filteredNewNotifications, ...prev]);
       }
     } catch (error) {
       console.error("Notification fetch error:", error);
-    } finally {
-      setLastUpdate(new Date().toISOString());
     }
   };
 

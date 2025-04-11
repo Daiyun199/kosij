@@ -91,6 +91,7 @@ function RightNavbar({ children }: PropsWithChildren) {
                     danger: true,
                     onClick: () => {
                       router.push("/login?logout=success");
+                      sessionStorage.removeItem("token");
                       Cookies.remove("token");
                     },
                   },

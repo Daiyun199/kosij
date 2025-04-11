@@ -479,8 +479,8 @@ export default function CreateTourStep0() {
           name={["passengers", index, "passport"]}
           rules={[
             {
-              required: record.ageGroup !== "Child",
-              message: "Passport is required (except for children)!",
+              required: record.hasVisa,
+              message: "Passport is required ",
             },
           ]}
           style={{ marginBottom: 0 }}

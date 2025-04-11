@@ -12,4 +12,6 @@ export interface Passenger {
   hasVisa: boolean;
   tripBookingId: number;
   tripBookingStatus: string;
+  isCheckIn: boolean;
+  isCheckOut: boolean;
 }

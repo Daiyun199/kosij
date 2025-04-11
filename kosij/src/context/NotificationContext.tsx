@@ -13,7 +13,6 @@ import {
   ReactPortal,
   AwaitedReactNode,
 } from "react";
-import Cookies from "js-cookie";
 import api from "@/config/axios.config";
 import { toast, ToastContentProps } from "react-toastify";
 

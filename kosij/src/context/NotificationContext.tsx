@@ -59,8 +59,8 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     const updateToken = () => {
-      const currentToken = Cookies.get("token");
-      setToken(currentToken);
+      const currentToken = sessionStorage.getItem("token");
+      setToken(currentToken ?? undefined);
     };
 
     window.addEventListener("tokenChanged", updateToken);

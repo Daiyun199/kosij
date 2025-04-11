@@ -39,8 +39,8 @@ const NotificationContext = createContext<NotificationContextType | undefined>(
 );
 
 export function NotificationProvider({ children }: { children: ReactNode }) {
-  const [token, setToken] = useState<string | undefined>(() =>
-    Cookies.get("token")
+  const [token, setToken] = useState<string | undefined>(
+    () => sessionStorage.getItem("token") || undefined
   );
   const [loginTime, setLoginTime] = useState(getVietnamTimeISOString());
   const [unreadCount, setUnreadCount] = useState(0);

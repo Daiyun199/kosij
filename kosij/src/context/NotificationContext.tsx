@@ -43,7 +43,8 @@ export function NotificationProvider({
 }) {
   const [unreadCount, setUnreadCount] = useState(0);
   const [notifications, setNotifications] = useState<Notification[]>([]);
-  const [loginTime, setLoginTime] = useState(() => new Date().toISOString());
+  const [loginTime, setLoginTime] = useState(() => Date.now());
+
   const [displayedNotifications, setDisplayedNotifications] = useState<
     Set<number>
   >(new Set());
@@ -72,9 +73,10 @@ export function NotificationProvider({
       const newNotifications = newRes.data?.value || [];
 
       const filteredNewNotifications = newNotifications.filter(
-        (n: Notification) => !displayedNotifications.has(n.id)
+        (n: Notification) =>
+          !displayedNotifications.has(n.id) &&
+          new Date(n.createdTime).getTime() > loginTime
       );
-
       if (filteredNewNotifications.length > 0) {
         filteredNewNotifications.forEach(
           (notif: {

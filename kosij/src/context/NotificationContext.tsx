@@ -192,9 +192,13 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
 export function useNotifications2() {
   const context = useContext(NotificationContext);
   if (!context) {
-    throw new Error(
-      "useNotifications must be used within NotificationProvider"
-    );
+    return {
+      unreadCount: 0,
+      notifications: [],
+      refreshNotifications: async () => {},
+      markAsRead: async () => {},
+      isLoading: true,
+    };
   }
   return context;
 }

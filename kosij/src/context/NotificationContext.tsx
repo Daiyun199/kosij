@@ -8,6 +8,7 @@ import {
   useState,
   useEffect,
   ReactNode,
+  useRef,
   ReactElement,
   JSXElementConstructor,
   ReactPortal,
@@ -41,12 +42,10 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
   const [token, setToken] = useState<string | undefined>(
     () => sessionStorage.getItem("token") || undefined
   );
+  const notificationIdsRef = useRef<Set<number>>(new Set());
   const [loginTime, setLoginTime] = useState(getVietnamTimeISOString());
   const [unreadCount, setUnreadCount] = useState(0);
   const [notifications, setNotifications] = useState<Notification[]>([]);
-  const [displayedNotifications, setDisplayedNotifications] = useState<
-    Set<number>
-  >(new Set());
   const [isLoading, setIsLoading] = useState(true);
 
   function getVietnamTimeISOString() {
@@ -71,7 +70,14 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
     if (!token) return;
     try {
       const response = await api.get("/notifications");
-      setNotifications(response.data.value || response.data);
+      const fetched = response.data.value || response.data;
+
+      // Cập nhật ref tránh lặp
+      fetched.forEach((n: Notification) =>
+        notificationIdsRef.current.add(n.id)
+      );
+
+      setNotifications(fetched);
 
       const unreadRes = await api.get("/notifications/unread-count");
       setUnreadCount(unreadRes.data.count || unreadRes.data.value?.count);
@@ -83,6 +89,7 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
 
   const fetchNewNotifications = async () => {
     if (!token || !loginTime) return;
+
     try {
       const [unreadRes, newRes] = await Promise.all([
         api.get("/notifications/unread-count"),
@@ -90,45 +97,23 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
       ]);
 
       setUnreadCount(unreadRes.data.count || unreadRes.data.value?.count);
-      const newNotifications = newRes.data?.value || [];
+
+      const newNotifications: Notification[] = newRes.data?.value || [];
 
       const filteredNewNotifications = newNotifications.filter(
-        (n: Notification) =>
-          !displayedNotifications.has(n.id) &&
+        (n) =>
+          !notificationIdsRef.current.has(n.id) &&
           new Date(n.createdTime).getTime() > new Date(loginTime).getTime()
       );
 
       if (filteredNewNotifications.length > 0) {
-        filteredNewNotifications.forEach(
-          (notif: {
-            message:
-              | string
-              | number
-              | bigint
-              | boolean
-              | ReactElement<any, string | JSXElementConstructor<any>>
-              | Iterable<ReactNode>
-              | ReactPortal
-              | Promise<AwaitedReactNode>
-              | ((props: ToastContentProps<unknown>) => ReactNode)
-              | null
-              | undefined;
-            id: number;
-          }) => {
-            toast.info(notif.message, {
-              toastId: `notification-${notif.id}`,
-              autoClose: 5000,
-              onClick: () => markAsRead(notif.id),
-            });
-          }
-        );
+        filteredNewNotifications.forEach((notif) => {
+          notificationIdsRef.current.add(notif.id); // Quan trọng: tránh lặp
 
-        setDisplayedNotifications((prev) => {
-          const newSet = new Set(prev);
-          filteredNewNotifications.forEach((n: { id: number }) =>
-            newSet.add(n.id)
-          );
-          return newSet;
+          toast.info(notif.message, {
+            autoClose: 5000,
+            onClick: () => markAsRead(notif.id),
+          });
         });
 
         setNotifications((prev) => [...filteredNewNotifications, ...prev]);
@@ -157,11 +142,12 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
     setLoginTime(now);
     setNotifications([]);
     setUnreadCount(0);
-    setDisplayedNotifications(new Set());
+    notificationIdsRef.current.clear();
 
     const delayFetch = setTimeout(() => {
       fetchAllNotifications();
     }, 1000);
+
     const interval = setInterval(fetchNewNotifications, 30000);
 
     return () => {

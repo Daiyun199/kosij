@@ -13,6 +13,7 @@ import Image from "next/image";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
 import React, { useEffect, useState } from "react";
 import { toast } from "react-toastify";
+
 const { Panel } = Collapse;
 function Page() {
   const params = useParams() as { id: string };

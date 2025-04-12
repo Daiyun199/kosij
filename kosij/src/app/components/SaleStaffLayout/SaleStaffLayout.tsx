@@ -3,7 +3,7 @@ import React from "react";
 import CustomLayout from "@/app/components/Layout/Layout";
 
 interface SaleStaffLayoutProps {
-  title: string;
+  title: React.ReactNode;
   children: React.ReactNode;
 }
 

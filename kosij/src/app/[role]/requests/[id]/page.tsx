@@ -34,7 +34,6 @@ const TripRequestDetail = () => {
   const handleOpenModal = (type: "Approve" | "Deny") => {
     setActionType(type);
     setIsModalOpen(true);
-    console.log("Opened modal with actionType:", type);
   };
 
   const handleCloseModal = () => {

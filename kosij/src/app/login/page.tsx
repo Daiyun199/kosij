@@ -4,7 +4,7 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import styles from "./login.module.css";
 import useLoginMutation from "@/features/common/mutations/Login.mutation";
-import Cookies from "js-cookie";
+
 import { decodeJwt } from "@/lib/domain/User/decodeJwt.util";
 import { Role } from "@/lib/domain/User/role.enum";
 import { App } from "antd";
@@ -141,11 +141,11 @@ function Home() {
           return;
         }
         localStorage.setItem("authToken", token);
-        Cookies.set("token", token);
+        sessionStorage.setItem("token", token);
         const payload = decodeJwt(token);
         localStorage.setItem("userRole", payload.role);
         login(payload.role);
-
+        window.dispatchEvent(new Event("tokenChanged"));
         let redirectPath = path;
         switch (payload.role) {
           case Role.manager:

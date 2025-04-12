@@ -7,6 +7,9 @@ import { App as AntdApp } from "antd";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { AuthProvider } from "./AuthProvider";
+import NotificationIndicator from "./components/NotificationIndicator";
+import { NotificationProvider } from "@/context/NotificationContext";
+
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
@@ -37,8 +40,14 @@ export default function RootLayout({
       >
         <AuthProvider>
           <QueryProvider>
-            <ToastContainer />
-            <AntdApp>{children}</AntdApp>
+            <NotificationProvider>
+              <ToastContainer />
+              <AntdApp>
+                {children}
+
+                <NotificationIndicator />
+              </AntdApp>
+            </NotificationProvider>
           </QueryProvider>
         </AuthProvider>
       </body>

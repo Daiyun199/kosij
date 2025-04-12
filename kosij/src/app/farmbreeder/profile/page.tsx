@@ -171,28 +171,39 @@
 // }
 
 // export default Page;
-// src/app/page.tsx
 "use client";
 
 import ProtectedRoute from "@/app/ProtectedRoute";
 import { PageContainer } from "@ant-design/pro-layout";
-import { Button, Form, Input, Space, Typography, Upload, message } from "antd";
+import {
+  App,
+  Button,
+  Form,
+  Input,
+  Space,
+  Typography,
+  Upload,
+  // message,
+  // notification,
+} from "antd";
 import TextArea from "antd/es/input/TextArea";
 import { useState } from "react";
-import { UploadOutlined } from "@ant-design/icons";
 import { updateFarmProfile } from "@/features/farmbreeder/api/profile/update.api";
+import { getDownloadURL, getStorage, ref, uploadBytes } from "firebase/storage";
+import { app as firebaseApp } from "@/config/firebase";
 
 type FormFieldTypes = {
   farmName: string;
   description: string;
-  farmPhoneNumber: string;
+  breederPhone: string;
   farmEmail: string;
   openingHours: string;
-  address: string;
+  location: string;
   zipCode: string;
   city: string;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  image: any;
+  image: File | null;
+  breederName: string;
+  farmPhoneNumber: string;
 };
 
 function Page() {
@@ -200,47 +211,93 @@ function Page() {
   const [loading, setLoading] = useState(false);
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [fileList, setFileList] = useState<any[]>([]);
+  const { notification } = App.useApp()
+
+  const uploadImageToFirebase = async (file: File): Promise<string | null> => {
+    const storage = getStorage(firebaseApp);
+    const storageRef = ref(storage, `farm_images/${file.name}-${Date.now()}`);
+
+    try {
+      const snapshot = await uploadBytes(storageRef, file);
+      const imageUrl = await getDownloadURL(snapshot.ref);
+      return imageUrl;
+    } catch (error) {
+      console.error("Error uploading image:", error);
+      notification.error({
+        message: "Failed to upload image.",
+        placement: "topRight",
+      });
+      return null;
+    }
+  };
 
   const handleSubmit = async (values: FormFieldTypes) => {
     setLoading(true);
     try {
-      // const token = authContext?.user?.token;
-      // if (!token) {
-      //   message.error("Authentication token not found. Please log in.");
-      //   setLoading(false);
-      //   return;
-      // }
-
-      // Simulate image URL (replace with actual upload logic if needed)
-      const imageUrl =
-        fileList.length > 0 ? "https://example.com/uploaded-image.jpg" : "";
-
-      const location = `${values.address || ""}, ${values.zipCode || ""}, ${
-        values.city || ""
-      }`
-        .replace(/,\s*,/g, ",")
-        .replace(/^\s*,|,\s*$/g, "")
-        .trim();
+      let imageUrl = "";
+      if (values.image) {
+        const uploadedUrl = await uploadImageToFirebase(values.image);
+        if (!uploadedUrl) {
+          throw new Error("Image upload failed");
+        }
+        imageUrl = uploadedUrl;
+      }
 
       const requestData = {
         farmName: values.farmName || "",
         description: values.description || "",
-        breederName: "",
-        breederPhone: "",
-        location: location || "",
+        breederName: values.breederName || "",
+        breederPhone: values.breederPhone || "",
+        location: values.location || "",
         imageUrl,
         openingHours: values.openingHours || "",
         farmPhoneNumber: values.farmPhoneNumber || "",
         farmEmail: values.farmEmail || "",
       };
 
+      console.log("Submitting farm update:", requestData);
+
       await updateFarmProfile(requestData);
-      message.success("Farm profile updated successfully!");
+
+      const now = new Date();
+      const timeString = now.toLocaleTimeString("en-US", {
+        hour12: true,
+        hour: "2-digit",
+        minute: "2-digit",
+        second: "2-digit",
+      });
+
+      notification.info({
+        message: (
+          <App>
+            <div>
+              Farm profile has been updated.{" "}
+              <strong>PLEASE CHECK IT NOW!</strong>
+              <div
+                style={{ color: "#6B7280", fontSize: "12px", marginTop: "4px" }}
+              >
+                {timeString}
+              </div>
+            </div>
+          </App>
+        ),
+        placement: "topRight",
+        style: {
+          backgroundColor: "white",
+          boxShadow: "0 2px 8px rgba(0, 0, 0, 0.15)",
+          borderRadius: "4px",
+        },
+        icon: <span style={{ color: "#1890ff", fontSize: "30px" }}>ⓘ</span>,
+      });
+
       form.resetFields();
       setFileList([]);
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
-      message.error(error.message || "Failed to update farm profile");
+      notification.error({
+        message: error.message || "Failed to update farm profile",
+        placement: "topRight",
+      });
     } finally {
       setLoading(false);
     }
@@ -248,178 +305,187 @@ function Page() {
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const handleUploadChange = ({ fileList }: { fileList: any[] }) => {
-    setFileList(fileList.slice(-1));
-    form.setFieldsValue({ image: fileList[0]?.originFileObj || null });
+    const newFileList = fileList.slice(-1); // Keep only the latest file
+    setFileList(newFileList);
+    form.setFieldsValue({
+      image: newFileList[0]?.originFileObj || null,
+    });
   };
 
   return (
     <ProtectedRoute allowedRoles={["farmbreeder"]}>
-      <PageContainer
-        title="Profile"
-        extra={
-          <Space>
-            <Button
-              style={{
-                borderRadius: "2rem",
-                width: "5rem",
-                borderColor: "#000000",
-              }}
-            >
-              ENG
-            </Button>
-          </Space>
-        }
-        header={{
-          style: {
-            boxShadow: "0px 4px 6px rgba(0, 0, 0, 0.1)",
-            background: "white",
-            zIndex: 10,
-          },
-        }}
-      >
-        <section className="mt-5">
-          <Form
-            form={form}
-            onFinish={handleSubmit}
-            style={{ width: "30rem", margin: "0 auto" }}
-            layout="vertical"
-          >
-            <Typography.Title
-              level={3}
-              style={{ textAlign: "center", color: "#1F41BB" }}
-            >
-              Koi Farm Information
-            </Typography.Title>
-
-            <Form.Item
-              name="image"
-              // rules={[{ required: false, message: "Please upload an image" }]} // Set required: true if image is mandatory
-            >
-              <Upload
-                accept=".jpg,.jpeg,.png,.bmp,.svg,.webp,.gif"
-                fileList={fileList}
-                onChange={handleUploadChange}
-                beforeUpload={() => false}
-                listType="picture"
-                maxCount={1}
+      <App>
+        <PageContainer
+          title="Profile"
+          extra={
+            <Space>
+              <Button
+                style={{
+                  borderRadius: "2rem",
+                  width: "5rem",
+                  borderColor: "#000000",
+                }}
               >
-                <Button icon={<UploadOutlined />}>Click to Upload</Button>
-              </Upload>
-            </Form.Item>
-
-            <Form.Item
-              name="farmName"
-              // rules={[
-              //   { required: true, message: "Please enter the farm name" },
-              // ]}
+                ENG
+              </Button>
+            </Space>
+          }
+          header={{
+            style: {
+              boxShadow: "0px 4px 6px rgba(0, 0, 0, 0.1)",
+              background: "white",
+              zIndex: 10,
+            },
+          }}
+        >
+          <section className="mt-5">
+            <Form
+              form={form}
+              onFinish={handleSubmit}
+              style={{ width: "30rem", margin: "0 auto" }}
+              layout="vertical"
             >
-              <Input
-                placeholder="Farm Name"
-                style={{ backgroundColor: "#C6CFED" }}
-              />
-            </Form.Item>
+              <Typography.Title
+                level={3}
+                style={{ textAlign: "center", color: "#1F41BB" }}
+              >
+                Koi Farm Information
+              </Typography.Title>
 
-            <Form.Item name="vatNumber">
-              <Input
-                placeholder="VAT Number"
-                style={{ backgroundColor: "#C6CFED" }}
-              />
-            </Form.Item>
+              <Form.Item<FormFieldTypes> name="image">
+                <Upload.Dragger
+                  accept=".jpg,.jpeg,.png,.bmp,.svg,.webp,.gif"
+                  fileList={fileList}
+                  onChange={handleUploadChange}
+                  beforeUpload={() => false}
+                  listType="picture"
+                  maxCount={1}
+                >
+                  <div className="flex flex-col items-center justify-center">
+                    <Typography.Title level={5}>
+                      Click to Upload
+                    </Typography.Title>
+                    <p>Please upload your image.</p>
+                  </div>
+                </Upload.Dragger>
+              </Form.Item>
 
-            <Form.Item
-              name="openingHours"
-              // rules={[
-              //   { required: true, message: "Please enter opening hours" },
-              // ]}
-            >
-              <Input
-                placeholder="Opening Hours"
-                style={{ backgroundColor: "#C6CFED" }}
-              />
-            </Form.Item>
-
-            <Form.Item
-              name="address"
-              // rules={[{ required: true, message: "Please enter the address" }]}
-            >
-              <Input
-                placeholder="Address"
-                style={{ backgroundColor: "#C6CFED" }}
-              />
-            </Form.Item>
-
-            <section style={{ display: "flex", gap: "2rem" }}>
-              <Form.Item name="zipCode">
+              <Form.Item
+                name="farmName"
+                // rules={[
+                //   { required: true, message: "Please enter the farm name" },
+                // ]}
+              >
                 <Input
-                  placeholder="Zip Code"
+                  placeholder="Farm Name"
                   style={{ backgroundColor: "#C6CFED" }}
                 />
               </Form.Item>
-              <Form.Item name="city">
+
+              <Form.Item
+                name="address"
+                // rules={[{ required: true, message: "Please enter the address" }]}
+              >
                 <Input
-                  placeholder="City"
-                  style={{ backgroundColor: "#C6CFED", width: "17rem" }}
+                  placeholder="Address"
+                  style={{ backgroundColor: "#C6CFED" }}
                 />
               </Form.Item>
-            </section>
 
-            <Form.Item
-              name="farmPhoneNumber"
-              // rules={[
-              //   { required: true, message: "Please enter the phone number" },
-              // ]}
-            >
-              <Input
-                placeholder="Phone Number"
-                style={{ backgroundColor: "#C6CFED" }}
-              />
-            </Form.Item>
+              <Form.Item
+                name="farmPhoneNumber"
+                // rules={[
+                //   { required: true, message: "Please enter the phone number" },
+                // ]}
+              >
+                <Input
+                  placeholder="Phone Number"
+                  style={{ backgroundColor: "#C6CFED" }}
+                />
+              </Form.Item>
 
-            <Form.Item
-              name="farmEmail"
-              // rules={[
-              //   { required: true, message: "Please enter the email" },
-              //   { type: "email", message: "Please enter a valid email" },
-              // ]}
-            >
-              <Input
-                placeholder="Email"
-                style={{ backgroundColor: "#C6CFED" }}
-              />
-            </Form.Item>
+              <Form.Item
+                name="farmEmail"
+                // rules={[
+                //   { required: true, message: "Please enter the email" },
+                //   { type: "email", message: "Please enter a valid email" },
+                // ]}
+              >
+                <Input
+                  placeholder="Email"
+                  style={{ backgroundColor: "#C6CFED" }}
+                />
+              </Form.Item>
 
-            <Form.Item
-              name="description"
-              // rules={[
-              //   { required: true, message: "Please enter a description" },
-              // ]}
-            >
-              <TextArea
-                autoSize={{ minRows: 3, maxRows: 5 }}
-                placeholder="Description"
-                style={{ backgroundColor: "#C6CFED" }}
-              />
-            </Form.Item>
+              <Form.Item
+                name="openingHours"
+                // rules={[
+                //   { required: true, message: "Please enter opening hours" },
+                // ]}
+              >
+                <Input
+                  placeholder="Opening Hours"
+                  style={{ backgroundColor: "#C6CFED" }}
+                />
+              </Form.Item>
 
-            <Form.Item>
-              <div style={{ display: "flex", justifyContent: "center" }}>
-                <Button
-                  type="primary"
-                  htmlType="submit"
-                  loading={loading}
-                  style={{
-                    backgroundColor: "#1F41BB",
-                    color: "#fff",
-                    width: "10rem",
-                  }}
-                >
-                  Update
-                </Button>
-              </div>
-            </Form.Item>
-          </Form>
-        </section>
-      </PageContainer>
+              <Form.Item
+                name="breederName"
+                // rules={[
+                //   { required: true, message: "Please enter the farm name" },
+                // ]}
+              >
+                <Input
+                  placeholder="Breeder Name"
+                  style={{ backgroundColor: "#C6CFED" }}
+                />
+              </Form.Item>
+
+              <Form.Item
+                name="breederPhone"
+                // rules={[
+                //   { required: true, message: "Please enter the farm name" },
+                // ]}
+              >
+                <Input
+                  placeholder="Breeder Phone Number"
+                  style={{ backgroundColor: "#C6CFED" }}
+                />
+              </Form.Item>
+
+              <Form.Item
+                name="description"
+                // rules={[
+                //   { required: true, message: "Please enter a description" },
+                // ]}
+              >
+                <TextArea
+                  autoSize={{ minRows: 3, maxRows: 5 }}
+                  placeholder="Description"
+                  style={{ backgroundColor: "#C6CFED" }}
+                />
+              </Form.Item>
+
+              <Form.Item>
+                <div style={{ display: "flex", justifyContent: "center" }}>
+                  <Button
+                    type="primary"
+                    htmlType="submit"
+                    loading={loading}
+                    style={{
+                      backgroundColor: "#1F41BB",
+                      color: "#fff",
+                      width: "10rem",
+                    }}
+                  >
+                    Update
+                  </Button>
+                </div>
+              </Form.Item>
+            </Form>
+          </section>
+        </PageContainer>
+      </App>
     </ProtectedRoute>
   );
 }

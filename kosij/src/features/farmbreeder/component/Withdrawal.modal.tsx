@@ -1,5 +1,5 @@
 import React from "react";
-import { Modal, Input, Button, Form, message } from "antd";
+import { Modal, Input, Button, Form, App } from "antd";
 import { ArrowLeftOutlined, ArrowRightOutlined } from "@ant-design/icons";
 import { createWithdrawalRequest } from "../api/wallet/create.api";
 
@@ -14,6 +14,8 @@ const WithdrawalModal: React.FC<WithdrawalModalProps> = ({
   visible,
   onCancel,
 }) => {
+  const { notification } = App.useApp()
+
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const onSubmit = async (values: any) => {
     try {
@@ -23,12 +25,42 @@ const WithdrawalModal: React.FC<WithdrawalModalProps> = ({
         bankNumber: values.accountNumber,
         holderName: values.fullName,
       });
-      message.success("Withdrawal request submitted successfully!");
-      onCancel();
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    } catch (error) {
-      message.error("Failed to process withdrawal request.");
-    }
+      const now = new Date();
+      const timeString = now.toLocaleTimeString("en-US", {
+        hour12: true,
+        hour: "2-digit",
+        minute: "2-digit",
+        second: "2-digit",
+      });
+
+      notification.info({
+        message: (
+          <App>
+            <div>
+              Withdrawal request has been sent.{" "}
+              <strong>PLEASE CHECK IT NOW!</strong>
+              <div
+                style={{ color: "#6B7280", fontSize: "12px", marginTop: "4px" }}
+              >
+                {timeString}
+              </div>
+            </div>
+          </App>
+        ),
+        placement: "topRight",
+        style: {
+          backgroundColor: "white",
+          boxShadow: "0 2px 8px rgba(0, 0, 0, 0.15)",
+          borderRadius: "4px",
+        },
+        icon: <span style={{ color: "#1890ff", fontSize: "30px" }}>ⓘ</span>,
+      });      onCancel();
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any
+    } catch (error: any) {
+      notification.error({
+        message: error.message || "Failed to sent withdrawal request",
+        placement: "topRight",
+      });    }
   };
   return (
     <Modal

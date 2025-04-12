@@ -19,7 +19,7 @@ const statusColors: { [key in Order["orderStatus"]]: string } = {
   Delivering: "gold",
   Delivered: "green",
   Cancelled: "red",
-  Refunded: "purple"
+  Refunded: "purple",
 };
 
 function Page() {
@@ -179,7 +179,9 @@ function Page() {
             zIndex: 10,
           },
         }}
-      >        <section className="mt-5">
+      >
+        {" "}
+        <section className="mt-5">
           <ProTable<Order>
             columns={columns}
             dataSource={data}

@@ -42,6 +42,8 @@ const nextConfig: NextConfig = {
       { protocol: "https", hostname: "lptech.asia" },
       { protocol: "https", hostname: "th.bing.com" },
       { protocol: "https", hostname: "cdn.shopify.com" },
+      { protocol: "https", hostname: "chiemtaimobile.vn" },
+      { protocol: "https", hostname: "kodamakoifarm.com" },
     ],
   },
   async rewrites() {

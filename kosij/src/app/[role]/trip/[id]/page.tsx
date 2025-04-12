@@ -3,6 +3,7 @@
 import ManagerLayout from "@/app/components/ManagerLayout/ManagerLayout";
 import SaleStaffLayout from "@/app/components/SaleStaffLayout/SaleStaffLayout";
 import TripDetail from "@/app/components/TripDetail/TripDetail";
+import ProtectedRoute from "@/app/ProtectedRoute";
 import api from "@/config/axios.config";
 
 import { Button, Empty } from "antd";
@@ -183,64 +184,66 @@ function Page() {
   }
 
   return (
-    <LayoutComponent title="Trip Detail">
-      <div className="p-6 max-w-5xl mx-auto">
-        <TripDetail data={tripData} role={role as string} custom={false} />
-        <div className="flex justify-between items-center mt-4 pl-6 pr-6">
-          <Button
-            size="large"
-            className="h-10"
-            onClick={() =>
-              router.push(
-                role === "sale"
-                  ? "/sale/scheduled/trips"
-                  : `/${role}/tours/${tourId}`
-              )
-            }
-          >
-            Back
-          </Button>
+    <ProtectedRoute allowedRoles={["manager", "salesstaff"]}>
+      <LayoutComponent title="Trip Detail">
+        <div className="p-6 max-w-5xl mx-auto">
+          <TripDetail data={tripData} role={role as string} custom={false} />
+          <div className="flex justify-between items-center mt-4 pl-6 pr-6">
+            <Button
+              size="large"
+              className="h-10"
+              onClick={() =>
+                router.push(
+                  role === "sale"
+                    ? "/sale/scheduled/trips"
+                    : `/${role}/tours/${tourId}`
+                )
+              }
+            >
+              Back
+            </Button>
 
-          <div className="flex gap-2">
-            {role === "manager" &&
-              ["Available", "Full"].includes(tripData.tripStatus) && (
+            <div className="flex gap-2">
+              {role === "manager" &&
+                ["Available", "Full"].includes(tripData.tripStatus) && (
+                  <Button
+                    type="primary"
+                    size="large"
+                    className="h-10"
+                    onClick={handleUpdateTrip}
+                  >
+                    Update
+                  </Button>
+                )}
+
+              {role === "manager" && tripData.tripType !== "Customized" && (
                 <Button
                   type="primary"
                   size="large"
                   className="h-10"
-                  onClick={handleUpdateTrip}
+                  onClick={handleSelectStaff}
                 >
-                  Update
+                  Assign
                 </Button>
               )}
 
-            {role === "manager" && tripData.tripType !== "Customized" && (
-              <Button
-                type="primary"
-                size="large"
-                className="h-10"
-                onClick={handleSelectStaff}
-              >
-                Assign
-              </Button>
-            )}
-
-            {tripData.customers.length === 0 &&
-              tripData.isDeleted === false && (
-                <Button
-                  type="default"
-                  danger
-                  size="large"
-                  className="h-10"
-                  onClick={handleDeleteTrip}
-                >
-                  Delete
-                </Button>
-              )}
+              {tripData.customers.length === 0 &&
+                tripData.isDeleted === false && (
+                  <Button
+                    type="default"
+                    danger
+                    size="large"
+                    className="h-10"
+                    onClick={handleDeleteTrip}
+                  >
+                    Delete
+                  </Button>
+                )}
+            </div>
           </div>
         </div>
-      </div>
-    </LayoutComponent>
+      </LayoutComponent>
+    </ProtectedRoute>
   );
 }
 

@@ -29,8 +29,9 @@ function Page() {
             Accept: "text/plain",
           },
         });
+        const feedbackResponse = await api.get(`/tour/${id}/feedbacks`);
         const data = response.data.value;
-
+        const feedbackData = feedbackResponse.data.value;
         if (!data) throw new Error("No data returned from API");
 
         setTourData({
@@ -112,6 +113,7 @@ function Page() {
                 itineraryDetails: detail.itineraryDetails,
               })
             ) || [],
+          feedbacks: feedbackData || [],
         });
       } catch (error) {
         console.error("Lỗi tải dữ liệu tour:", error);

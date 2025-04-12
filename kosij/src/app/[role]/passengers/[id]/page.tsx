@@ -13,6 +13,7 @@ import Image from "next/image";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
 import React, { useEffect, useState } from "react";
 import { toast } from "react-toastify";
+import ProtectedRoute from "@/app/ProtectedRoute";
 
 const { Panel } = Collapse;
 function Page() {
@@ -121,119 +122,125 @@ function Page() {
     }
   };
 
-  if (loading) return <p>Loading...</p>;
+  if (loading) return;
+  <ProtectedRoute allowedRoles={["manager", "salesstaff"]}>
+    <p>Loading...</p>
+  </ProtectedRoute>;
 
   return (
-    <LayoutComponent title="Passenger List">
-      <div className="p-6 max-w-5xl mx-auto">
-        {tripBooking && (
-          <TripBookingInfo
-            tripBooking={tripBooking}
-            onUpdateTripBooking={handleUpdateTripBooking}
-            PassengerList={passengerData}
-            onSaveChanges={handleSaveChanges}
-          />
-        )}
+    <ProtectedRoute allowedRoles={["manager", "salesstaff"]}>
+      <LayoutComponent title="Passenger List">
+        <div className="p-6 max-w-5xl mx-auto">
+          {tripBooking && (
+            <TripBookingInfo
+              tripBooking={tripBooking}
+              onUpdateTripBooking={handleUpdateTripBooking}
+              PassengerList={passengerData}
+              onSaveChanges={handleSaveChanges}
+            />
+          )}
 
-        {passengerData.length ? (
-          <PassengerList
-            passengers={passengerData}
-            onUpdatePassenger={handleUpdatePassenger}
-            tripBookingStatus={tripBooking?.tripBookingStatus}
-            role={Array.isArray(role) ? role[0] : role || ""}
-          />
-        ) : (
-          <Card className="flex justify-center items-center h-40">
-            <Empty description="No passengers found" />
-          </Card>
-        )}
-        {custom && (
-          <div className="mt-4">
-            <Button type="primary" onClick={handleBack}>
-              Back
-            </Button>
-          </div>
-        )}
-        {role === "manager" && orders.length ? (
-          <div className="mt-6">
-            <h2 className="text-lg font-semibold mb-4">Order List</h2>
-            <Collapse accordion>
-              {orders.map((order) => (
-                <Panel
-                  header={
-                    <span className="font-semibold">{order.fullName}</span>
-                  }
-                  key={order.id}
-                >
-                  <Card className="mb-4">
-                    <p>
-                      <strong>Phone:</strong> {order.phoneNumber}
-                    </p>
-                    <p>
-                      <strong>Delivery Address:</strong> {order.deliveryAddress}
-                    </p>
-                    <p>
-                      <strong>Farm Name:</strong> {order.farmName}
-                    </p>
-                    <p>
-                      <strong>Total Amount:</strong>{" "}
-                      {order.totalOrderAmount
-                        ? order.totalOrderAmount.toLocaleString()
-                        : "N/A"}{" "}
-                      VND
-                    </p>
-                    <p>
-                      <strong>Paid:</strong>{" "}
-                      {order.paidAmount
-                        ? order.paidAmount.toLocaleString()
-                        : "N/A"}{" "}
-                      VND
-                    </p>
-                    <p>
-                      <strong>Remaining:</strong>{" "}
-                      {order.remaining
-                        ? order.remaining.toLocaleString()
-                        : "N/A"}{" "}
-                      VND
-                    </p>
-                    <p>
-                      <strong>Order Status:</strong> {order.orderStatus}
-                    </p>
-                    {order.cancellationReason && (
-                      <p>
-                        <strong>Cancellation Reason:</strong>{" "}
-                        {order.cancellationReason}
-                      </p>
-                    )}
-                    <p>
-                      <strong> Estimated Delivery Date:</strong>{" "}
-                      {order.expectedDeliveryDate}
-                    </p>
-                    <Button
-                      type="default"
-                      shape="round"
-                      icon={<EyeOutlined />}
-                      onClick={() => {
-                        handleViewMore(order.orderId);
-                      }}
-                      className="mt-2 px-4 shadow-sm hover:bg-gray-100"
-                    >
-                      View More
-                    </Button>
-                  </Card>
-                </Panel>
-              ))}
-            </Collapse>
-          </div>
-        ) : (
-          <div className="mt-6">
+          {passengerData.length ? (
+            <PassengerList
+              passengers={passengerData}
+              onUpdatePassenger={handleUpdatePassenger}
+              tripBookingStatus={tripBooking?.tripBookingStatus}
+              role={Array.isArray(role) ? role[0] : role || ""}
+            />
+          ) : (
             <Card className="flex justify-center items-center h-40">
-              <Empty description="No orders found" />
+              <Empty description="No passengers found" />
             </Card>
-          </div>
-        )}
-      </div>
-    </LayoutComponent>
+          )}
+          {custom && (
+            <div className="mt-4">
+              <Button type="primary" onClick={handleBack}>
+                Back
+              </Button>
+            </div>
+          )}
+          {role === "manager" && orders.length ? (
+            <div className="mt-6">
+              <h2 className="text-lg font-semibold mb-4">Order List</h2>
+              <Collapse accordion>
+                {orders.map((order) => (
+                  <Panel
+                    header={
+                      <span className="font-semibold">{order.fullName}</span>
+                    }
+                    key={order.id}
+                  >
+                    <Card className="mb-4">
+                      <p>
+                        <strong>Phone:</strong> {order.phoneNumber}
+                      </p>
+                      <p>
+                        <strong>Delivery Address:</strong>{" "}
+                        {order.deliveryAddress}
+                      </p>
+                      <p>
+                        <strong>Farm Name:</strong> {order.farmName}
+                      </p>
+                      <p>
+                        <strong>Total Amount:</strong>{" "}
+                        {order.totalOrderAmount
+                          ? order.totalOrderAmount.toLocaleString()
+                          : "N/A"}{" "}
+                        VND
+                      </p>
+                      <p>
+                        <strong>Paid:</strong>{" "}
+                        {order.paidAmount
+                          ? order.paidAmount.toLocaleString()
+                          : "N/A"}{" "}
+                        VND
+                      </p>
+                      <p>
+                        <strong>Remaining:</strong>{" "}
+                        {order.remaining
+                          ? order.remaining.toLocaleString()
+                          : "N/A"}{" "}
+                        VND
+                      </p>
+                      <p>
+                        <strong>Order Status:</strong> {order.orderStatus}
+                      </p>
+                      {order.cancellationReason && (
+                        <p>
+                          <strong>Cancellation Reason:</strong>{" "}
+                          {order.cancellationReason}
+                        </p>
+                      )}
+                      <p>
+                        <strong> Estimated Delivery Date:</strong>{" "}
+                        {order.expectedDeliveryDate}
+                      </p>
+                      <Button
+                        type="default"
+                        shape="round"
+                        icon={<EyeOutlined />}
+                        onClick={() => {
+                          handleViewMore(order.orderId);
+                        }}
+                        className="mt-2 px-4 shadow-sm hover:bg-gray-100"
+                      >
+                        View More
+                      </Button>
+                    </Card>
+                  </Panel>
+                ))}
+              </Collapse>
+            </div>
+          ) : (
+            <div className="mt-6">
+              <Card className="flex justify-center items-center h-40">
+                <Empty description="No orders found" />
+              </Card>
+            </div>
+          )}
+        </div>
+      </LayoutComponent>
+    </ProtectedRoute>
   );
 }
 

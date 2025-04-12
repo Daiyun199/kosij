@@ -1,4 +1,14 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
+export interface Feedback {
+  id: number;
+  tripBookingId: number;
+  farmId: number;
+  customerName: string;
+  customerAvatar: string;
+  feedbackType: string;
+  rating: number;
+  review: string;
+}
 export interface TourData {
   id: any;
   title: string;
@@ -19,4 +29,5 @@ export interface TourData {
   promotionPolicy: string;
   numberOfTrips: number;
   isDeleted: boolean;
+  feedbacks: Feedback[];
 }

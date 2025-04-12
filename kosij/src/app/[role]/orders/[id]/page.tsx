@@ -11,6 +11,7 @@ import { useParams, useRouter, useSearchParams } from "next/navigation";
 import React, { useEffect, useState } from "react";
 import OrderInfo from "@/app/components/Orders/Orders";
 import { OrderData } from "@/model/OrderInfoProps";
+import ProtectedRoute from "@/app/ProtectedRoute";
 
 function Page() {
   const params = useParams() as { id: string };
@@ -42,22 +43,32 @@ function Page() {
   const handleActionComplete = () => {
     setRefreshKey((prev) => prev + 1);
   };
-  if (loading) return <p>Loading...</p>;
+  if (loading)
+    return (
+      <ProtectedRoute allowedRoles={["manager", "salesstaff"]}>
+        Loading...
+      </ProtectedRoute>
+    );
 
   return (
-    <LayoutComponent title="Order Details">
-      <div className="p-6 max-w-5xl mx-auto">
-        {loading ? (
-          <Spin size="large" />
-        ) : orders ? (
-          <>
-            <OrderInfo data={orders} onActionComplete={handleActionComplete} />
-          </>
-        ) : (
-          <Empty description="No order data available" />
-        )}
-      </div>
-    </LayoutComponent>
+    <ProtectedRoute allowedRoles={["manager", "salesstaff"]}>
+      <LayoutComponent title="Order Details">
+        <div className="p-6 max-w-5xl mx-auto">
+          {loading ? (
+            <Spin size="large" />
+          ) : orders ? (
+            <>
+              <OrderInfo
+                data={orders}
+                onActionComplete={handleActionComplete}
+              />
+            </>
+          ) : (
+            <Empty description="No order data available" />
+          )}
+        </div>
+      </LayoutComponent>
+    </ProtectedRoute>
   );
 }
 

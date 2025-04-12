@@ -3,7 +3,7 @@
 import Image from "next/image";
 import React, { useState } from "react";
 import { Card, Collapse, Tag, DatePicker, Button, Popconfirm } from "antd";
-import { CalendarOutlined, EyeOutlined } from "@ant-design/icons";
+import { CalendarOutlined, EyeOutlined, StarFilled } from "@ant-design/icons";
 import dayjs from "dayjs";
 import { TourData } from "@/model/TourData";
 import { useRouter } from "next/navigation";
@@ -214,7 +214,7 @@ const TourDetail = ({ data }: { data: TourData }) => {
               : (data.tourPriceNotIncludes as string);
 
             const sentences = raw
-              .split(/(?<=\.)\s*/g) 
+              .split(/(?<=\.)\s*/g)
               .map((sentence) => sentence.trim())
               .filter(Boolean);
 
@@ -271,6 +271,63 @@ const TourDetail = ({ data }: { data: TourData }) => {
             </p>
           )}
         </ul>
+      </Card>
+      <Card className="mt-4 border border-gray-200 shadow-sm">
+        <h3 className="font-semibold mb-4">Customer Feedback</h3>
+        {data.feedbacks && data.feedbacks.length > 0 ? (
+          <div className="space-y-4">
+            {data.feedbacks.map((feedback: any) => (
+              <div key={feedback.id} className="border-b pb-4 last:border-b-0">
+                <div className="flex items-start gap-3">
+                  {feedback.customerAvatar && (
+                    <Image
+                      src={feedback.customerAvatar}
+                      alt={feedback.customerName}
+                      width={40}
+                      height={40}
+                      className="rounded-full"
+                    />
+                  )}
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <span className="font-medium">
+                        {feedback.customerName}
+                      </span>
+                      <div className="flex items-center">
+                        {[...Array(5)].map((_, i) => (
+                          <StarFilled
+                            key={i}
+                            className={
+                              i < feedback.rating
+                                ? "text-yellow-400"
+                                : "text-gray-300"
+                            }
+                          />
+                        ))}
+                      </div>
+                    </div>
+                    <p className="text-gray-600 mt-1">{feedback.review}</p>
+                    {feedback.farmId && (
+                      <div className="mt-2 text-sm">
+                        <span className="text-gray-500">Farm: </span>
+                        <a
+                          href={`/manager/farms/${feedback.farmId}`}
+                          className="text-blue-500 hover:underline"
+                        >
+                          View Farm
+                        </a>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <p className="text-gray-500">
+            No feedback available for this tour yet.
+          </p>
+        )}
       </Card>
 
       <div className="flex justify-between mt-4">

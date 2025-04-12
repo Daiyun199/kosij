@@ -3,6 +3,7 @@
 import ManagerLayout from "@/app/components/ManagerLayout/ManagerLayout";
 import SaleStaffLayout from "@/app/components/SaleStaffLayout/SaleStaffLayout";
 import TripDetail from "@/app/components/TripDetail/TripDetail";
+import ProtectedRoute from "@/app/ProtectedRoute";
 import api from "@/config/axios.config";
 import { TripData } from "@/model/TripData";
 import { Button, Empty } from "antd";
@@ -153,37 +154,39 @@ function Page() {
   }
 
   return (
-    <LayoutComponent title="Trip Detail">
-      <div className="p-6 max-w-5xl mx-auto">
-        <TripDetail data={tripData} role={role as string} custom={true} />
+    <ProtectedRoute allowedRoles={["manager", "salesstaff"]}>
+      <LayoutComponent title="Trip Detail">
+        <div className="p-6 max-w-5xl mx-auto">
+          <TripDetail data={tripData} role={role as string} custom={true} />
 
-        <div className="flex justify-between mt-4 pl-6 pr-6">
-          {role === "sale" && tripRequestStatus === "ManagerRejected" && (
+          <div className="flex justify-between mt-4 pl-6 pr-6">
+            {role === "sale" && tripRequestStatus === "ManagerRejected" && (
+              <Button
+                type="default"
+                className="bg-green-500 hover:bg-green-600 text-white"
+                onClick={() => router.push(`/sale/rejected/update/${id}`)}
+              >
+                Update
+              </Button>
+            )}
+
             <Button
               type="default"
-              className="bg-green-500 hover:bg-green-600 text-white"
-              onClick={() => router.push(`/sale/rejected/update/${id}`)}
+              className="bg-blue-500 hover:bg-blue-600 text-white"
+              onClick={() =>
+                router.push(
+                  role === "manager"
+                    ? `/manager/requests/${tripRequestId}`
+                    : `/sale/requests/${tripRequestId}`
+                )
+              }
             >
-              Update
+              Back
             </Button>
-          )}
-
-          <Button
-            type="default"
-            className="bg-blue-500 hover:bg-blue-600 text-white"
-            onClick={() =>
-              router.push(
-                role === "manager"
-                  ? `/manager/requests/${tripRequestId}`
-                  : `/sale/requests/${tripRequestId}`
-              )
-            }
-          >
-            Back
-          </Button>
+          </div>
         </div>
-      </div>
-    </LayoutComponent>
+      </LayoutComponent>
+    </ProtectedRoute>
   );
 }
 

@@ -24,8 +24,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   useEffect(() => {
     const token =
-      (localStorage.getItem("authToken") &&
-        sessionStorage.getItem("authToken")) ||
+      (localStorage.getItem("authToken") && sessionStorage.getItem("token")) ||
       Cookies.get("token");
     if (token) {
       try {

@@ -16,6 +16,8 @@ import {
 } from "react";
 import api from "@/config/axios.config";
 import { toast, ToastContentProps } from "react-toastify";
+import { decodeJwt } from "@/lib/domain/User/decodeJwt.util";
+import { useRouter } from "next/navigation";
 
 interface Notification {
   id: number;
@@ -47,14 +49,14 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
   const [unreadCount, setUnreadCount] = useState(0);
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-
+  const router = useRouter();
   function getVietnamTimeISOString() {
     const now = new Date();
     const offsetInMs = 7 * 60 * 60 * 1000;
     const vietnamTime = new Date(now.getTime() + offsetInMs);
     return vietnamTime.toISOString().slice(0, -1);
   }
-
+  const [role, setRole] = useState<string | undefined>();
   useEffect(() => {
     const updateToken = () => {
       const currentToken = sessionStorage.getItem("token");
@@ -65,14 +67,59 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
     updateToken();
     return () => window.removeEventListener("tokenChanged", updateToken);
   }, []);
+  useEffect(() => {
+    if (token) {
+      decodeToken(token);
+    }
+  }, [token]);
+  const decodeToken = (token: string) => {
+    try {
+      const decoded = decodeJwt(token);
+      setRole(decoded.role);
+    } catch (error) {
+      console.error("Error decoding token:", error);
+      return undefined;
+    }
+  };
+  const getActionText = (referenceType: string, refId: number) => {
+    const rolePath = role === "manager" ? "manager" : "sale";
 
+    switch (referenceType) {
+      case "Order":
+        return {
+          text: "View Order Details →",
+          url: `/manager/orders/${refId}`,
+        };
+      case "Trip":
+        return {
+          text: "Trip Details →",
+          url: `/${rolePath}/trip/${refId}`,
+        };
+      case "TripRequest":
+        return {
+          text: "Trip Request Details →",
+          url: `/${rolePath}/requests/${refId}`,
+        };
+      case "TripBooking":
+        return {
+          text: "Trip Booking Details →",
+          url: `/${rolePath}/passengers/${refId}`,
+        };
+      case "WithdrawalRequest":
+        return {
+          text: "Statement of money →",
+          url: `/manager/withdrawals/${refId}`,
+        };
+      default:
+        return null;
+    }
+  };
   const fetchAllNotifications = async () => {
     if (!token) return;
     try {
       const response = await api.get("/notifications");
       const fetched = response.data.value || response.data;
 
-      // Cập nhật ref tránh lặp
       fetched.forEach((n: Notification) =>
         notificationIdsRef.current.add(n.id)
       );
@@ -86,7 +133,12 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
       console.error("Error fetching all notifications:", error);
     }
   };
+  function parseCustomDate(dateStr: string): Date {
+    const [datePart, timePart] = dateStr.split(" ");
+    const [day, month, year] = datePart.split("-");
 
+    return new Date(`${year}-${month}-${day}T${timePart}`);
+  }
   const fetchNewNotifications = async () => {
     if (!token || !loginTime) return;
 
@@ -99,23 +151,26 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
       setUnreadCount(unreadRes.data.count || unreadRes.data.value?.count);
 
       const newNotifications: Notification[] = newRes.data?.value || [];
-
-      const filteredNewNotifications = newNotifications.filter(
-        (n) =>
-          !notificationIdsRef.current.has(n.id) &&
-          new Date(n.createdTime).getTime() > new Date(loginTime).getTime()
-      );
-
+      const filteredNewNotifications = newNotifications.filter((n) => {
+        const created = parseCustomDate(n.createdTime).getTime();
+        const login = new Date(loginTime).getTime();
+        return !notificationIdsRef.current.has(n.id) && created > login;
+      });
       if (filteredNewNotifications.length > 0) {
         filteredNewNotifications.forEach((notif) => {
-          notificationIdsRef.current.add(notif.id); // Quan trọng: tránh lặp
+          notificationIdsRef.current.add(notif.id);
+          const action = getActionText(notif.referenceType, notif.refId);
 
           toast.info(notif.message, {
             autoClose: 5000,
-            onClick: () => markAsRead(notif.id),
+            onClick: () => {
+              markAsRead(notif.id);
+              if (action?.url) {
+                router.push(action.url);
+              }
+            },
           });
         });
-
         setNotifications((prev) => [...filteredNewNotifications, ...prev]);
       }
     } catch (error) {

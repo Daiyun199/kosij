@@ -36,6 +36,8 @@ function CreateVarietyModal({
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [varieties, setVarieties] = useState<any[]>([]);
   const [imageFile, setImageFile] = useState<File | null>(null);
+  const { notification } = App.useApp()
+
   const uploadImageToFirebase = async (file: File) => {
     const storage = getStorage(firebaseApp);
     const storageRef = ref(
@@ -48,8 +50,10 @@ function CreateVarietyModal({
       return await getDownloadURL(snapshot.ref);
     } catch (error) {
       console.error("Error uploading image:", error);
-      message.error("Failed to upload image.");
-      return null;
+      notification.error({
+        message: "Failed to upload image.",
+        placement: "topRight",
+      });      return null;
     }
   };
   useEffect(() => {
@@ -85,13 +89,44 @@ function CreateVarietyModal({
         imageUrl,
         isNew: !varietyId,
       });
-      message.success("Variety created successfully!");
       onCancel();
+      const now = new Date();
+      const timeString = now.toLocaleTimeString("en-US", {
+        hour12: true,
+        hour: "2-digit",
+        minute: "2-digit",
+        second: "2-digit",
+      });
+
+      notification.info({
+        message: (
+          <App>
+            <div>
+              New Variety has been created.{" "}
+              <strong>PLEASE CHECK IT NOW!</strong>
+              <div
+                style={{ color: "#6B7280", fontSize: "12px", marginTop: "4px" }}
+              >
+                {timeString}
+              </div>
+            </div>
+          </App>
+        ),
+        placement: "topRight",
+        style: {
+          backgroundColor: "white",
+          boxShadow: "0 2px 8px rgba(0, 0, 0, 0.15)",
+          borderRadius: "4px",
+        },
+        icon: <span style={{ color: "#1890ff", fontSize: "30px" }}>ⓘ</span>,
+      });
       fetchVarietyList();
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    } catch (error) {
-      message.error("Failed to create variety.");
-    } finally {
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any
+    } catch (error: any) {
+      notification.error({
+        message: error.message || "Failed to create new variety",
+        placement: "topRight",
+      });    } finally {
       setLoading(false);
     }
   };

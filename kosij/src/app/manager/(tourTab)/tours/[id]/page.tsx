@@ -29,11 +29,15 @@ function Page() {
             Accept: "text/plain",
           },
         });
-        const feedbackResponse = await api.get(`/tour/${id}/feedbacks`);
         const data = response.data.value;
-        const feedbackData = feedbackResponse.data.value;
         if (!data) throw new Error("No data returned from API");
-
+        let feedbackData = [];
+        try {
+          const feedbackResponse = await api.get(`/tour/${id}/feedbacks`);
+          feedbackData = feedbackResponse.data.value || [];
+        } catch (feedbackError) {
+          console.warn("Không thể tải feedbacks:", feedbackError);
+        }
         setTourData({
           id: data.id,
           isDeleted: data.isDeleted,

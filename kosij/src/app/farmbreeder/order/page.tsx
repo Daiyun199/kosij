@@ -192,6 +192,12 @@ function Page() {
               showTotal: (total) => `Total ${total} record(s)`,
             }}
             loading={isLoading}
+            onRow={(record) => ({
+              onClick: () => {
+                router.push(`/farmbreeder/order/${record.orderId}`);
+                console.log("Navigated to order ID:", record.orderId);
+              },
+            })}
           />
         </section>
       </PageContainer>

@@ -1,12 +1,13 @@
 "use client";
 
 import ProtectedRoute from "@/app/ProtectedRoute";
+import { exportOrderBill } from "@/features/farmbreeder/api/order/export.api";
 import { fetchOrderDetails } from "@/features/farmbreeder/api/order/one-byId.api";
 import { updateOrderStatus } from "@/features/farmbreeder/api/order/update.api";
 import { Order, OrderDetail } from "@/lib/domain/Order/Order.dto";
 import { PageContainer } from "@ant-design/pro-layout";
 import { useMutation, useQuery } from "@tanstack/react-query";
-import { Card, Descriptions, Table, Button, Tag } from "antd";
+import { Card, Descriptions, Table, Button, Tag, App } from "antd";
 import { useParams, useRouter } from "next/navigation";
 
 const statusColors: { [key in Order["orderStatus"]]: string } = {
@@ -23,6 +24,7 @@ function Page() {
   const params = useParams();
   const id = params?.id;
   const router = useRouter();
+  const { notification } = App.useApp();
   const { data, isLoading, refetch } = useQuery<Order>({
     queryKey: ["currentFarmOrderDetails", id],
     queryFn: fetchOrderDetails,
@@ -40,6 +42,57 @@ function Page() {
     },
   });
 
+  const exportBillMutation = useMutation({
+    mutationFn: exportOrderBill,
+    onSuccess: (blob: Blob) => {
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = `OrderBill_${id}.pdf`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+      const now = new Date();
+      const timeString = now.toLocaleTimeString("en-US", {
+        hour12: true,
+        hour: "2-digit",
+        minute: "2-digit",
+        second: "2-digit",
+      });
+
+      notification.info({
+        message: (
+          <App>
+            <div>
+              Bill of Order #{data?.orderId} has been exported successfully.
+              <strong>PLEASE CHECK IT NOW!</strong>
+              <div
+                style={{ color: "#6B7280", fontSize: "12px", marginTop: "4px" }}
+              >
+                {timeString}
+              </div>
+            </div>
+          </App>
+        ),
+        placement: "topRight",
+        style: {
+          backgroundColor: "white",
+          boxShadow: "0 2px 8px rgba(0, 0, 0, 0.15)",
+          borderRadius: "4px",
+        },
+        icon: <span style={{ color: "#1890ff", fontSize: "30px" }}>ⓘ</span>,
+      });
+    },
+    onError: (error) => {
+      console.error("Error exporting bill", error);
+      notification.error({
+        message: error.message || "Failed to export bill",
+        placement: "topRight",
+      });
+    },
+  });
+
   const handleStatusChange = async (
     status: Order["orderStatus"],
     orderId: number
@@ -48,6 +101,12 @@ function Page() {
       await mutation.mutateAsync({ status, orderId });
     } catch (error) {
       console.error("Error updating order status", error);
+    }
+  };
+
+  const handleExportBill = () => {
+    if (id) {
+      exportBillMutation.mutate(id);
     }
   };
 
@@ -132,6 +191,21 @@ function Page() {
           ),
         }}
       >
+        <div className="mt-1 mb-3 flex justify-end">
+          <Button
+            onClick={handleExportBill}
+            loading={exportBillMutation.isPending}
+          >
+            Export Bill
+          </Button>
+          <Button
+            className="ml-3"
+            type="primary"
+            onClick={() => handleStatusChange("Packed", data?.orderId || 0)}
+          >
+            Mark as Packed
+          </Button>
+        </div>
         <Card>
           <Descriptions
             title={`Order ${data?.orderId}`}
@@ -207,16 +281,6 @@ function Page() {
             </div>
           </div>
         </Card>
-        <div className="mt-3 flex justify-end">
-          <Button
-            type="primary"
-            onClick={
-              () => handleStatusChange("Packed", data?.orderId || 0) // Pass fixed status and orderId
-            }
-          >
-            Mark as Packed
-          </Button>
-        </div>
       </PageContainer>
     </ProtectedRoute>
   );

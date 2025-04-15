@@ -36,7 +36,7 @@ function CreateVarietyModal({
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [varieties, setVarieties] = useState<any[]>([]);
   const [imageFile, setImageFile] = useState<File | null>(null);
-  const { notification } = App.useApp()
+  const { notification } = App.useApp();
 
   const uploadImageToFirebase = async (file: File) => {
     const storage = getStorage(firebaseApp);
@@ -53,7 +53,8 @@ function CreateVarietyModal({
       notification.error({
         message: "Failed to upload image.",
         placement: "topRight",
-      });      return null;
+      });
+      return null;
     }
   };
   useEffect(() => {
@@ -68,6 +69,12 @@ function CreateVarietyModal({
     };
     getVarieties();
   }, []);
+
+  const handleCancel = () => {
+    form.resetFields(); // Reset form fields
+    setImageFile(null); // Clear image file state
+    onCancel(); // Call the original onCancel to close modal
+  };
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const handleSubmit = async (values: any) => {
@@ -89,7 +96,7 @@ function CreateVarietyModal({
         imageUrl,
         isNew: !varietyId,
       });
-      onCancel();
+      handleCancel();
       const now = new Date();
       const timeString = now.toLocaleTimeString("en-US", {
         hour12: true,
@@ -126,7 +133,8 @@ function CreateVarietyModal({
       notification.error({
         message: error.message || "Failed to create new variety",
         placement: "topRight",
-      });    } finally {
+      });
+    } finally {
       setLoading(false);
     }
   };
@@ -142,9 +150,10 @@ function CreateVarietyModal({
       <Modal
         title="Create Variety"
         open={visible}
-        onCancel={onCancel}
+        onCancel={handleCancel}
         footer={null}
         centered
+        bodyStyle={{ maxHeight: "60vh", overflowY: "auto" }}
       >
         <p style={{ color: "#6B7280" }}>
           Please fill in the details below to create the variety.
@@ -154,6 +163,7 @@ function CreateVarietyModal({
           {/* Variety Selection */}
           <Form.Item label="Variety" name="varietyId">
             <Select placeholder="Select a variety" allowClear>
+              <Select.Option value={undefined}>Select a variety</Select.Option>
               {varieties.map((variety) => (
                 <Select.Option key={variety.id} value={variety.varietyId}>
                   {variety.varietyName}
@@ -208,7 +218,7 @@ function CreateVarietyModal({
               marginTop: "1rem",
             }}
           >
-            <Button type="link" icon={<ArrowLeftOutlined />} onClick={onCancel}>
+            <Button type="link" icon={<ArrowLeftOutlined />} onClick={handleCancel}>
               Cancel
             </Button>
             <Button

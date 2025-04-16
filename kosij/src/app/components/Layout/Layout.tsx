@@ -33,10 +33,10 @@ const CustomLayout: React.FC<LayoutProps> = ({
   }>({});
   const [handleLogout] = useLogout();
   useEffect(() => {
-    const savedPath = localStorage.getItem("activePath") || pathname;
+    const savedPath = sessionStorage.getItem("activePath") || pathname;
     setActivePath(savedPath);
 
-    const savedExpanded = localStorage.getItem("expandedMenus");
+    const savedExpanded = sessionStorage.getItem("expandedMenus");
     if (savedExpanded) {
       setExpandedMenus(JSON.parse(savedExpanded));
     }
@@ -45,7 +45,7 @@ const CustomLayout: React.FC<LayoutProps> = ({
   const handleNavigate = (path?: string) => {
     if (path) {
       setActivePath(path);
-      localStorage.setItem("activePath", path);
+      sessionStorage.setItem("activePath", path);
       router.push(path);
     }
   };
@@ -53,7 +53,7 @@ const CustomLayout: React.FC<LayoutProps> = ({
   const toggleMenu = (path: string) => {
     setExpandedMenus((prev) => {
       const updated = { ...prev, [path]: !prev[path] };
-      localStorage.setItem("expandedMenus", JSON.stringify(updated));
+      sessionStorage.setItem("expandedMenus", JSON.stringify(updated));
       return updated;
     });
   };

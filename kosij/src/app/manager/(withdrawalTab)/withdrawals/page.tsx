@@ -11,12 +11,14 @@ import {
   Popconfirm,
   Descriptions,
   Popover,
+  Typography,
 } from "antd";
 import type { ColumnsType } from "antd/es/table";
 import api from "@/config/axios.config";
 import { toast } from "react-toastify";
 import ManagerLayout from "@/app/components/ManagerLayout/ManagerLayout";
 import ProtectedRoute from "@/app/ProtectedRoute";
+import SearchBar from "@/app/components/SearchBar/SearchBar";
 
 interface Withdrawal {
   id: number;
@@ -35,6 +37,7 @@ interface ApiError {
 }
 
 const WithdrawalsTable: React.FC = () => {
+  const [searchValue, setSearchValue] = useState("");
   const [data, setData] = useState<Withdrawal[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
   const [denyModalVisible, setDenyModalVisible] = useState<boolean>(false);
@@ -214,9 +217,43 @@ const WithdrawalsTable: React.FC = () => {
   return (
     <ProtectedRoute allowedRoles={["manager"]}>
       <ManagerLayout title="Withdrawals">
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "space-between",
+            marginBottom: 16,
+            alignItems: "center",
+          }}
+        >
+          <Typography.Title
+            level={3}
+            style={{ margin: 0, whiteSpace: "nowrap" }}
+          >
+            Withdrawal Requests
+          </Typography.Title>
+          <div
+            style={{
+              width: "100%",
+              display: "flex",
+              justifyContent: "flex-end",
+            }}
+          >
+            <SearchBar
+              value={searchValue}
+              onChange={(e) => setSearchValue(e.target.value)}
+            />
+          </div>
+        </div>
         <Table
           columns={columns}
-          dataSource={data}
+          dataSource={data.filter((item) => {
+            const keyword = searchValue.toLowerCase();
+            return (
+              item.walletId?.toString().toLowerCase().includes(keyword) ||
+              item.bankName?.toLowerCase().includes(keyword) ||
+              item.holderName?.toLowerCase().includes(keyword)
+            );
+          })}
           loading={loading}
           rowKey="id"
           pagination={{ pageSize: 5 }}

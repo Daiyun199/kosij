@@ -43,7 +43,8 @@ const nextConfig: NextConfig = {
       { protocol: "https", hostname: "th.bing.com" },
       { protocol: "https", hostname: "cdn.shopify.com" },
       { protocol: "https", hostname: "chiemtaimobile.vn" },
-      { protocol: "https", hostname: "kodamakoifarm.com" },
+      { protocol: "https", hostname: "www.kodamakoifarm.com" },
+      { protocol: "https", hostname: "www.fishkeeper.co.uk" },
     ],
   },
   async rewrites() {

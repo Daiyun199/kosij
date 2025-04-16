@@ -1,12 +1,15 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 "use client";
 import { useEffect, useState } from "react";
-import { Table } from "antd";
+import { Table, DatePicker, Card, Space } from "antd";
 import type { ColumnsType } from "antd/es/table";
+import dayjs from "dayjs";
 import api from "@/config/axios.config";
 import ManagerLayout from "@/app/components/ManagerLayout/ManagerLayout";
 import { Transaction } from "@/model/Transaction";
 import ProtectedRoute from "@/app/ProtectedRoute";
+
+const { RangePicker } = DatePicker;
 
 const transactionTypes = [
   "None",
@@ -38,12 +41,21 @@ const TransactionsTable = () => {
   const [filteredTransactions, setFilteredTransactions] = useState<
     Transaction[]
   >([]);
+  const [dateRange, setDateRange] = useState<
+    [dayjs.Dayjs | null, dayjs.Dayjs | null]
+  >([null, null]);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     fetchTransactions();
   }, []);
 
+  useEffect(() => {
+    filterTransactions();
+  }, [dateRange, transactions]);
+
   const fetchTransactions = async () => {
+    setLoading(true);
     try {
       const response = await api.get("transactions");
 
@@ -60,7 +72,27 @@ const TransactionsTable = () => {
       console.error("Error fetching transactions:", error);
       setTransactions([]);
       setFilteredTransactions([]);
+    } finally {
+      setLoading(false);
     }
+  };
+
+  const filterTransactions = () => {
+    if (!dateRange || !dateRange[0] || !dateRange[1]) {
+      setFilteredTransactions(transactions);
+      return;
+    }
+
+    const [startDate, endDate] = dateRange;
+    const filtered = transactions.filter((transaction) => {
+      const transactionDate = dayjs(transaction.createdTime);
+      return (
+        transactionDate.isAfter(startDate) &&
+        transactionDate.isBefore(endDate.add(1, "day")) // Include the end date
+      );
+    });
+
+    setFilteredTransactions(filtered);
   };
 
   const columns: ColumnsType<Transaction> = [
@@ -114,12 +146,27 @@ const TransactionsTable = () => {
     <ProtectedRoute allowedRoles={["manager"]}>
       <ManagerLayout title="Transaction's List">
         <div className="p-4">
-          <Table
-            columns={columns}
-            dataSource={filteredTransactions}
-            rowKey="id"
-            pagination={{ pageSize: 5 }}
-          />
+          <Card>
+            <Space style={{ marginBottom: 16 }}>
+              <RangePicker
+                onChange={(dates) =>
+                  setDateRange(
+                    dates as [dayjs.Dayjs | null, dayjs.Dayjs | null]
+                  )
+                }
+                format="DD/MM/YYYY"
+                style={{ width: 250 }}
+              />
+            </Space>
+
+            <Table
+              columns={columns}
+              dataSource={filteredTransactions}
+              rowKey="id"
+              pagination={{ pageSize: 5 }}
+              loading={loading}
+            />
+          </Card>
         </div>
       </ManagerLayout>
     </ProtectedRoute>

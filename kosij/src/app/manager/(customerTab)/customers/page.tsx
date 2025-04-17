@@ -9,7 +9,8 @@ import { Customer } from "@/model/Customer";
 import SearchBar from "@/app/components/SearchBar/SearchBar";
 import isBetween from "dayjs/plugin/isBetween";
 import ProtectedRoute from "@/app/ProtectedRoute";
-
+import { useRouter } from "next/navigation";
+import type { Key } from "antd/es/table/interface";
 dayjs.extend(isBetween);
 
 function Page() {
@@ -19,7 +20,7 @@ function Page() {
     [dayjs.Dayjs | null, dayjs.Dayjs | null]
   >([null, null]);
   const [searchValue, setSearchValue] = useState<string>("");
-
+  const router = useRouter();
   useEffect(() => {
     fetchCustomers();
   }, []);
@@ -104,17 +105,22 @@ function Page() {
         { text: "Active", value: "Active" },
         { text: "Inactive", value: "Inactive" },
       ],
-      render: (status: boolean) => (status ? "Active" : "Inactive"),
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      onFilter: (value: any, record: Customer) =>
-        (record.status ? "Active" : "Inactive") === value,
+
+      onFilter: (value: string | boolean | Key, record: Customer) => {
+        return record.status === value;
+      },
     },
     {
       title: "Actions",
       key: "actions",
       render: (record: Customer) => (
         <div style={{ display: "flex", gap: "8px" }}>
-          <Button type="primary" onClick={() => console.log("Detail:", record)}>
+          <Button
+            type="primary"
+            onClick={() =>
+              router.push(`/manager/customers/${record.accountId}`)
+            }
+          >
             Detail
           </Button>
           <Button

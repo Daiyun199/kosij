@@ -183,8 +183,8 @@ function Page() {
                       </p>
                       <p>
                         <strong>Total Amount:</strong>{" "}
-                        {order.totalOrderAmount
-                          ? order.totalOrderAmount.toLocaleString()
+                        {order.totalAmount
+                          ? order.totalAmount.toLocaleString()
                           : "N/A"}{" "}
                         VND
                       </p>

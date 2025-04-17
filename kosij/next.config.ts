@@ -45,6 +45,7 @@ const nextConfig: NextConfig = {
       { protocol: "https", hostname: "chiemtaimobile.vn" },
       { protocol: "https", hostname: "www.kodamakoifarm.com" },
       { protocol: "https", hostname: "www.fishkeeper.co.uk" },
+      { protocol: "https", hostname: "cdn.pixabay.com" },
     ],
   },
   async rewrites() {

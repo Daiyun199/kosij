@@ -8,12 +8,14 @@ import api from "@/config/axios.config";
 import { SalesStaff } from "@/model/SalesStaff";
 import SearchBar from "@/app/components/SearchBar/SearchBar";
 import ProtectedRoute from "@/app/ProtectedRoute";
+import { useRouter } from "next/navigation";
 
 function Page() {
   const [staffData, setStaffData] = useState<SalesStaff[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
   const [searchValue, setSearchValue] = useState<string>("");
   const [filteredData, setFilteredData] = useState<SalesStaff[]>([]);
+  const router = useRouter();
   useEffect(() => {
     fetchSalesStaff();
   }, []);
@@ -98,15 +100,11 @@ function Page() {
       key: "actions",
       render: (record: SalesStaff) => (
         <div style={{ display: "flex", gap: "8px" }}>
-          <Button type="primary" onClick={() => console.log("Detail:", record)}>
-            Detail
-          </Button>
           <Button
             type="primary"
-            danger
-            onClick={() => console.log("Delete:", record.accountId)}
+            onClick={() => router.push(`/manager/sales/${record.accountId}`)}
           >
-            Delete
+            Detail
           </Button>
         </div>
       ),

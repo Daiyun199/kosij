@@ -8,6 +8,7 @@ import api from "@/config/axios.config";
 import { ConsultingStaff } from "@/model/ConsultantStaff";
 import SearchBar from "@/app/components/SearchBar/SearchBar";
 import ProtectedRoute from "@/app/ProtectedRoute";
+import { useRouter } from "next/navigation";
 
 function Page() {
   const [staffData, setStaffData] = useState<ConsultingStaff[]>([]);
@@ -17,6 +18,7 @@ function Page() {
   useEffect(() => {
     fetchConsultingStaff();
   }, []);
+  const router = useRouter();
 
   const fetchConsultingStaff = async () => {
     setLoading(true);
@@ -95,15 +97,13 @@ function Page() {
       key: "actions",
       render: (record: ConsultingStaff) => (
         <div style={{ display: "flex", gap: "8px" }}>
-          <Button type="primary" onClick={() => console.log("Detail:", record)}>
-            Detail
-          </Button>
           <Button
             type="primary"
-            danger
-            onClick={() => console.log("Delete:", record.accountId)}
+            onClick={() =>
+              router.push(`/manager/consultants/${record.accountId}`)
+            }
           >
-            Delete
+            Detail
           </Button>
         </div>
       ),

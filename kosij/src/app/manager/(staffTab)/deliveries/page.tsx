@@ -10,6 +10,7 @@ import api from "@/config/axios.config";
 import SearchBar from "@/app/components/SearchBar/SearchBar";
 import { DeliveryStaff } from "@/model/DeliveryStaff";
 import ProtectedRoute from "@/app/ProtectedRoute";
+import { useRouter } from "next/navigation";
 
 function Page() {
   const [staffData, setStaffData] = useState<DeliveryStaff[]>([]);
@@ -19,7 +20,7 @@ function Page() {
   >([null, null]);
   const [searchValue, setSearchValue] = useState<string>("");
   const [filteredData, setFilteredData] = useState<DeliveryStaff[]>([]);
-
+  const router = useRouter();
   useEffect(() => {
     fetchDeliveryStaff();
   }, []);
@@ -93,25 +94,21 @@ function Page() {
         { text: "Active", value: "Active" },
         { text: "Inactive", value: "Inactive" },
       ],
-      render: (status: boolean) => (status ? "Active" : "Inactive"),
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      onFilter: (value: any, record: DeliveryStaff) =>
-        (record.status ? "Active" : "Inactive") === value,
+      onFilter: (value: any, record: DeliveryStaff) => record.status === value,
     },
     {
       title: "Actions",
       key: "actions",
       render: (record: DeliveryStaff) => (
         <div style={{ display: "flex", gap: "8px" }}>
-          <Button type="primary" onClick={() => console.log("Detail:", record)}>
-            Detail
-          </Button>
           <Button
             type="primary"
-            danger
-            onClick={() => console.log("Delete:", record.accountId)}
+            onClick={() =>
+              router.push(`/manager/deliveries/${record.accountId}`)
+            }
           >
-            Delete
+            Detail
           </Button>
         </div>
       ),

@@ -123,13 +123,6 @@ function Page() {
           >
             Detail
           </Button>
-          <Button
-            type="primary"
-            danger
-            onClick={() => console.log("Delete:", record.accountId)}
-          >
-            Delete
-          </Button>
         </div>
       ),
     },

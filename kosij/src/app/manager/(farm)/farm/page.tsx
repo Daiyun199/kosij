@@ -96,7 +96,7 @@ function Page() {
             type="primary"
             onClick={() =>
               router.push(
-                `/manager/farms/${record.accountId}?farmId=${record.farmId}`
+                `/manager/farm/${record.accountId}?farmId=${record.farmId}`
               )
             }
           >

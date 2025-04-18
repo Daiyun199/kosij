@@ -9,6 +9,7 @@ import { SalesStaff } from "@/model/SalesStaff";
 import SearchBar from "@/app/components/SearchBar/SearchBar";
 import ProtectedRoute from "@/app/ProtectedRoute";
 import { useRouter } from "next/navigation";
+import { toast } from "react-toastify";
 
 function Page() {
   const [staffData, setStaffData] = useState<SalesStaff[]>([]);
@@ -48,6 +49,29 @@ function Page() {
     );
     setFilteredData(filtered);
   };
+  const toggleStatus = async (accountId: string, currentStatus: boolean) => {
+    try {
+      const newStatus = !currentStatus;
+      const response = await api.put(`/manager/user/${accountId}`, {
+        status: newStatus,
+      });
+
+      setStaffData((prevData) =>
+        prevData.map((customer) =>
+          customer.accountId === accountId
+            ? { ...customer, status: newStatus ? "Active" : "Inactive" }
+            : customer
+        )
+      );
+
+      toast.success(
+        `Customer ${newStatus ? "Activated" : "Deactivated"} successfully`
+      );
+    } catch (error) {
+      toast.error("Failed to update status");
+    }
+  };
+
   const staffColumns = [
     {
       title: "Account ID",
@@ -105,6 +129,15 @@ function Page() {
             onClick={() => router.push(`/manager/sales/${record.accountId}`)}
           >
             Detail
+          </Button>
+          <Button
+            type="primary"
+            danger={record.status === "Active"}
+            onClick={() =>
+              toggleStatus(record.accountId, record.status === "Active")
+            }
+          >
+            {record.status === "Active" ? "Deactivate" : "Activate"}
           </Button>
         </div>
       ),

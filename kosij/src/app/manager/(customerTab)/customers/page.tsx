@@ -11,6 +11,7 @@ import isBetween from "dayjs/plugin/isBetween";
 import ProtectedRoute from "@/app/ProtectedRoute";
 import { useRouter } from "next/navigation";
 import type { Key } from "antd/es/table/interface";
+import { toast } from "react-toastify";
 dayjs.extend(isBetween);
 
 function Page() {
@@ -39,6 +40,28 @@ function Page() {
       message.error("Failed to fetch customers");
     } finally {
       setLoading(false);
+    }
+  };
+  const toggleStatus = async (accountId: string, currentStatus: boolean) => {
+    try {
+      const newStatus = !currentStatus;
+      const response = await api.put(`/manager/user/${accountId}`, {
+        status: newStatus,
+      });
+
+      setCustomerData((prevData) =>
+        prevData.map((customer) =>
+          customer.accountId === accountId
+            ? { ...customer, status: newStatus ? "Active" : "Inactive" }
+            : customer
+        )
+      );
+
+      toast.success(
+        `Customer ${newStatus ? "Activated" : "Deactivated"} successfully`
+      );
+    } catch (error) {
+      toast.error("Failed to update status");
     }
   };
 
@@ -122,6 +145,15 @@ function Page() {
             }
           >
             Detail
+          </Button>
+          <Button
+            type="primary"
+            danger={record.status === "Active"}
+            onClick={() =>
+              toggleStatus(record.accountId, record.status === "Active")
+            }
+          >
+            {record.status === "Active" ? "Deactivate" : "Activate"}
           </Button>
         </div>
       ),

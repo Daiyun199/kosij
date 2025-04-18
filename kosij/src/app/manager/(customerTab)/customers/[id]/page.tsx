@@ -132,7 +132,6 @@ function Page() {
       <div>
         <ManagerLayout title="Profile">
           <div className={styles.container}>
-            {/* Left Profile Section */}
             <div className={styles.profileCard}>
               {/* Top Section: Avatar + Basic Info */}
               <div className={styles.topSection}>
@@ -197,9 +196,7 @@ function Page() {
               </div>
             </div>
 
-            {/* Right Tables Section */}
             <div className={styles.tablesContainer}>
-              {/* History Trip Table */}
               <div className={styles.tableSection}>
                 <h2 className={styles.tableTitle}>History Trip</h2>
                 <Table>
@@ -239,7 +236,6 @@ function Page() {
                 </Table>
               </div>
 
-              {/* History Order Table */}
               <div className={styles.tableSection}>
                 <h2 className={styles.tableTitle}>History Order</h2>
                 <Table>

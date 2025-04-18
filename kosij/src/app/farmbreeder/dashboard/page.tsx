@@ -104,6 +104,10 @@ function Page() {
     (totalOrders.totalCanceledOrders ?? 0);
   console.log("totalOrders: ", totalOrderCount);
 
+  const formatNumber = (num: { toString: () => string }) => {
+    return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+  };
+
   if (isLoading) return <div>Loading...</div>;
   if (isError) return <div>Error fetching data</div>;
   return (
@@ -174,7 +178,7 @@ function Page() {
                 title={
                   <span className="text-lg font-normal">Total Revenue</span>
                 }
-                value={totalRevenue}
+                value={`${formatNumber(totalRevenue)} VND`}
                 valueStyle={{ fontSize: "1.5rem", fontWeight: "bold" }}
               />
               <WalletOutlined className="text-green-600 text-2xl cursor-pointer" />
@@ -192,7 +196,7 @@ function Page() {
                 title={
                   <span className="text-lg font-normal">Total Withdrawals</span>
                 }
-                value={currentBalance}
+                value={`${formatNumber(currentBalance)} VND`}
                 valueStyle={{ fontSize: "1.5rem", fontWeight: "bold" }}
               />
               <MoneyCollectOutlined className="text-orange-500 text-2xl cursor-pointer" />

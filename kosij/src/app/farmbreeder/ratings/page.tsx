@@ -13,8 +13,8 @@ import {
   Typography,
 } from "antd";
 import {
-  ArrowDownOutlined,
-  ArrowUpOutlined,
+  // ArrowDownOutlined,
+  // ArrowUpOutlined,
   StarFilled,
   WechatOutlined,
 } from "@ant-design/icons";
@@ -123,12 +123,12 @@ function Page() {
               />
               <StarFilled className="text-yellow-500 text-2xl cursor-pointer" />
             </div>
-            <Statistic
+            {/* <Statistic
               value={3.2}
               valueStyle={{ fontSize: "1rem", color: "green" }}
               prefix={<ArrowUpOutlined />}
               suffix="% from last month"
-            />
+            /> */}
           </ClickableArea>
           <ClickableArea className={cn("block h-32 shadow-md p-4")}>
             <div className="flex items-start justify-between">
@@ -141,12 +141,12 @@ function Page() {
               />
               <WechatOutlined className="text-blue-700 text-2xl cursor-pointer" />
             </div>
-            <Statistic
+            {/* <Statistic
               value={12.5}
               valueStyle={{ fontSize: "1rem", color: "red" }}
               prefix={<ArrowDownOutlined />}
               suffix="% from last month"
-            />
+            /> */}
           </ClickableArea>
         </section>
         <section className="mt-8 p-4 bg-white rounded-lg shadow-md">

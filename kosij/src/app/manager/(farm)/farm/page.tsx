@@ -84,10 +84,8 @@ function Page() {
         { text: "Active", value: "Active" },
         { text: "Inactive", value: "Inactive" },
       ],
-      render: (status: boolean) => (status ? "Active" : "Inactive"),
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      onFilter: (value: any, record: FarmBreeder) =>
-        (record.status ? "Active" : "Inactive") === value,
+      onFilter: (value: any, record: FarmBreeder) => record.status === value,
     },
     {
       title: "Actions",
@@ -96,7 +94,11 @@ function Page() {
         <div style={{ display: "flex", gap: "8px" }}>
           <Button
             type="primary"
-            onClick={() => router.push(`/manager/farms/${record.farmId}`)}
+            onClick={() =>
+              router.push(
+                `/manager/farm/${record.accountId}?farmId=${record.farmId}`
+              )
+            }
           >
             Detail
           </Button>

@@ -27,6 +27,9 @@ const OrderInfo: React.FC<OrderInfoProps> = ({ data, onActionComplete }) => {
   const handleAssign = () => {
     router.push(`/manager/selectStaff/deliveries?trackId=${data.id}`);
   };
+  const [pdfUrl, setPdfUrl] = useState<string | null>(null);
+  const [isPdfModalVisible, setIsPdfModalVisible] = useState(false);
+
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [denyReason, setDenyReason] = useState("");
   const [actionType, setActionType] = useState<"approve" | "deny">("approve");
@@ -48,6 +51,26 @@ const OrderInfo: React.FC<OrderInfoProps> = ({ data, onActionComplete }) => {
   const handleCancel = () => {
     setIsModalVisible(false);
     setDenyReason("");
+  };
+  const handleExport = async () => {
+    try {
+      const response = await api.post(
+        `order/${data.id}/export-bill`,
+        {},
+        { responseType: "blob" }
+      );
+
+      const blob = new Blob([response.data], {
+        type: response.headers["content-type"] || "application/pdf",
+      });
+
+      const url = window.URL.createObjectURL(blob);
+      setPdfUrl(url); // Set blob URL để hiển thị
+      setIsPdfModalVisible(true);
+    } catch (error) {
+      toast.error("Failed to generate bill preview");
+      console.error("Export failed", error);
+    }
   };
 
   const handleConfirmAction = async () => {
@@ -219,37 +242,45 @@ const OrderInfo: React.FC<OrderInfoProps> = ({ data, onActionComplete }) => {
           />
         </Collapse.Panel>
       </Collapse>
-      {role === "manager" && data.orderStatus === "Packaged" && (
-        <div className="mt-4 flex justify-end">
-          <Button variant="outline" onClick={handleAssign}>
-            Assign
+      {role === "manager" && (
+        <div className="mt-4 flex justify-between items-center">
+          <Button variant="outline" onClick={handleExport}>
+            Export
           </Button>
-        </div>
-      )}
-      {role === "manager" && data.orderStatus === "PendingRefund" && (
-        <div className="mt-4 flex justify-end space-x-2">
-          <Popconfirm
-            title="Are you sure to approve this refund?"
-            onConfirm={handleConfirmAction}
-            okText="Yes"
-            cancelText="No"
-          >
-            <Button
-              variant="outline"
-              onClick={() => showModal("approve")}
-              className="bg-green-500 text-white hover:bg-green-600"
-            >
-              Approve Refund
-            </Button>
-          </Popconfirm>
 
-          <Button
-            variant="outline"
-            onClick={() => showModal("deny")}
-            className="bg-red-500 text-white hover:bg-red-600"
-          >
-            Deny Refund
-          </Button>
+          <div className="flex space-x-2">
+            {data.orderStatus === "Packaged" && (
+              <Button variant="outline" onClick={handleAssign}>
+                Assign
+              </Button>
+            )}
+            {data.orderStatus === "PendingRefund" && (
+              <>
+                <Popconfirm
+                  title="Are you sure to approve this refund?"
+                  onConfirm={handleConfirmAction}
+                  okText="Yes"
+                  cancelText="No"
+                >
+                  <Button
+                    variant="outline"
+                    onClick={() => showModal("approve")}
+                    className="bg-green-500 text-white hover:bg-green-600"
+                  >
+                    Approve Refund
+                  </Button>
+                </Popconfirm>
+
+                <Button
+                  variant="outline"
+                  onClick={() => showModal("deny")}
+                  className="bg-red-500 text-white hover:bg-red-600"
+                >
+                  Deny Refund
+                </Button>
+              </>
+            )}
+          </div>
         </div>
       )}
 
@@ -281,6 +312,46 @@ const OrderInfo: React.FC<OrderInfoProps> = ({ data, onActionComplete }) => {
           onChange={(e) => setDenyReason(e.target.value)}
           placeholder="Please enter the reason for denying the refund..."
         />
+      </Modal>
+      <Modal
+        title="Exported Bill Preview"
+        visible={isPdfModalVisible}
+        onCancel={() => {
+          setIsPdfModalVisible(false);
+          setPdfUrl(null);
+        }}
+        footer={[
+          <Button key="cancel" onClick={() => setIsPdfModalVisible(false)}>
+            Close
+          </Button>,
+          <Button
+            key="download"
+            onClick={() => {
+              if (pdfUrl) {
+                const link = document.createElement("a");
+                link.href = pdfUrl;
+                link.download = `Invoice_${data.fullName}_${data.id}.pdf`;
+                document.body.appendChild(link);
+                link.click();
+                link.remove();
+              }
+            }}
+            style={{ marginLeft: "10px" }}
+          >
+            Download
+          </Button>,
+        ]}
+        width={800}
+      >
+        {pdfUrl && (
+          <iframe
+            src={pdfUrl}
+            title="Bill PDF"
+            width="100%"
+            height="600px"
+            style={{ border: "none" }}
+          />
+        )}
       </Modal>
     </Card>
   );

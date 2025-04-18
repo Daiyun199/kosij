@@ -8,12 +8,15 @@ import api from "@/config/axios.config";
 import { SalesStaff } from "@/model/SalesStaff";
 import SearchBar from "@/app/components/SearchBar/SearchBar";
 import ProtectedRoute from "@/app/ProtectedRoute";
+import { useRouter } from "next/navigation";
+import { toast } from "react-toastify";
 
 function Page() {
   const [staffData, setStaffData] = useState<SalesStaff[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
   const [searchValue, setSearchValue] = useState<string>("");
   const [filteredData, setFilteredData] = useState<SalesStaff[]>([]);
+  const router = useRouter();
   useEffect(() => {
     fetchSalesStaff();
   }, []);
@@ -46,6 +49,29 @@ function Page() {
     );
     setFilteredData(filtered);
   };
+  const toggleStatus = async (accountId: string, currentStatus: boolean) => {
+    try {
+      const newStatus = !currentStatus;
+      const response = await api.put(`/manager/user/${accountId}`, {
+        status: newStatus,
+      });
+
+      setStaffData((prevData) =>
+        prevData.map((customer) =>
+          customer.accountId === accountId
+            ? { ...customer, status: newStatus ? "Active" : "Inactive" }
+            : customer
+        )
+      );
+
+      toast.success(
+        `Customer ${newStatus ? "Activated" : "Deactivated"} successfully`
+      );
+    } catch (error) {
+      toast.error("Failed to update status");
+    }
+  };
+
   const staffColumns = [
     {
       title: "Account ID",
@@ -98,15 +124,20 @@ function Page() {
       key: "actions",
       render: (record: SalesStaff) => (
         <div style={{ display: "flex", gap: "8px" }}>
-          <Button type="primary" onClick={() => console.log("Detail:", record)}>
+          <Button
+            type="primary"
+            onClick={() => router.push(`/manager/sales/${record.accountId}`)}
+          >
             Detail
           </Button>
           <Button
             type="primary"
-            danger
-            onClick={() => console.log("Delete:", record.accountId)}
+            danger={record.status === "Active"}
+            onClick={() =>
+              toggleStatus(record.accountId, record.status === "Active")
+            }
           >
-            Delete
+            {record.status === "Active" ? "Deactivate" : "Activate"}
           </Button>
         </div>
       ),

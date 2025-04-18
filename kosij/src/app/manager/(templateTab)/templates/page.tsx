@@ -14,10 +14,12 @@ import {
   InputNumber,
   Popconfirm,
 } from "antd";
+import { PlusOutlined } from "@ant-design/icons";
 import type { ColumnsType } from "antd/es/table";
 import api from "@/config/axios.config";
 import ManagerLayout from "@/app/components/ManagerLayout/ManagerLayout";
 import { toast } from "react-toastify";
+import SearchBar from "@/app/components/SearchBar/SearchBar";
 
 interface ConfigTemplate {
   id: number;
@@ -44,7 +46,7 @@ const ConfigTemplatesPage: React.FC = () => {
   const [confirmLoading, setConfirmLoading] = useState(false);
   const [form] = Form.useForm<NewTemplateForm>();
   const [showConfirm, setShowConfirm] = useState(false);
-
+  const [searchValue, setSearchValue] = useState("");
   useEffect(() => {
     fetchTemplates();
   }, []);
@@ -201,12 +203,37 @@ const ConfigTemplatesPage: React.FC = () => {
               display: "flex",
               justifyContent: "space-between",
               marginBottom: 16,
+              alignItems: "center",
             }}
           >
-            <Typography.Title level={3}>
+            <Typography.Title
+              level={3}
+              style={{ margin: 0, whiteSpace: "nowrap" }}
+            >
               Configuration Templates
             </Typography.Title>
-            <Button type="primary" onClick={showModal}>
+            <div
+              style={{
+                width: "100%",
+                display: "flex",
+                justifyContent: "flex-end",
+              }}
+            >
+              <SearchBar
+                value={searchValue}
+                onChange={(e) => setSearchValue(e.target.value)}
+              />
+            </div>
+          </div>
+
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "flex-end",
+              marginBottom: 16,
+            }}
+          >
+            <Button type="primary" onClick={showModal} icon={<PlusOutlined />}>
               Add Template
             </Button>
           </div>
@@ -216,7 +243,13 @@ const ConfigTemplatesPage: React.FC = () => {
           ) : (
             <Table
               columns={columns}
-              dataSource={templates}
+              dataSource={templates.filter((template) => {
+                const keyword = searchValue.toLowerCase();
+                return (
+                  template.description.toLowerCase().includes(keyword) ||
+                  template.tagName.toLowerCase().includes(keyword)
+                );
+              })}
               rowKey="id"
               loading={loading}
               pagination={{ pageSize: 10 }}

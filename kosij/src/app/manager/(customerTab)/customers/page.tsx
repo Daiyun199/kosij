@@ -9,7 +9,9 @@ import { Customer } from "@/model/Customer";
 import SearchBar from "@/app/components/SearchBar/SearchBar";
 import isBetween from "dayjs/plugin/isBetween";
 import ProtectedRoute from "@/app/ProtectedRoute";
-
+import { useRouter } from "next/navigation";
+import type { Key } from "antd/es/table/interface";
+import { toast } from "react-toastify";
 dayjs.extend(isBetween);
 
 function Page() {
@@ -19,7 +21,7 @@ function Page() {
     [dayjs.Dayjs | null, dayjs.Dayjs | null]
   >([null, null]);
   const [searchValue, setSearchValue] = useState<string>("");
-
+  const router = useRouter();
   useEffect(() => {
     fetchCustomers();
   }, []);
@@ -38,6 +40,28 @@ function Page() {
       message.error("Failed to fetch customers");
     } finally {
       setLoading(false);
+    }
+  };
+  const toggleStatus = async (accountId: string, currentStatus: boolean) => {
+    try {
+      const newStatus = !currentStatus;
+      const response = await api.put(`/manager/user/${accountId}`, {
+        status: newStatus,
+      });
+
+      setCustomerData((prevData) =>
+        prevData.map((customer) =>
+          customer.accountId === accountId
+            ? { ...customer, status: newStatus ? "Active" : "Inactive" }
+            : customer
+        )
+      );
+
+      toast.success(
+        `Customer ${newStatus ? "Activated" : "Deactivated"} successfully`
+      );
+    } catch (error) {
+      toast.error("Failed to update status");
     }
   };
 
@@ -104,25 +128,32 @@ function Page() {
         { text: "Active", value: "Active" },
         { text: "Inactive", value: "Inactive" },
       ],
-      render: (status: boolean) => (status ? "Active" : "Inactive"),
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      onFilter: (value: any, record: Customer) =>
-        (record.status ? "Active" : "Inactive") === value,
+
+      onFilter: (value: string | boolean | Key, record: Customer) => {
+        return record.status === value;
+      },
     },
     {
       title: "Actions",
       key: "actions",
       render: (record: Customer) => (
         <div style={{ display: "flex", gap: "8px" }}>
-          <Button type="primary" onClick={() => console.log("Detail:", record)}>
+          <Button
+            type="primary"
+            onClick={() =>
+              router.push(`/manager/customers/${record.accountId}`)
+            }
+          >
             Detail
           </Button>
           <Button
             type="primary"
-            danger
-            onClick={() => console.log("Delete:", record.accountId)}
+            danger={record.status === "Active"}
+            onClick={() =>
+              toggleStatus(record.accountId, record.status === "Active")
+            }
           >
-            Delete
+            {record.status === "Active" ? "Deactivate" : "Activate"}
           </Button>
         </div>
       ),

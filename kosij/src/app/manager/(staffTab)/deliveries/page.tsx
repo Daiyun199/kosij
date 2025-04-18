@@ -10,6 +10,8 @@ import api from "@/config/axios.config";
 import SearchBar from "@/app/components/SearchBar/SearchBar";
 import { DeliveryStaff } from "@/model/DeliveryStaff";
 import ProtectedRoute from "@/app/ProtectedRoute";
+import { useRouter } from "next/navigation";
+import { toast } from "react-toastify";
 
 function Page() {
   const [staffData, setStaffData] = useState<DeliveryStaff[]>([]);
@@ -19,7 +21,7 @@ function Page() {
   >([null, null]);
   const [searchValue, setSearchValue] = useState<string>("");
   const [filteredData, setFilteredData] = useState<DeliveryStaff[]>([]);
-
+  const router = useRouter();
   useEffect(() => {
     fetchDeliveryStaff();
   }, []);
@@ -53,6 +55,28 @@ function Page() {
         staff.area.toLowerCase().includes(value.toLowerCase())
     );
     setFilteredData(filtered);
+  };
+  const toggleStatus = async (accountId: string, currentStatus: boolean) => {
+    try {
+      const newStatus = !currentStatus;
+      const response = await api.put(`/manager/user/${accountId}`, {
+        status: newStatus,
+      });
+
+      setStaffData((prevData) =>
+        prevData.map((customer) =>
+          customer.accountId === accountId
+            ? { ...customer, status: newStatus ? "Active" : "Inactive" }
+            : customer
+        )
+      );
+
+      toast.success(
+        `Customer ${newStatus ? "Activated" : "Deactivated"} successfully`
+      );
+    } catch (error) {
+      toast.error("Failed to update status");
+    }
   };
   const staffColumns = [
     {
@@ -93,25 +117,30 @@ function Page() {
         { text: "Active", value: "Active" },
         { text: "Inactive", value: "Inactive" },
       ],
-      render: (status: boolean) => (status ? "Active" : "Inactive"),
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      onFilter: (value: any, record: DeliveryStaff) =>
-        (record.status ? "Active" : "Inactive") === value,
+      onFilter: (value: any, record: DeliveryStaff) => record.status === value,
     },
     {
       title: "Actions",
       key: "actions",
       render: (record: DeliveryStaff) => (
         <div style={{ display: "flex", gap: "8px" }}>
-          <Button type="primary" onClick={() => console.log("Detail:", record)}>
+          <Button
+            type="primary"
+            onClick={() =>
+              router.push(`/manager/deliveries/${record.accountId}`)
+            }
+          >
             Detail
           </Button>
           <Button
             type="primary"
-            danger
-            onClick={() => console.log("Delete:", record.accountId)}
+            danger={record.status === "Active"}
+            onClick={() =>
+              toggleStatus(record.accountId, record.status === "Active")
+            }
           >
-            Delete
+            {record.status === "Active" ? "Deactivate" : "Activate"}
           </Button>
         </div>
       ),

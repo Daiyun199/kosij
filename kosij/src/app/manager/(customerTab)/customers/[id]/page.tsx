@@ -43,6 +43,16 @@ function Page() {
   const handleViewTripClick = (BookingId: number) => {
     router.push(`/manager/passengers/${BookingId}`);
   };
+  const parseDate = (dateStr: string | null): string => {
+    if (!dateStr) return "N/A";
+    const [day, month, year] = dateStr.split("-");
+    return new Date(`${year}-${month}-${day}`).toLocaleDateString("vi-VN");
+  };
+  const parseDateTime = (dateTimeStr: string): string => {
+    const [datePart] = dateTimeStr.split(" ");
+    return parseDate(datePart);
+  };
+
   const fetchTripData = async () => {
     setLoading(true);
     try {
@@ -51,12 +61,12 @@ function Page() {
       );
       const transformedData = response.data.value.map((trip: any) => ({
         BookingId: trip.id,
-        tourName: trip.tourName,
-        bookingDate: new Date(trip.bookingTime).toLocaleDateString(),
-        startDate: new Date(trip.departureDate).toLocaleDateString(),
-        endDate: new Date(trip.returnDate).toLocaleDateString(),
-        status: trip.tripBookingStatus,
-        type: trip.tripType,
+        tourName: trip.tourName || "N/A",
+        bookingDate: trip.bookingTime ? parseDateTime(trip.bookingTime) : "N/A",
+        startDate: parseDate(trip.departureDate),
+        endDate: parseDate(trip.returnDate),
+        status: trip.tripBookingStatus || "Unknown",
+        type: trip.tripType || "N/A",
         detail: trip.cancellationReason || "No cancellation",
       }));
       setTripData(transformedData);

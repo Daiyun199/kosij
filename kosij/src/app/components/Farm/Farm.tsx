@@ -4,6 +4,7 @@ import Image from "next/image";
 import { StarFilled, UserOutlined, CommentOutlined } from "@ant-design/icons";
 import { Card, CardContent } from "@/components/ui/card"; // cập nhật đúng path nếu cần
 import { Feedback } from "@/model/TourData";
+import FarmMap from "../FarmMap/FarmMap";
 interface Variety {
   id: number;
   varietyName: string;
@@ -168,6 +169,12 @@ const FarmDetailContent: React.FC<Props> = ({ farm }) => {
             <p className="mt-4 text-gray-500">No feedback available yet</p>
           </div>
         )}
+      </div>
+      <div className="mt-10">
+        <h2 className="text-2xl font-semibold mb-4 text-gray-800">
+          Farm Location
+        </h2>
+        <FarmMap address={farm.location} farmName={farm.farmName} />
       </div>
     </div>
   );

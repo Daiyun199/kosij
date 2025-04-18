@@ -1,0 +1,161 @@
+.container {
+  display: flex;
+  gap: 24px;
+  padding: 24px;
+  background-color: #f9fafb;
+  min-height: 100vh;
+  padding-top: 10px;
+}
+
+/* Left Profile Card Styles */
+.profileCard {
+  flex: 0 0 350px;
+  background-color: white;
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+ height: auto;
+ margin-top:1.5em
+}
+
+/* Top Section: Avatar + Info */
+.topSection {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.avatarContainer {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-width: 120px;
+  min-height: 120px;
+}
+
+.avatar {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  border: 3px solid #e5e7eb;
+  object-fit: cover;
+}
+
+.basicInfo {
+  flex: 1;
+}
+
+.employeeName {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #111827;
+  margin-bottom: 4px;
+}
+
+.employeeRole,
+.employeeId,
+.employeeStatus {
+  font-size: 0.875rem;
+  color: #4b5563;
+  margin-bottom: 4px;
+}
+
+.infoLabel {
+  font-weight: 500;
+  margin-right: 6px;
+  color: #111827;
+}
+
+.active {
+  color: green;
+  font-weight: 600;
+}
+
+.inactive {
+  color: red;
+  font-weight: 600;
+}
+
+/* Section Titles + Lists */
+.section {
+  margin-bottom: 24px;
+}
+
+.sectionTitle {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: #111827;
+  margin-bottom: 12px;
+}
+
+.detailsList {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  color: #4b5563;
+  font-size: 0.875rem;
+}
+
+.detailsList li {
+  margin-bottom: 8px;
+}
+
+/* Right Section (if reused) */
+.tablesContainer {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.managerForm {
+  background-color: white;
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.formTitle {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: #111827;
+  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.inputGroup {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background-color: #f3f4f6;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 10px 12px;
+}
+
+.inputGroup span {
+  font-size: 1rem;
+}
+
+.input {
+  flex: 1;
+  background: transparent;
+  border: none;
+  outline: none;
+  font-size: 0.875rem;
+}
+
+.tableSection {
+  background-color: white;
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}

@@ -96,7 +96,11 @@ function Page() {
         <div style={{ display: "flex", gap: "8px" }}>
           <Button
             type="primary"
-            onClick={() => router.push(`/manager/farms/${record.farmId}`)}
+            onClick={() =>
+              router.push(
+                `/manager/farms/${record.accountId}?farmId=${record.farmId}`
+              )
+            }
           >
             Detail
           </Button>

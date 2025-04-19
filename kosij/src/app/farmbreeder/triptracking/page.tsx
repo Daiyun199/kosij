@@ -447,6 +447,7 @@ import { useQuery } from "@tanstack/react-query";
 import { getCurrentFarmTrips } from "@/features/farmbreeder/api/trip/all.api";
 import { Button, Space, Tag } from "antd";
 import ProtectedRoute from "@/app/ProtectedRoute";
+import { DownOutlined, UpOutlined } from '@ant-design/icons';
 
 const tableLocale: {
   filterConfirm?: string;
@@ -461,6 +462,8 @@ const tableLocale: {
   triggerDesc?: string;
   triggerAsc?: string;
   cancelSort?: string;
+  searchCollapse?: string;
+  searchExpand?: string;
 } = {
   filterConfirm: "OK",
   filterReset: "Reset",
@@ -474,12 +477,20 @@ const tableLocale: {
   triggerDesc: "Click to sort descending",
   triggerAsc: "Click to sort ascending",
   cancelSort: "Click to cancel sorting",
+  searchCollapse: "Collapse",
+  searchExpand: "Expand",
 };
 
-// Define locale for ProProvider
+const formLocale = {
+  placeholder: {
+    input: "Please input",
+    select: "Please select",
+  },
+};
 const proLocale = {
   locale: "en-US",
   table: tableLocale,
+  form: formLocale,
   pagination: {
     total: {
       range: "{range0}-{range1} of {total} items",
@@ -567,6 +578,9 @@ const columns: ProColumns<TripItem>[] = [
     title: "Trip Name",
     dataIndex: "tourName",
     ellipsis: true,
+    fieldProps: {
+      placeholder: "Enter text",
+    },
     valueType: "text",
     search: {
       transform: (value) => ({
@@ -587,6 +601,9 @@ const columns: ProColumns<TripItem>[] = [
     title: "Number of Visitors",
     dataIndex: "numberOfVisitors",
     filters: true,
+    fieldProps: {
+      placeholder: "Enter number",
+    },
     ellipsis: true,
     search: {
       transform: (value) => ({
@@ -598,6 +615,9 @@ const columns: ProColumns<TripItem>[] = [
     title: "Status",
     dataIndex: "tripStatus",
     key: "tripStatus",
+    fieldProps: {
+      placeholder: "Select status",
+    },
     valueType: "select",
     valueEnum: {
       Available: { text: "Available" },
@@ -654,6 +674,9 @@ const columns: ProColumns<TripItem>[] = [
     title: "Type",
     dataIndex: "tripType",
     key: "tripType",
+    fieldProps: {
+      placeholder: "Select type",
+    },
     valueType: "select",
     valueEnum: {
       Scheduled: { text: "Scheduled" },
@@ -823,6 +846,21 @@ export default function Page() {
                   Reset
                 </Button>,
               ],
+              collapseRender: (collapsed) => {
+                return (
+                  <Button type="link" style={{ padding: 0 }}>
+                    {collapsed ? (
+                      <>
+                        Expand <DownOutlined />
+                      </>
+                    ) : (
+                      <>
+                        Collapse <UpOutlined />
+                      </>
+                    )}
+                  </Button>
+                );
+              },
             }}
             pagination={{
               pageSize: 10,

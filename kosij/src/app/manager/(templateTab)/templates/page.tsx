@@ -47,6 +47,9 @@ const ConfigTemplatesPage: React.FC = () => {
   const [form] = Form.useForm<NewTemplateForm>();
   const [showConfirm, setShowConfirm] = useState(false);
   const [searchValue, setSearchValue] = useState("");
+  const [isEdit, setIsEdit] = useState(false);
+  const [editId, setEditId] = useState<number | null>(null);
+
   useEffect(() => {
     fetchTemplates();
   }, []);
@@ -89,6 +92,8 @@ const ConfigTemplatesPage: React.FC = () => {
     setIsModalOpen(false);
     form.resetFields();
     setShowConfirm(false);
+    setIsEdit(false);
+    setEditId(null);
   };
 
   const handleConfirm = async () => {
@@ -96,32 +101,35 @@ const ConfigTemplatesPage: React.FC = () => {
     setConfirmLoading(true);
     try {
       const values = form.getFieldsValue();
-      await api.post("/config-templates", values);
-      toast.success("Template added successfully");
-      setIsModalOpen(false);
+      if (isEdit && editId !== null) {
+        await api.put(`/config-templates/${editId}`, values);
+        toast.success("Template updated successfully");
+      } else {
+        await api.post("/config-templates", values);
+        toast.success("Template added successfully");
+      }
 
+      setIsModalOpen(false);
       form.resetFields();
+      setIsEdit(false);
+      setEditId(null);
       fetchTemplates();
     } catch (error: any) {
       if (error.response) {
         const errorMessage =
           error.response.data.message ||
           error.response.data.error ||
-          "Failed to add template";
+          "Failed to save template";
         toast.error(errorMessage);
-
-        if (error.response.data.errors) {
-          console.error("Validation errors:", error.response.data.errors);
-        }
       } else if (error.request) {
         toast.error("No response received from server");
-        console.error("No response:", error.request);
       } else {
         toast.error("Error setting up request");
-        console.error("Request error:", error.message);
       }
       setIsModalOpen(false);
       form.resetFields();
+      setIsEdit(false);
+      setEditId(null);
     } finally {
       setConfirmLoading(false);
     }
@@ -177,6 +185,23 @@ const ConfigTemplatesPage: React.FC = () => {
       key: "rate",
       render: (rate) => `${(rate * 100).toFixed(0)}%`,
       sorter: (a, b) => a.rate - b.rate,
+    },
+    {
+      title: "Actions",
+      key: "actions",
+      render: (_, record) => (
+        <Button
+          type="link"
+          onClick={() => {
+            setIsEdit(true);
+            setEditId(record.id);
+            form.setFieldsValue(record);
+            setIsModalOpen(true);
+          }}
+        >
+          Edit
+        </Button>
+      ),
     },
   ];
 

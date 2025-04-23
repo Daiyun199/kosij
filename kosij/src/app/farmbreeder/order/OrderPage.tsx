@@ -343,7 +343,7 @@ function OrderPage() {
       },
       render: (_, record) =>
         record.createdTime
-          ? dayjs(record.createdTime).format("DD-MM-YYYY")
+          ? dayjs(record.createdTime, "YYYY-MM-DD").format("DD-MM-YYYY")
           : "N/A",
     },
     {
@@ -363,7 +363,9 @@ function OrderPage() {
       },
       render: (_, record) =>
         record.expectedDeliveryDate
-          ? dayjs(record.expectedDeliveryDate).format("DD-MM-YYYY")
+          ? dayjs(record.expectedDeliveryDate, "YYYY-MM-DD").format(
+              "DD-MM-YYYY"
+            )
           : "N/A",
     },
     {
@@ -484,10 +486,10 @@ function OrderPage() {
       ...item,
       orderStatus: normalizeValue(item.orderStatus) ?? item.orderStatus,
       createdTime: item.createdTime
-        ? dayjs(item.createdTime).format("DD-MM-YYYY")
+        ? dayjs(item.createdTime, "YYYY-MM-DD").format("DD-MM-YYYY")
         : undefined,
       expectedDeliveryDate: item.expectedDeliveryDate
-        ? dayjs(item.expectedDeliveryDate).format("DD-MM-YYYY")
+        ? dayjs(item.expectedDeliveryDate, "YYYY-MM-DD").format("DD-MM-YYYY")
         : undefined,
     })
   );
@@ -502,14 +504,15 @@ function OrderPage() {
         totalOrderAmount: number;
       }) => {
         const matchesCreatedTime = searchParams.createdTime
-          ? dayjs(item.createdTime).isValid() &&
-            dayjs(item.createdTime).format("DD-MM-YYYY") ===
-              dayjs(searchParams.createdTime).format("DD-MM-YYYY")
+          ? dayjs(item.createdTime, "YYYY-MM-DD").isValid() &&
+            dayjs(item.createdTime, "YYYY-MM-DD").format("DD-MM-YYYY") ===
+              searchParams.createdTime
           : true;
         const matchesDeliveryDate = searchParams.expectedDeliveryDate
-          ? dayjs(item.expectedDeliveryDate).isValid() &&
-            dayjs(item.expectedDeliveryDate).format("DD-MM-YYYY") ===
-              dayjs(searchParams.expectedDeliveryDate).format("DD-MM-YYYY")
+          ? dayjs(item.expectedDeliveryDate, "YYYY-MM-DD").isValid() &&
+            dayjs(item.expectedDeliveryDate, "YYYY-MM-DD").format(
+              "DD-MM-YYYY"
+            ) === searchParams.expectedDeliveryDate
           : true;
         const matchesCustomerName = searchParams.fullName
           ? item.fullName
@@ -585,12 +588,15 @@ function OrderPage() {
                     setSearchParams({
                       fullName: values.fullName || undefined,
                       createdTime: values.createdTime
-                        ? dayjs(values.createdTime).format("DD-MM-YYYY")
-                        : undefined,
-                      expectedDeliveryDate: values.expectedDeliveryDate
-                        ? dayjs(values.expectedDeliveryDate).format(
+                        ? dayjs(values.createdTime, "DD-MM-YYYY").format(
                             "DD-MM-YYYY"
                           )
+                        : undefined,
+                      expectedDeliveryDate: values.expectedDeliveryDate
+                        ? dayjs(
+                            values.expectedDeliveryDate,
+                            "DD-MM-YYYY"
+                          ).format("DD-MM-YYYY")
                         : undefined,
                       orderStatus: values.orderStatus
                         ? normalizeValue(values.orderStatus)

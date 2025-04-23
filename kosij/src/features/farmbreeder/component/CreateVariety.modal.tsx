@@ -163,7 +163,7 @@ function CreateVarietyModal({
           {/* Variety Selection */}
           <Form.Item label="Variety" name="varietyId">
             <Select placeholder="Select a variety" allowClear>
-              <Select.Option value={undefined}>Select a variety</Select.Option>
+              <Select.Option value={undefined}>(Select a variety)</Select.Option>
               {varieties.map((variety) => (
                 <Select.Option key={variety.id} value={variety.varietyId}>
                   {variety.varietyName}

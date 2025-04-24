@@ -91,10 +91,10 @@ function Page() {
             destinationPoint: data.tourResponse.destinationPoint,
             duration: `${data.tourResponse.days} Days ${data.tourResponse.nights} Nights`,
             tourPriceIncludes: data.tourResponse.tourPriceInclude
-              ? data.tourResponse.tourPriceInclude.split(", ")
+              ? data.tourResponse.tourPriceInclude.split(". ")
               : [],
             tourPriceNotIncludes: data.tourResponse.tourPriceNotInclude
-              ? data.tourResponse.tourPriceNotInclude.split(", ")
+              ? data.tourResponse.tourPriceNotInclude.split(". ")
               : [],
             cancelPolicy: data.tourResponse.cancellationPolicy.map(
               (p: { description: string }) => p.description

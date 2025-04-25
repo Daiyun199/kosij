@@ -240,7 +240,14 @@ const KoiVarietiesPage: React.FC = () => {
   return (
     <ProtectedRoute allowedRoles={["manager"]}>
       <ManagerLayout title="Variety List">
-        <div style={{ padding: 24, maxWidth: "100%", overflowX: "hidden" }}>
+        <div
+          style={{
+            padding: 24,
+            backgroundColor: "#f0f2f5", // màu xám nhạt của Ant Design
+            minHeight: "100vh",
+            overflowX: "auto",
+          }}
+        >
           <Table
             columns={columns}
             rowKey={(record) => record.id}

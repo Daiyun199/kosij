@@ -82,8 +82,12 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
       return undefined;
     }
   };
-  const getActionText = (referenceType: string, refId: number) => {
-    const rolePath = role === "manager" ? "manager" : "sale";
+  const getActionText = (
+    referenceType: string,
+    refId: number,
+    currentRole: string | undefined
+  ) => {
+    const rolePath = currentRole === "manager" ? "manager" : "sale";
 
     switch (referenceType) {
       case "Order":
@@ -115,6 +119,7 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
         return null;
     }
   };
+
   const fetchAllNotifications = async () => {
     if (!token) return;
     try {
@@ -167,7 +172,8 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
               markAsRead(notif.id);
               const currentAction = getActionText(
                 notif.referenceType,
-                notif.refId
+                notif.refId,
+                role
               );
               if (currentAction?.url) {
                 router.push(currentAction.url);

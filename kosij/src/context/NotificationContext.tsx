@@ -83,8 +83,7 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
     }
   };
   const getActionText = (referenceType: string, refId: number) => {
-    const rolePath =
-      role === "manager" ? "manager" : role === "salesstaff" ? "sale" : "";
+    const rolePath = role === "manager" ? "manager" : "sale";
 
     switch (referenceType) {
       case "Order":
@@ -161,14 +160,17 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
       if (filteredNewNotifications.length > 0) {
         filteredNewNotifications.forEach((notif) => {
           notificationIdsRef.current.add(notif.id);
-          const action = getActionText(notif.referenceType, notif.refId);
 
           toast.info(notif.message, {
             autoClose: 5000,
             onClick: () => {
               markAsRead(notif.id);
-              if (action?.url) {
-                router.push(action.url);
+              const currentAction = getActionText(
+                notif.referenceType,
+                notif.refId
+              );
+              if (currentAction?.url) {
+                router.push(currentAction.url);
               }
             },
           });

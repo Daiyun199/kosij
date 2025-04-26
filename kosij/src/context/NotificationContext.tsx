@@ -17,7 +17,7 @@ import {
 import api from "@/config/axios.config";
 import { toast, ToastContentProps } from "react-toastify";
 import { decodeJwt } from "@/lib/domain/User/decodeJwt.util";
-import { useRouter } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 
 interface Notification {
   id: number;
@@ -50,6 +50,7 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const router = useRouter();
+
   function getVietnamTimeISOString() {
     const now = new Date();
     const offsetInMs = 7 * 60 * 60 * 1000;
@@ -57,6 +58,10 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
     return vietnamTime.toISOString().slice(0, -1);
   }
   const [role, setRole] = useState<string | undefined>();
+  const roleRef = useRef<string | undefined>(role);
+  useEffect(() => {
+    roleRef.current = role;
+  }, [role]);
 
   useEffect(() => {
     const updateToken = () => {
@@ -76,6 +81,7 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
   const decodeToken = (token: string) => {
     try {
       const decoded = decodeJwt(token);
+
       setRole(decoded.role);
     } catch (error) {
       console.error("Error decoding token:", error);
@@ -173,9 +179,10 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
               const currentAction = getActionText(
                 notif.referenceType,
                 notif.refId,
-                role
+                roleRef.current
               );
               if (currentAction?.url) {
+                console.log(role);
                 router.push(currentAction.url);
               }
             },

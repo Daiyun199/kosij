@@ -57,6 +57,7 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
     return vietnamTime.toISOString().slice(0, -1);
   }
   const [role, setRole] = useState<string | undefined>();
+
   useEffect(() => {
     const updateToken = () => {
       const currentToken = sessionStorage.getItem("token");
@@ -82,7 +83,8 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
     }
   };
   const getActionText = (referenceType: string, refId: number) => {
-    const rolePath = role === "manager" ? "manager" : "sale";
+    const rolePath =
+      role === "manager" ? "manager" : role === "salesstaff" ? "sale" : "";
 
     switch (referenceType) {
       case "Order":

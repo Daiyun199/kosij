@@ -17,7 +17,7 @@ import {
 import api from "@/config/axios.config";
 import { toast, ToastContentProps } from "react-toastify";
 import { decodeJwt } from "@/lib/domain/User/decodeJwt.util";
-import { useRouter } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 
 interface Notification {
   id: number;
@@ -50,6 +50,7 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const router = useRouter();
+
   function getVietnamTimeISOString() {
     const now = new Date();
     const offsetInMs = 7 * 60 * 60 * 1000;
@@ -57,6 +58,11 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
     return vietnamTime.toISOString().slice(0, -1);
   }
   const [role, setRole] = useState<string | undefined>();
+  const roleRef = useRef<string | undefined>(role);
+  useEffect(() => {
+    roleRef.current = role;
+  }, [role]);
+
   useEffect(() => {
     const updateToken = () => {
       const currentToken = sessionStorage.getItem("token");
@@ -75,14 +81,19 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
   const decodeToken = (token: string) => {
     try {
       const decoded = decodeJwt(token);
+
       setRole(decoded.role);
     } catch (error) {
       console.error("Error decoding token:", error);
       return undefined;
     }
   };
-  const getActionText = (referenceType: string, refId: number) => {
-    const rolePath = role === "manager" ? "manager" : "sale";
+  const getActionText = (
+    referenceType: string,
+    refId: number,
+    currentRole: string | undefined
+  ) => {
+    const rolePath = currentRole === "manager" ? "manager" : "sale";
 
     switch (referenceType) {
       case "Order":
@@ -114,6 +125,7 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
         return null;
     }
   };
+
   const fetchAllNotifications = async () => {
     if (!token) return;
     try {
@@ -159,14 +171,19 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
       if (filteredNewNotifications.length > 0) {
         filteredNewNotifications.forEach((notif) => {
           notificationIdsRef.current.add(notif.id);
-          const action = getActionText(notif.referenceType, notif.refId);
 
           toast.info(notif.message, {
             autoClose: 5000,
             onClick: () => {
               markAsRead(notif.id);
-              if (action?.url) {
-                router.push(action.url);
+              const currentAction = getActionText(
+                notif.referenceType,
+                notif.refId,
+                roleRef.current
+              );
+              if (currentAction?.url) {
+                console.log(role);
+                router.push(currentAction.url);
               }
             },
           });

@@ -3,6 +3,8 @@
     min-height: 100vh;
     background-color: #f6f7f9; 
     gap:1px;
+    width: fit-content; 
+    min-width: 100%;
   }
   
   .sidebar {
@@ -168,6 +170,7 @@
   .content {
     flex-grow: 1;
     padding: 20px;
+    width: 100%;
   }
   .menu-label.active {
     background: rgba(83, 83, 83, 0.5);

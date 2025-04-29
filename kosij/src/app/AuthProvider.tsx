@@ -20,11 +20,12 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [userRole, setUserRole] = useState<UserRole | null>(null);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const router = useRouter();
-  const [loading, setLoading] = useState(true); // Add loading state
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const token =
-      (localStorage.getItem("authToken") && sessionStorage.getItem("token")) ||
+      (localStorage.getItem("authToken") &&
+        sessionStorage.getItem("authToken")) ||
       Cookies.get("token");
     if (token) {
       try {

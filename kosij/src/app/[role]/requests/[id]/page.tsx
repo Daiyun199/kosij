@@ -57,6 +57,18 @@ const TripRequestDetail = () => {
     );
   };
 
+  const handleMessage = () => {
+    if (trip?.customerAccountId && trip?.customerUserName) {
+      router.push(
+        `/sale/message?userId=${trip.customerAccountId}&userName=${encodeURIComponent(
+          trip.customerUserName
+        )}`
+      );
+    } else {
+      toast.error("Customer information not available.");
+    }
+  };
+
   const handleCancel = async () => {
     try {
       await api.put(`/staff/trip-request/${id}/cancel`, {
@@ -276,13 +288,22 @@ const TripRequestDetail = () => {
 
         <div className="mt-4 flex gap-4">
           {role === "sale" && (
-            <Button
-              type="default"
-              onClick={handleBooking}
-              className="bg-blue-500 hover:bg-blue-600 text-white"
-            >
-              Booking
-            </Button>
+            <>
+              <Button
+                type="default"
+                onClick={handleBooking}
+                className="bg-blue-500 hover:bg-blue-600 text-white"
+              >
+                Booking
+              </Button>
+              <Button
+                type="default"
+                onClick={handleMessage}
+                className="bg-blue-500 hover:bg-blue-600 text-white"
+              >
+                Contact
+              </Button>
+            </>
           )}
           {role === "sale" &&
             trip.requestStatus === "Assigned" &&

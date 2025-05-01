@@ -45,6 +45,11 @@ const ManagerLayout: React.FC<ManagerLayoutProps> = ({ title, children }) => {
           icon: "fa-solid fa-user",
           path: "/manager/profile",
         },
+        {
+          label: "Message",
+          icon: "fa-solid fa-message",
+          path: "/manager/message",
+        },
       ],
     },
     {

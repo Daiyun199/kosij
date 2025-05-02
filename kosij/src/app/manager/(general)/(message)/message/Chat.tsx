@@ -34,7 +34,6 @@ const Chat: React.FC = () => {
   const [isMarkingRead, setIsMarkingRead] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
-  // Fetch all chat history
   const fetchAllMessages = async () => {
     const token = getAuthToken();
     try {
@@ -60,7 +59,6 @@ const Chat: React.FC = () => {
     }
   };
 
-  // Mark messages as read for a user
   const markMessagesAsRead = async (fromUserId: string) => {
     console.log(`Marking messages as read for fromUserId: ${fromUserId}`);
     setIsMarkingRead(true);
@@ -79,7 +77,6 @@ const Chat: React.FC = () => {
       );
       console.log(`Mark-as-read response:`, response.data);
 
-      // Optimistic update: Mark all messages from fromUserId as read
       setChatHistory((prev) => {
         const updated = prev.map((msg) =>
           msg.fromUserId === fromUserId && !msg.createdBy.startsWith("Manager")
@@ -93,7 +90,6 @@ const Chat: React.FC = () => {
         return [...updated];
       });
 
-      // Sync server state
       await fetchAllMessages();
       console.log(`Successfully marked messages as read for ${fromUserId}`);
     } catch (error) {
@@ -101,7 +97,6 @@ const Chat: React.FC = () => {
         `Failed to mark messages as read for ${fromUserId}:`,
         error
       );
-      // Optimistic update even on failure
       setChatHistory((prev) => {
         const updated = prev.map((msg) =>
           msg.fromUserId === fromUserId && !msg.createdBy.startsWith("Manager")
@@ -115,7 +110,6 @@ const Chat: React.FC = () => {
         return [...updated];
       });
     } finally {
-      // Delay re-enabling polling to avoid overwrite
       setTimeout(() => {
         setIsMarkingRead(false);
         console.log("Re-enabled polling after mark read");
@@ -123,7 +117,6 @@ const Chat: React.FC = () => {
     }
   };
 
-  // Polling with pause during mark read
   useEffect(() => {
     let interval: NodeJS.Timeout;
 
@@ -142,14 +135,12 @@ const Chat: React.FC = () => {
     return () => clearInterval(interval);
   }, [isAuthenticated, userRole, isMarkingRead]);
 
-  // Get user name for the other participant
   const getUserName = (msg: Message, managerId: string | null): string => {
     if (!managerId) return "Unknown";
 
     const isSentByManager = msg.fromUserId === managerId;
     const otherUserId = isSentByManager ? msg.toUserId : msg.fromUserId;
 
-    // Find a message from the other user to get their name
     const relatedMsg = chatHistory.find(
       (m) => m.fromUserId === otherUserId && !m.createdBy.startsWith("Manager")
     );
@@ -158,16 +149,13 @@ const Chat: React.FC = () => {
       return relatedMsg.createdBy;
     }
 
-    // Fallback to createdBy or userId
     return isSentByManager ? msg.toUserId : msg.createdBy || otherUserId;
   };
 
-  // Group messages by user
   const getConversations = (): Conversation[] => {
     console.log("Generating conversations, managerId:", managerId);
     const convoMap = new Map<string, Conversation>();
 
-    // Group messages by userId
     const userMessages = new Map<string, Message[]>();
     chatHistory.forEach((msg) => {
       const userId =
@@ -178,11 +166,9 @@ const Chat: React.FC = () => {
       userMessages.get(userId)!.push(msg);
     });
 
-    // Process each user's messages
     userMessages.forEach((messages, userId) => {
       if (!managerId) return;
 
-      // Get latest message
       const latestMsg = messages.sort(
         (a, b) =>
           new Date(b.createdTime).getTime() - new Date(a.createdTime).getTime()
@@ -196,7 +182,6 @@ const Chat: React.FC = () => {
         return;
       }
 
-      // Check for unread messages
       const isUnread = messages.some(
         (msg) => !msg.isRead && !msg.createdBy.startsWith("Manager")
       );

@@ -31,6 +31,11 @@ const SaleStaffLayout: React.FC<SaleStaffLayoutProps> = ({
           icon: "fa-solid fa-bell",
           path: "/sale/notification",
         },
+        {
+          label: "Message",
+          icon: "fa-solid fa-message",
+          path: "/sale/message",
+        },
       ],
     },
     {

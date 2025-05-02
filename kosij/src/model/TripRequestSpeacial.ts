@@ -15,7 +15,9 @@ export type TripRequestScpeacial = {
   requestStatus: string;
   modifiedNote: string;
   feedback: string;
-
+  customerAccountId: string;
+  customerUserName: string;
+  customerFullName: string;
   tripRequestVariety: KoiVariety[];
   customizedTripResponse: {
     id: any;

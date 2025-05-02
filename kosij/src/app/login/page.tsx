@@ -13,6 +13,7 @@ import farmbreeder_uri from "@/features/farmbreeder/uri";
 import salesstaff_uri from "@/features/sales/uri";
 import Image from "next/image";
 import { useAuth } from "@/app/AuthProvider";
+import { DotLottieReact } from "@lottiefiles/dotlottie-react";
 
 type FieldType = {
   email: string;
@@ -178,7 +179,13 @@ function Home() {
   };
 
   if (!cssLoaded) {
-    return <div>Loading...</div>;
+    return (
+      <DotLottieReact
+        src="https://lottie.host/4d521a91-309e-4121-9dae-91e2ebe9a6a1/podnoeNhxl.lottie"
+        loop
+        autoplay
+      />
+    );
   }
 
   return (

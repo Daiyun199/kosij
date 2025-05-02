@@ -11,6 +11,7 @@ import SearchBar from "@/app/components/SearchBar/SearchBar";
 import { useRouter, useSearchParams } from "next/navigation";
 import { toast } from "react-toastify";
 import ProtectedRoute from "@/app/ProtectedRoute";
+import dayjs from "dayjs";
 
 function Page() {
   const [staffData, setStaffData] = useState<ConsultingStaff[]>([]);
@@ -140,9 +141,9 @@ function Page() {
       key: "area",
     },
     {
-      title: "Ongoing Trips",
-      dataIndex: "ongoingTrip",
-      key: "ongoingTrip",
+      title: "Assigned Trip",
+      dataIndex: "assignedTrip",
+      key: "assignedTrip",
     },
     {
       title: "Completed Trips",
@@ -160,6 +161,12 @@ function Page() {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       onFilter: (value: any, record: ConsultingStaff) =>
         record.status === String(value),
+    },
+    {
+      title: "Nearest Trip",
+      dataIndex: "nearestAssignedTripDate",
+      key: "Nearest Trip",
+      render: (date: string) => dayjs(date).format("YYYY-MM-DD HH:mm"),
     },
     {
       title: "Actions",

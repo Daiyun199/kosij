@@ -3,14 +3,77 @@
 "use client";
 import React, { useEffect, useState } from "react";
 import Dashboard from "@/app/components/Dashboard/Dashboard";
-import ManagerLayout from "@/app/components/ManagerLayout/ManagerLayout";
 import dayjs from "dayjs";
-import { Select, DatePicker } from "antd";
+import { Select, DatePicker, Table, Card, Space, Typography } from "antd";
+import type { TableColumnsType } from "antd";
 import api from "@/config/axios.config";
 import ProtectedRoute from "@/app/ProtectedRoute";
 import SaleStaffLayout from "@/app/components/SaleStaffLayout/SaleStaffLayout";
+import customParseFormat from "dayjs/plugin/customParseFormat";
 
+dayjs.extend(customParseFormat);
 const { Option } = Select;
+const { Title } = Typography;
+
+interface Trip {
+  id: number;
+  tripType: string;
+  departureDate: string;
+  returnDate: string;
+  minGroupSize: number;
+  maxGroupSize: number;
+  pricingRate: number;
+  tripStatus: string;
+  tourId: number;
+  salesStaffId: string;
+  consultingStaffId: string;
+  isDeleted: boolean;
+}
+
+interface TripRequest {
+  id: number;
+  numberOfPassengers: number;
+  days: number;
+  nights: number;
+  departureDate: string;
+  returnDate: string;
+  departurePoint: string;
+  affordableBudget: number;
+  nameContact: string;
+  phoneContact: string;
+  emailContact: string;
+  note: string;
+  modifiedNote: string;
+  feedback: string;
+  salesStaffId: number;
+  salesStaffName: string;
+  salesStaffEmail: string;
+  salesStaffPhone: string;
+  requestStatus: string;
+  tripBookingId: number;
+  customerAccountId: string;
+  customerUserName: string;
+  customerFullName: string;
+}
+
+interface DetailedData {
+  totalScheduledTrips: number;
+  totalCustomizedTrips: number;
+  totalCompletedTrips: number;
+  totalCancelledTrips: number;
+  pendingTripRequests: number;
+  completedTripRequests: number;
+  cancelledTripRequests: number;
+  totalTripRequests: number;
+  totalRevenue: number;
+  scheduledTrips: Trip[];
+  customizedTrips: Trip[];
+  completedTrips: Trip[];
+  cancelledTrips: Trip[];
+  pendingRequests: TripRequest[];
+  completedRequests: TripRequest[];
+  cancelledRequests: TripRequest[];
+}
 
 function Page() {
   const [metricsData, setMetricsData] = useState({
@@ -34,6 +97,113 @@ function Page() {
     datasets: [{ label: "No Data", data: [0] }],
   });
   const [loading, setLoading] = useState(false);
+  const [detailedData, setDetailedData] = useState<DetailedData | null>(null);
+
+  const tripColumns: TableColumnsType<Trip> = [
+    {
+      title: "ID",
+      dataIndex: "id",
+      key: "id",
+      width: 80,
+    },
+    {
+      title: "Type",
+      dataIndex: "tripType",
+      key: "tripType",
+      width: 120,
+    },
+    {
+      title: "Departure Date",
+      dataIndex: "departureDate",
+      key: "departureDate",
+      render: (date) => dayjs(date, "DD-MM-YYYY").format("YYYY-MM-DD HH:mm"),
+      width: 180,
+    },
+    {
+      title: "Return Date",
+      dataIndex: "returnDate",
+      key: "returnDate",
+      render: (date) => dayjs(date, "DD-MM-YYYY").format("YYYY-MM-DD HH:mm"),
+      width: 180,
+    },
+    {
+      title: "Group Size",
+      key: "groupSize",
+      render: (_, record) => `${record.minGroupSize}-${record.maxGroupSize}`,
+      width: 150,
+    },
+    {
+      title: "Status",
+      dataIndex: "tripStatus",
+      key: "tripStatus",
+      width: 120,
+    },
+    {
+      title: "Pricing Rate",
+      dataIndex: "pricingRate",
+      key: "pricingRate",
+      render: (rate) => (rate != null ? `${rate * 100}%` : "-"),
+      width: 120,
+    },
+  ];
+
+  const requestColumns: TableColumnsType<TripRequest> = [
+    {
+      title: "ID",
+      dataIndex: "id",
+      key: "id",
+      width: 80,
+    },
+    {
+      title: "Customer",
+      dataIndex: "customerFullName",
+      key: "customerFullName",
+      width: 150,
+    },
+    {
+      title: "Contact",
+      dataIndex: "phoneContact",
+      key: "phoneContact",
+      width: 120,
+    },
+    {
+      title: "Email",
+      dataIndex: "emailContact",
+      key: "emailContact",
+      width: 180,
+    },
+    {
+      title: "Departure Date",
+      dataIndex: "departureDate",
+      key: "departureDate",
+      render: (date) => dayjs(date).format("YYYY-MM-DD"),
+      width: 150,
+    },
+    {
+      title: "Duration",
+      key: "duration",
+      render: (_, record) => `${record.days} days / ${record.nights} nights`,
+      width: 150,
+    },
+    {
+      title: "Passengers",
+      dataIndex: "numberOfPassengers",
+      key: "numberOfPassengers",
+      width: 100,
+    },
+    {
+      title: "Status",
+      dataIndex: "requestStatus",
+      key: "requestStatus",
+      width: 120,
+    },
+    {
+      title: "Sales Staff",
+      dataIndex: "salesStaffName",
+      key: "salesStaffName",
+      width: 150,
+    },
+  ];
 
   const handleTimeChange = (value: string) => {
     setSelectedTime(value);
@@ -107,6 +277,19 @@ function Page() {
     }
   };
 
+  const fetchDetailedData = async (startDate: string, endDate: string) => {
+    try {
+      const res = await api.get(
+        `/trips/dashboard/details/current-sales?startDate=${startDate}&endDate=${endDate}`
+      );
+      console.log("Detailed Data from API:", res.data);
+      return res.data.value || {};
+    } catch (error: any) {
+      console.error("Error fetching detailed data:", error.message);
+      return {};
+    }
+  };
+
   const calculateComparison = (current: number, previous: number) => {
     if (previous === 0) {
       return current === 0 ? "0%" : "+100%";
@@ -123,10 +306,12 @@ function Page() {
       const { startDate, endDate } = getDateRange();
       const { startDate: prevStart, endDate: prevEnd } = getPreviousDateRange();
 
-      const [currentData, previousData] = await Promise.all([
-        fetchDashboardData(startDate, endDate),
-        fetchDashboardData(prevStart, prevEnd),
-      ]);
+      const [currentData, previousData, currentDetailedData] =
+        await Promise.all([
+          fetchDashboardData(startDate, endDate),
+          fetchDashboardData(prevStart, prevEnd),
+          fetchDetailedData(startDate, endDate),
+        ]);
 
       setMetricsData({
         "Total Scheduled Trips": {
@@ -220,6 +405,7 @@ function Page() {
         ],
       });
 
+      setDetailedData(currentDetailedData);
       setLoading(false);
     };
 
@@ -266,19 +452,111 @@ function Page() {
           {loading ? (
             <p>Loading...</p>
           ) : (
-            <Dashboard
-              title="Trips Overview"
-              metricsData={metricsData}
-              selectedTime={selectedTime}
-              chartData={chartData}
-              chartOptions={{
-                responsive: true,
-                plugins: {
-                  legend: { position: "top" },
-                  title: { display: true, text: "Trips and Revenue Overview" },
-                },
-              }}
-            />
+            <>
+              <Dashboard
+                title="Trips Overview"
+                metricsData={metricsData}
+                selectedTime={selectedTime}
+                chartData={chartData}
+                chartOptions={{
+                  responsive: true,
+                  plugins: {
+                    legend: { position: "top" },
+                    title: {
+                      display: true,
+                      text: "Trips and Revenue Overview",
+                    },
+                  },
+                }}
+              />
+
+              <div className="mt-8">
+                <Title level={3}>Trip Details</Title>
+
+                <Space
+                  direction="vertical"
+                  size="large"
+                  style={{ width: "100%" }}
+                >
+                  <Card title="Scheduled Trips" bordered={false}>
+                    <Table
+                      columns={tripColumns}
+                      dataSource={detailedData?.scheduledTrips || []}
+                      rowKey="id"
+                      pagination={{ pageSize: 5 }}
+                      scroll={{ x: true }}
+                      loading={!detailedData}
+                    />
+                  </Card>
+
+                  <Card title="Customized Trips" bordered={false}>
+                    <Table
+                      columns={tripColumns}
+                      dataSource={detailedData?.customizedTrips || []}
+                      rowKey="id"
+                      pagination={{ pageSize: 5 }}
+                      scroll={{ x: true }}
+                      loading={!detailedData}
+                    />
+                  </Card>
+
+                  <Card title="Completed Trips" bordered={false}>
+                    <Table
+                      columns={tripColumns}
+                      dataSource={detailedData?.completedTrips || []}
+                      rowKey="id"
+                      pagination={{ pageSize: 5 }}
+                      scroll={{ x: true }}
+                      loading={!detailedData}
+                    />
+                  </Card>
+
+                  <Card title="Cancelled Trips" bordered={false}>
+                    <Table
+                      columns={tripColumns}
+                      dataSource={detailedData?.cancelledTrips || []}
+                      rowKey="id"
+                      pagination={{ pageSize: 5 }}
+                      scroll={{ x: true }}
+                      loading={!detailedData}
+                    />
+                  </Card>
+
+                  <Card title="Pending Requests" bordered={false}>
+                    <Table
+                      columns={requestColumns}
+                      dataSource={detailedData?.pendingRequests || []}
+                      rowKey="id"
+                      pagination={{ pageSize: 5 }}
+                      scroll={{ x: true }}
+                      loading={!detailedData}
+                    />
+                  </Card>
+
+                  <Card title="Completed Requests" bordered={false}>
+                    <Table
+                      columns={requestColumns}
+                      dataSource={detailedData?.completedRequests || []}
+                      rowKey="id"
+                      pagination={{ pageSize: 5 }}
+                      scroll={{ x: true }}
+                      loading={!detailedData}
+                    />
+                  </Card>
+
+                  <Card title="Cancelled Requests" bordered={false}>
+                    <Table
+                      columns={requestColumns}
+                      dataSource={detailedData?.cancelledRequests || []}
+                      rowKey="id"
+                      pagination={{ pageSize: 5 }}
+                      scroll={{ x: true }}
+                      loading={!detailedData}
+                    />
+                  </Card>
+                </Space>
+              </div>
+            </>
           )}
         </div>
       </SaleStaffLayout>

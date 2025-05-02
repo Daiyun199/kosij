@@ -615,16 +615,19 @@ interface Conversation {
   userName: string;
   lastMessage: string;
   timestamp: string;
+  isUnread: boolean;
 }
 
 const Chat: React.FC = () => {
   const { isAuthenticated, userRole } = useAuth();
-  const [salesStaffId, setSalesStaffId] = useState<string | null>(null);
+  const [userId, setUserId] = useState<string | null>(null);
   const [chatHistory, setChatHistory] = useState<Message[]>([]);
   const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
   const [newMessage, setNewMessage] = useState("");
+  const [isMarkingRead, setIsMarkingRead] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
+  // Fetch all chat history
   const fetchAllMessages = async () => {
     const token = getAuthToken();
     try {
@@ -635,71 +638,175 @@ const Chat: React.FC = () => {
         },
       });
       const messages = response.data.value || [];
+      console.log("Fetched chatHistory:", JSON.stringify(messages, null, 2));
+      setChatHistory(messages);
 
       const firstMsg = messages.find(Boolean);
       if (firstMsg) {
-        const isFromSales = firstMsg.createdBy?.startsWith("Farm Breeder");
-        const staffId = isFromSales ? firstMsg.fromUserId : firstMsg.toUserId;
-        setSalesStaffId(staffId);
+        const isFromUser = firstMsg.createdBy?.startsWith("Farm Breeder");
+        const id = isFromUser ? firstMsg.fromUserId : firstMsg.toUserId;
+        setUserId(id);
+        console.log(`Set userId: ${id}`);
       }
-
-      setChatHistory(messages);
     } catch (error) {
       console.error("Failed to fetch messages:", error);
     }
   };
 
+  // Mark messages as read for a user
+  const markMessagesAsRead = async (fromUserId: string) => {
+    console.log(`Marking messages as read for fromUserId: ${fromUserId}`);
+    setIsMarkingRead(true);
+    const token = getAuthToken();
+    try {
+      const response = await api.put(
+        `/chat/mark-as-read`,
+        { fromUserId },
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Accept: "text/plain",
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      console.log(`Mark-as-read response:`, response.data);
+
+      // Optimistic update: Mark all messages from fromUserId as read
+      setChatHistory((prev) => {
+        const updated = prev.map((msg) =>
+          msg.fromUserId === fromUserId &&
+          !msg.createdBy.startsWith("Farm Breeder")
+            ? { ...msg, isRead: true }
+            : msg
+        );
+        console.log(
+          "Updated chatHistory after marking read:",
+          JSON.stringify(updated, null, 2)
+        );
+        return [...updated];
+      });
+
+      // Sync server state
+      await fetchAllMessages();
+      console.log(`Successfully marked messages as read for ${fromUserId}`);
+    } catch (error) {
+      console.error(
+        `Failed to mark messages as read for ${fromUserId}:`,
+        error
+      );
+      // Optimistic update even on failure
+      setChatHistory((prev) => {
+        const updated = prev.map((msg) =>
+          msg.fromUserId === fromUserId &&
+          !msg.createdBy.startsWith("Farm Breeder")
+            ? { ...msg, isRead: true }
+            : msg
+        );
+        console.log(
+          "Optimistic update after API failure:",
+          JSON.stringify(updated, null, 2)
+        );
+        return [...updated];
+      });
+    } finally {
+      // Delay re-enabling polling to avoid overwrite
+      setTimeout(() => {
+        setIsMarkingRead(false);
+        console.log("Re-enabled polling after mark read");
+      }, 2000);
+    }
+  };
+
+  // Polling with pause during mark read
   useEffect(() => {
     let interval: NodeJS.Timeout;
 
-    if (isAuthenticated && userRole === "farmbreeder") {
+    if (isAuthenticated && userRole === "farmbreeder" && !isMarkingRead) {
       fetchAllMessages();
-
       interval = setInterval(() => {
-        fetchAllMessages();
+        if (!isMarkingRead) {
+          console.log("Polling chatHistory");
+          fetchAllMessages();
+        } else {
+          console.log("Polling paused during mark read");
+        }
       }, 5000);
     }
 
     return () => clearInterval(interval);
-  }, [isAuthenticated, userRole]);
+  }, [isAuthenticated, userRole, isMarkingRead]);
 
-  const extractUserName = (name: string): string => {
-    const roles = [
-      "Sales Staff",
-      "Manager",
-      "Farm Breeder",
-      "Consulting Staff",
-      "Delivery Staff",
-    ];
+  // Get user name for the other participant
+  const getUserName = (msg: Message, userId: string | null): string => {
+    if (!userId) return "Unknown";
 
-    for (const role of roles) {
-      if (name.startsWith(role)) {
-        return "";
-      }
+    const isSentByUser = msg.fromUserId === userId;
+    const otherUserId = isSentByUser ? msg.toUserId : msg.fromUserId;
+
+    // Find a message from the other user to get their name
+    const relatedMsg = chatHistory.find(
+      (m) =>
+        m.fromUserId === otherUserId && !m.createdBy.startsWith("Farm Breeder")
+    );
+
+    if (relatedMsg) {
+      return relatedMsg.createdBy;
     }
 
-    return name;
+    // Fallback to createdBy or userId
+    return isSentByUser ? msg.toUserId : msg.createdBy || otherUserId;
   };
 
+  // Group messages by user
   const getConversations = (): Conversation[] => {
+    console.log("Generating conversations, userId:", userId);
     const convoMap = new Map<string, Conversation>();
 
-    [...chatHistory].reverse().forEach((msg) => {
-      const userId =
-        msg.fromUserId === salesStaffId ? msg.toUserId : msg.fromUserId;
-
-      if (!convoMap.has(userId)) {
-        const rawName = msg.createdBy;
-        const cleanName = extractUserName(rawName);
-
-        if (!cleanName) return;
-        convoMap.set(userId, {
-          userId,
-          userName: cleanName,
-          lastMessage: msg.content,
-          timestamp: msg.createdTime,
-        });
+    // Group messages by userId
+    const userMessages = new Map<string, Message[]>();
+    chatHistory.forEach((msg) => {
+      const otherUserId =
+        msg.fromUserId === userId ? msg.toUserId : msg.fromUserId;
+      if (!userMessages.has(otherUserId)) {
+        userMessages.set(otherUserId, []);
       }
+      userMessages.get(otherUserId)!.push(msg);
+    });
+
+    // Process each user's messages
+    userMessages.forEach((messages, otherUserId) => {
+      if (!userId) return;
+
+      // Get latest message
+      const latestMsg = messages.sort(
+        (a, b) =>
+          new Date(b.createdTime).getTime() - new Date(a.createdTime).getTime()
+      )[0];
+
+      const userName = getUserName(latestMsg, userId);
+      if (!userName || userName === "Unknown") {
+        console.log(
+          `Skipping conversation: userId=${otherUserId}, userName=${userName}, messageId=${latestMsg.id}`
+        );
+        return;
+      }
+
+      // Check for unread messages
+      const isUnread = messages.some(
+        (msg) => !msg.isRead && !msg.createdBy.startsWith("Farm Breeder")
+      );
+      console.log(
+        `Adding conversation: userId=${otherUserId}, userName=${userName}, lastMessage=${latestMsg.content}, isUnread=${isUnread}`
+      );
+
+      convoMap.set(otherUserId, {
+        userId: otherUserId,
+        userName,
+        lastMessage: latestMsg.content,
+        timestamp: latestMsg.createdTime,
+        isUnread,
+      });
     });
 
     return Array.from(convoMap.values());
@@ -707,8 +814,8 @@ const Chat: React.FC = () => {
 
   const filteredMessages = chatHistory.filter(
     (msg) =>
-      (msg.fromUserId === selectedUserId && msg.toUserId === salesStaffId) ||
-      (msg.toUserId === selectedUserId && msg.fromUserId === salesStaffId)
+      (msg.fromUserId === selectedUserId && msg.toUserId === userId) ||
+      (msg.toUserId === selectedUserId && msg.fromUserId === userId)
   );
 
   const scrollToBottom = () => {
@@ -720,7 +827,7 @@ const Chat: React.FC = () => {
   }, [filteredMessages]);
 
   const sendMessage = async () => {
-    if (!newMessage.trim() || !selectedUserId || !salesStaffId) return;
+    if (!newMessage.trim() || !selectedUserId || !userId) return;
 
     const token = getAuthToken();
     try {
@@ -739,27 +846,34 @@ const Chat: React.FC = () => {
         }
       );
 
-      setChatHistory((prev) => [
-        ...prev,
-        {
-          id: Date.now(),
-          fromUserId: salesStaffId,
-          toUserId: selectedUserId,
-          content: newMessage,
-          isRead: false,
-          createdTime: new Date().toISOString(),
-          createdBy: `Farm Breeder`,
-        },
-      ]);
+      const newMsg: Message = {
+        id: Date.now(),
+        fromUserId: userId,
+        toUserId: selectedUserId,
+        content: newMessage,
+        isRead: false,
+        createdTime: new Date().toISOString(),
+        createdBy: `Farm Breeder`,
+      };
+      setChatHistory((prev) => {
+        const updated = [...prev, newMsg];
+        console.log(
+          "Updated chatHistory after sending:",
+          JSON.stringify(updated, null, 2)
+        );
+        return updated;
+      });
       setNewMessage("");
       scrollToBottom();
+
+      await fetchAllMessages();
     } catch (error) {
       console.error("Failed to send message:", error);
     }
   };
 
   if (!isAuthenticated || userRole !== "farmbreeder") {
-    return <div>Please log in as a sales staff to access the chat.</div>;
+    return <div>Please log in as a farm breeder to access the chat.</div>;
   }
 
   return (
@@ -775,94 +889,127 @@ const Chat: React.FC = () => {
         className={styles.chatContainer}
         style={{ flex: 3, marginRight: "20px" }}
       >
-        <h2>Chat with {selectedUserId || "..."}</h2>
+        <h2>
+          Chat with{" "}
+          {getConversations().find((c) => c.userId === selectedUserId)
+            ?.userName ||
+            selectedUserId ||
+            "..."}
+        </h2>
         <div className={styles.messageList}>
-          <List
-            dataSource={filteredMessages}
-            renderItem={(message) => (
-              <List.Item
-                style={{
-                  justifyContent:
-                    message.fromUserId === salesStaffId
-                      ? "flex-end"
-                      : "flex-start",
-                  display: "flex",
-                }}
-              >
-                <div
-                  className={`${styles.messageBubble} ${
-                    message.fromUserId === salesStaffId
-                      ? styles.sent
-                      : styles.received
-                  }`}
+          {filteredMessages.length > 0 ? (
+            <List
+              dataSource={filteredMessages}
+              renderItem={(message) => (
+                <List.Item
+                  style={{
+                    justifyContent:
+                      message.fromUserId === userId ? "flex-end" : "flex-start",
+                    display: "flex",
+                  }}
                 >
-                  <List.Item.Meta
-                    avatar={<Avatar>{message.createdBy.charAt(0)}</Avatar>}
-                    title={message.createdBy}
-                    description={
-                      <div>
-                        <div>{message.content}</div>
-                        <div style={{ fontSize: "12px", color: "#888" }}>
-                          {new Date(message.createdTime).toLocaleTimeString()}
+                  <div
+                    className={`${styles.messageBubble} ${
+                      message.fromUserId === userId
+                        ? styles.sent
+                        : styles.received
+                    }`}
+                  >
+                    <List.Item.Meta
+                      avatar={<Avatar>{message.createdBy.charAt(0)}</Avatar>}
+                      title={message.createdBy}
+                      description={
+                        <div>
+                          <div>{message.content}</div>
+                          <div style={{ fontSize: "12px", color: "#888" }}>
+                            {new Date(message.createdTime).toLocaleTimeString()}
+                          </div>
                         </div>
-                      </div>
-                    }
-                  />
-                </div>
-              </List.Item>
-            )}
-          />
+                      }
+                    />
+                  </div>
+                </List.Item>
+              )}
+            />
+          ) : (
+            <div>
+              {selectedUserId
+                ? "No messages yet. Start a conversation!"
+                : "Select a conversation to start chatting."}
+            </div>
+          )}
           <div ref={messagesEndRef} />
         </div>
-        <div className={styles.inputContainer}>
-          <Input
-            value={newMessage}
-            onChange={(e) => setNewMessage(e.target.value)}
-            placeholder="Type a message..."
-          />
-          <Button
-            type="primary"
-            icon={<SendOutlined />}
-            disabled={!newMessage.trim() || !selectedUserId}
-            onClick={sendMessage}
-          >
-            Send
-          </Button>
-        </div>
+        {selectedUserId && (
+          <div className={styles.inputContainer}>
+            <Input
+              value={newMessage}
+              onChange={(e) => setNewMessage(e.target.value)}
+              placeholder="Type a message..."
+            />
+            <Button
+              type="primary"
+              icon={<SendOutlined />}
+              disabled={!newMessage.trim() || !selectedUserId}
+              onClick={sendMessage}
+            >
+              Send
+            </Button>
+          </div>
+        )}
       </div>
 
       <div className={styles.conversationList} style={{ flex: 1 }}>
         <h3>Conversations</h3>
-        <List
-          dataSource={getConversations()}
-          renderItem={(conversation) => (
-            <List.Item
-              onClick={() => setSelectedUserId(conversation.userId)}
-              style={{
-                cursor: "pointer",
-                background:
-                  conversation.userId === selectedUserId
-                    ? "#e6f7ff"
-                    : "transparent",
-                borderRadius: "8px",
-                padding: "10px",
-              }}
-            >
-              <List.Item.Meta
-                avatar={<Avatar>{conversation.userName.charAt(0)}</Avatar>}
-                title={conversation.userName}
-                description={
-                  <>
-                    <div>{conversation.lastMessage}</div>
-                    <div style={{ fontSize: "12px", color: "#888" }}>
-                      {new Date(conversation.timestamp).toLocaleTimeString()}
-                    </div>
-                  </>
+        {getConversations().length > 0 ? (
+          <List
+            dataSource={getConversations()}
+            renderItem={(conversation) => (
+              <List.Item
+                onClick={() => {
+                  console.log(
+                    `Clicked conversation: userId=${conversation.userId}, isUnread=${conversation.isUnread}`
+                  );
+                  setSelectedUserId(conversation.userId);
+                  if (conversation.isUnread) {
+                    markMessagesAsRead(conversation.userId);
+                  }
+                }}
+                className={
+                  conversation.isUnread ? styles.unreadConversation : ""
                 }
-              />
-            </List.Item>
-          )}
-        />
+                style={{
+                  cursor: "pointer",
+                  background:
+                    conversation.userId === selectedUserId
+                      ? "#e6f7ff"
+                      : "transparent",
+                  borderRadius: "8px",
+                  padding: "10px",
+                  position: "relative",
+                }}
+              >
+                <List.Item.Meta
+                  avatar={<Avatar>{conversation.userName.charAt(0)}</Avatar>}
+                  title={conversation.userName}
+                  description={
+                    <>
+                      <div>{conversation.lastMessage}</div>
+                      <div style={{ fontSize: "12px", color: "#888" }}>
+                        {new Date(conversation.timestamp).toLocaleTimeString()}
+                      </div>
+                    </>
+                  }
+                />
+                {conversation.isUnread && (
+                  <span className={styles.unreadDot}></span>
+                )}
+              </List.Item>
+            )}
+          />
+        ) : (
+          <div>No conversations available.</div>
+        )}
       </div>
     </div>
   );

@@ -1,7 +1,6 @@
-
 "use client";
 import React, { useState, useEffect, useRef } from "react";
-import { List, Input, Button, Avatar } from "antd";
+import { List, Input, Button, Avatar, AutoComplete } from "antd";
 import { SendOutlined } from "@ant-design/icons";
 import styles from "./Chat.module.css";
 import { useAuth } from "@/app/AuthProvider";
@@ -28,15 +27,21 @@ interface Conversation {
   userName: string;
   lastMessage: string;
   timestamp: string;
+  isUnread: boolean;
 }
 
 const Chat: React.FC = () => {
   const { isAuthenticated, userRole } = useAuth();
-  const [salesStaffId, setSalesStaffId] = useState<string | null>(null);
+  const [salesStaffId, setSalesStaffId] = useState<string | null>("SAL-001");
   const [chatHistory, setChatHistory] = useState<Message[]>([]);
   const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
   const [selectedUserName, setSelectedUserName] = useState<string | null>(null);
   const [newMessage, setNewMessage] = useState("");
+  const [isMarkingRead, setIsMarkingRead] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [selectedConversations, setSelectedConversations] = useState<
+    Conversation[]
+  >([]);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const searchParams = useSearchParams();
 
@@ -50,17 +55,78 @@ const Chat: React.FC = () => {
         },
       });
       const messages = response.data.value || [];
+      console.log("Fetched chatHistory:", JSON.stringify(messages, null, 2));
+      setChatHistory(messages);
 
       const firstMsg = messages.find(Boolean);
       if (firstMsg) {
         const isFromSales = firstMsg.createdBy?.startsWith("Sales Staff");
         const staffId = isFromSales ? firstMsg.fromUserId : firstMsg.toUserId;
         setSalesStaffId(staffId);
+        console.log(`Set salesStaffId: ${staffId}`);
       }
-
-      setChatHistory(messages);
     } catch (error) {
       console.error("Failed to fetch messages:", error);
+    }
+  };
+
+  const markMessagesAsRead = async (fromUserId: string) => {
+    console.log(`Marking messages as read for fromUserId: ${fromUserId}`);
+    setIsMarkingRead(true);
+    const token = getAuthToken();
+    try {
+      const response = await api.put(
+        `/chat/mark-as-read`,
+        { fromUserId },
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Accept: "text/plain",
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      console.log(`Mark-as-read response:`, response.data);
+
+      setChatHistory((prev) => {
+        const updated = prev.map((msg) =>
+          msg.fromUserId === fromUserId &&
+          !msg.createdBy.startsWith("Sales Staff")
+            ? { ...msg, isRead: true }
+            : msg
+        );
+        console.log(
+          "Updated chatHistory after marking read:",
+          JSON.stringify(updated, null, 2)
+        );
+        return [...updated];
+      });
+
+      await fetchAllMessages();
+      console.log(`Successfully marked messages as read for ${fromUserId}`);
+    } catch (error) {
+      console.error(
+        `Failed to mark messages as read for ${fromUserId}:`,
+        error
+      );
+      setChatHistory((prev) => {
+        const updated = prev.map((msg) =>
+          msg.fromUserId === fromUserId &&
+          !msg.createdBy.startsWith("Sales Staff")
+            ? { ...msg, isRead: true }
+            : msg
+        );
+        console.log(
+          "Optimistic update after API failure:",
+          JSON.stringify(updated, null, 2)
+        );
+        return [...updated];
+      });
+    } finally {
+      setTimeout(() => {
+        setIsMarkingRead(false);
+        console.log("Re-enabled polling after mark read");
+      }, 2000);
     }
   };
 
@@ -78,15 +144,20 @@ const Chat: React.FC = () => {
   useEffect(() => {
     let interval: NodeJS.Timeout;
 
-    if (isAuthenticated && userRole === "salesstaff") {
+    if (isAuthenticated && userRole === "salesstaff" && !isMarkingRead) {
       fetchAllMessages();
       interval = setInterval(() => {
-        fetchAllMessages();
+        if (!isMarkingRead) {
+          console.log("Polling chatHistory");
+          fetchAllMessages();
+        } else {
+          console.log("Polling paused during mark read");
+        }
       }, 5000);
     }
 
     return () => clearInterval(interval);
-  }, [isAuthenticated, userRole]);
+  }, [isAuthenticated, userRole, isMarkingRead]);
 
   const getUserName = (msg: Message, salesStaffId: string | null): string => {
     if (!salesStaffId) return "Unknown";
@@ -106,37 +177,146 @@ const Chat: React.FC = () => {
     return isSentBySales ? msg.toUserName : msg.createdBy;
   };
 
+  const getUserIdFromUserName = (userName: string): string => {
+    if (userName === "Manager") {
+      return "MAN-000";
+    }
+
+    const match = userName.match(/(Consulting Staff|Delivery Staff)\s(\d+)/);
+    if (match) {
+      const role = match[1];
+      const number = match[2].padStart(3, "0");
+      switch (role) {
+        case "Consulting Staff":
+          return `CON-${number}`;
+        case "Delivery Staff":
+          return `DEL-${number}`;
+        default:
+          return userName;
+      }
+    }
+
+    return userName;
+  };
+
   const getConversations = (): Conversation[] => {
+    console.log("Generating conversations, salesStaffId:", salesStaffId);
     const convoMap = new Map<string, Conversation>();
 
-    [...chatHistory].reverse().forEach((msg) => {
-      if (!salesStaffId) return;
+    if (chatHistory.length > 0) {
+      const userMessages = new Map<string, Message[]>();
+      chatHistory.forEach((msg) => {
+        const userId =
+          msg.fromUserId === salesStaffId ? msg.toUserId : msg.fromUserId;
+        if (!userMessages.has(userId)) {
+          userMessages.set(userId, []);
+        }
+        userMessages.get(userId)!.push(msg);
+      });
 
-      const userId =
-        msg.fromUserId === salesStaffId ? msg.toUserId : msg.fromUserId;
-      const userName = getUserName(msg, salesStaffId);
+      userMessages.forEach((messages, userId) => {
+        if (!salesStaffId) return;
 
-      if (!userName || userName === "Unknown") {
-        console.log(
-          `Skipping conversation: userId=${userId}, userName=${userName}`
+        const latestMsg = messages.sort(
+          (a, b) =>
+            new Date(b.createdTime).getTime() -
+            new Date(a.createdTime).getTime()
+        )[0];
+
+        const userName = getUserName(latestMsg, salesStaffId);
+        if (!userName || userName === "Unknown") {
+          console.log(
+            `Skipping conversation: userId=${userId}, userName=${userName}, messageId=${latestMsg.id}`
+          );
+          return;
+        }
+
+        const isUnread = messages.some(
+          (msg) => !msg.isRead && !msg.createdBy.startsWith("Sales Staff")
         );
-        return;
-      }
-
-      if (!convoMap.has(userId)) {
         console.log(
-          `Adding conversation: userId=${userId}, userName=${userName}, lastMessage=${msg.content}`
+          `Adding conversation from chat: userId=${userId}, userName=${userName}, lastMessage=${latestMsg.content}, isUnread=${isUnread}`
         );
+
         convoMap.set(userId, {
           userId,
           userName,
-          lastMessage: msg.content,
-          timestamp: msg.createdTime,
+          lastMessage: latestMsg.content,
+          timestamp: latestMsg.createdTime,
+          isUnread,
         });
-      }
+      });
+    }
+
+    selectedConversations.forEach((conv) => {
+      convoMap.set(conv.userId, conv);
     });
 
-    return Array.from(convoMap.values());
+    if (searchQuery) {
+      const query = searchQuery.toLowerCase();
+      const roles = [
+        { name: "Consulting Staff", count: 5 },
+        { name: "Delivery Staff", count: 5 },
+        { name: "Manager", count: 1 },
+      ];
+
+      roles.forEach((role) => {
+        if (role.name.toLowerCase().includes(query)) {
+          const count = role.name === "Manager" ? 1 : role.count;
+          for (let i = 1; i <= count; i++) {
+            const userName =
+              role.name === "Manager" ? "Manager" : `${role.name} ${i}`;
+            const userId = getUserIdFromUserName(userName);
+            console.log(
+              `Adding virtual conversation: userId=${userId}, userName=${userName}`
+            );
+            convoMap.set(userId, {
+              userId,
+              userName,
+              lastMessage: "",
+              timestamp: "",
+              isUnread: false,
+            });
+          }
+        }
+      });
+    }
+
+    const conversations = Array.from(convoMap.values());
+    console.log(
+      "Generated conversations:",
+      JSON.stringify(conversations, null, 2)
+    );
+    return conversations;
+  };
+
+  const handleSearch = (value: string) => {
+    console.log(`Search input changed: "${value}"`);
+    setSearchQuery(value);
+  };
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const handleSelect = (value: string, option: any) => {
+    const conversation: Conversation = {
+      userId: option.userId,
+      userName: value,
+      lastMessage: "",
+      timestamp: "",
+      isUnread: false,
+    };
+    console.log(
+      `Selected conversation: userId=${conversation.userId}, userName=${conversation.userName}`
+    );
+    setSelectedUserId(conversation.userId);
+    setSelectedUserName(conversation.userName);
+    setSelectedConversations((prev) => {
+      if (!prev.some((c) => c.userId === conversation.userId)) {
+        return [...prev, conversation];
+      }
+      return prev;
+    });
+    setSearchQuery("");
+    fetchAllMessages()
   };
 
   const filteredMessages = chatHistory.filter(
@@ -174,9 +354,9 @@ const Chat: React.FC = () => {
       );
 
       const newMsg: Message = {
-        id: Date.now(), 
+        id: Date.now(),
         fromUserId: salesStaffId,
-        fromUserName: "salesstaff",
+        fromUserName: "Sales Staff",
         fromUserAvatar: "",
         toUserId: selectedUserId,
         toUserName: selectedUserName || "",
@@ -186,7 +366,14 @@ const Chat: React.FC = () => {
         createdTime: new Date().toISOString(),
         createdBy: `Sales Staff`,
       };
-      setChatHistory((prev) => [...prev, newMsg]);
+      setChatHistory((prev) => {
+        const updated = [...prev, newMsg];
+        console.log(
+          "Updated chatHistory after sending:",
+          JSON.stringify(updated, null, 2)
+        );
+        return updated;
+      });
       setNewMessage("");
       scrollToBottom();
 
@@ -213,7 +400,7 @@ const Chat: React.FC = () => {
         className={styles.chatContainer}
         style={{ flex: 3, marginRight: "20px" }}
       >
-        <h2>Chat with {selectedUserName || selectedUserId || "..."}</h2>
+        <h2>Chat with {selectedUserName || "..."}</h2>
         <div className={styles.messageList}>
           {filteredMessages.length > 0 || selectedUserId ? (
             <List
@@ -252,7 +439,11 @@ const Chat: React.FC = () => {
               )}
             />
           ) : (
-            <div>No messages yet. Start a conversation!</div>
+            <div>
+              {selectedUserId
+                ? "No messages yet. Start a conversation!"
+                : "Select a conversation to start chatting."}
+            </div>
           )}
           <div ref={messagesEndRef} />
         </div>
@@ -277,14 +468,34 @@ const Chat: React.FC = () => {
 
       <div className={styles.conversationList} style={{ flex: 1 }}>
         <h3>Conversations</h3>
+        <AutoComplete
+          style={{ width: "100%", marginBottom: "16px" }}
+          value={searchQuery}
+          onChange={handleSearch}
+          onSelect={handleSelect}
+          placeholder="Search users..."
+          allowClear
+          options={getConversations().map((conv) => ({
+            value: conv.userName,
+            label: conv.userName,
+            userId: conv.userId,
+          }))}
+        />
         <List
           dataSource={getConversations()}
           renderItem={(conversation) => (
             <List.Item
               onClick={() => {
+                console.log(
+                  `Clicked conversation: userId=${conversation.userId}, isUnread=${conversation.isUnread}`
+                );
                 setSelectedUserId(conversation.userId);
                 setSelectedUserName(conversation.userName);
+                if (conversation.isUnread) {
+                  markMessagesAsRead(conversation.userId);
+                }
               }}
+              className={conversation.isUnread ? styles.unreadConversation : ""}
               style={{
                 cursor: "pointer",
                 background:
@@ -293,20 +504,40 @@ const Chat: React.FC = () => {
                     : "transparent",
                 borderRadius: "8px",
                 padding: "10px",
+                position: "relative",
               }}
             >
               <List.Item.Meta
                 avatar={<Avatar>{conversation.userName.charAt(0)}</Avatar>}
-                title={conversation.userName}
+                title={
+                  conversation.isUnread ? (
+                    <div className="font-bold">{conversation.userName}</div>
+                  ) : (
+                    <div>{conversation.userName}</div>
+                  )
+                }
                 description={
-                  <>
-                    <div>{conversation.lastMessage}</div>
-                    <div style={{ fontSize: "12px", color: "#888" }}>
-                      {new Date(conversation.timestamp).toLocaleTimeString()}
-                    </div>
-                  </>
+                  conversation.lastMessage ? (
+                    <>
+                      <div className={conversation.isUnread ? "font-bold" : ""}>
+                        {conversation.lastMessage}
+                      </div>
+                      <div style={{ fontSize: "12px", color: "#888" }}>
+                        {conversation.timestamp
+                          ? new Date(
+                              conversation.timestamp
+                            ).toLocaleTimeString()
+                          : ""}
+                      </div>
+                    </>
+                  ) : (
+                    <div>No messages yet</div>
+                  )
                 }
               />
+              {conversation.isUnread && (
+                <span className={styles.unreadDot}></span>
+              )}
             </List.Item>
           )}
         />

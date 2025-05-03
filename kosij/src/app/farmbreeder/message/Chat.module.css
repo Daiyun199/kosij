@@ -3,7 +3,7 @@
   max-width: none;
   border: 1px solid #e8e8e8;
   border-radius: 8px;
-  height: calc(100vh - 120px);
+  height: calc(100vh - 80px);
   display: flex;
   flex-direction: column;
 }
@@ -58,7 +58,7 @@
   padding: 20px;
   border-left: 1px solid #e8e8e8;
   background: white;
-  height: calc(100vh - 120px);
+  height: calc(100vh - 80px);
   overflow-y: auto;
 }
 
@@ -92,4 +92,20 @@
 .messageList .ant-list-item-meta {
   max-width: none !important;
   width: auto !important;
+}
+
+.unreadConversation .ant-list-item-meta-title,
+.unreadConversation .ant-list-item-meta-description > div:first-child {
+  font-weight: bold !important;
+}
+
+.unreadDot {
+  position: absolute !important;
+  right: 10px !important;
+  top: 50% !important;
+  transform: translateY(-50%) !important;
+  width: 8px !important;
+  height: 8px !important;
+  background-color: #1890ff !important;
+  border-radius: 50% !important;
 }

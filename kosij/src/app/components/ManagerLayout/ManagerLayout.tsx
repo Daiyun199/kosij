@@ -145,8 +145,13 @@ const ManagerLayout: React.FC<ManagerLayoutProps> = ({ title, children }) => {
           path: "/manager/transactions",
         },
         {
-          label: "Withdraws",
+          label: "Wallet",
           icon: "fa-solid fa-wallet",
+          path: "/manager/wallet",
+        },
+        {
+          label: "Withdraws",
+          icon: "fa-solid fa-money-bill-transfer",
           path: "/manager/withdrawals",
         },
         {

@@ -47,7 +47,7 @@
 //       // Determine salesStaffId from messages
 //       const firstMsg = messages.find(Boolean);
 //       if (firstMsg) {
-//         const isFromSales = firstMsg.createdBy?.startsWith("Sales Staff");
+//         const isFromSales = firstMsg.createdBy?.endsWith("Sales Staff");
 //         const staffId = isFromSales ? firstMsg.fromUserId : firstMsg.toUserId;
 //         setSalesStaffId(staffId);
 //       }
@@ -77,13 +77,13 @@
 //   const roles = [
 //     "Sales Staff",
 //     "Manager",
-//     "Farm Breeder",
+//     "Farm",
 //     "Consulting Staff",
 //     "Delivery Staff",
 //   ];
 
 //   for (const role of roles) {
-//     if (name.startsWith(role)) {
+//     if (name.endsWith(role)) {
 //       return ""; // skip system role name
 //     }
 //   }
@@ -337,7 +337,7 @@
 //       // Determine salesStaffId from messages
 //       const firstMsg = messages.find(Boolean);
 //       if (firstMsg) {
-//         const isFromSales = firstMsg.createdBy?.startsWith("Sales Staff");
+//         const isFromSales = firstMsg.createdBy?.endsWith("Sales Staff");
 //         const staffId = isFromSales ? firstMsg.fromUserId : firstMsg.toUserId;
 //         setSalesStaffId(staffId);
 //       }
@@ -372,7 +372,7 @@
 //     // Find a message from the other user to get their createdBy
 //     const relatedMsg = chatHistory.find(
 //       (m) =>
-//         m.fromUserId === otherUserId && !m.createdBy.startsWith("Sales Staff")
+//         m.fromUserId === otherUserId && !m.createdBy.endsWith("Sales Staff")
 //     );
 
 //     if (relatedMsg) {
@@ -592,8 +592,8 @@
 // export default Chat;
 
 "use client";
-import React, { useState, useEffect, useRef } from "react";
-import { List, Input, Button, Avatar } from "antd";
+import React, { useState, useEffect, useRef, useMemo } from "react";
+import { List, Input, Button, Avatar, message } from "antd";
 import { SendOutlined } from "@ant-design/icons";
 import styles from "./Chat.module.css";
 import { useAuth } from "@/app/AuthProvider";
@@ -623,12 +623,62 @@ const Chat: React.FC = () => {
   const [userId, setUserId] = useState<string | null>(null);
   const [chatHistory, setChatHistory] = useState<Message[]>([]);
   const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
+  const [selectedUserName, setSelectedUserName] = useState<string | null>(null);
   const [newMessage, setNewMessage] = useState("");
   const [isMarkingRead, setIsMarkingRead] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
   const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  const fetchUserIdFromToken = () => {
+    const token = getAuthToken();
+    if (!token) {
+      console.log("No auth token available");
+      message.error("Authentication error: Please log in again.");
+      return;
+    }
+    try {
+      const payload = JSON.parse(atob(token.split(".")[1]));
+      const id = payload.sub || payload.userId || payload.id;
+      if (id) {
+        setUserId(id);
+        console.log(`Set userId from token: ${id}`);
+      } else {
+        console.error("No userId in token payload:", payload);
+        message.error("Failed to retrieve user information.");
+      }
+    } catch (error) {
+      console.error("Failed to decode token:", error);
+      message.error("Failed to decode authentication token.");
+    }
+  };
+
+  useEffect(() => {
+    if (isAuthenticated && userRole === "farmbreeder" && !userId) {
+      fetchUserIdFromToken();
+    }
+  }, [isAuthenticated, userRole, userId]);
+
+  const userMessages = useMemo(() => {
+    const messagesMap = new Map<string, Message[]>();
+    chatHistory.forEach((msg) => {
+      const otherUserId =
+        msg.fromUserId === userId ? msg.toUserId : msg.fromUserId;
+      if (!messagesMap.has(otherUserId)) {
+        messagesMap.set(otherUserId, []);
+      }
+      messagesMap.get(otherUserId)!.push(msg);
+    });
+    console.log("Computed userMessages:", Array.from(messagesMap.keys()));
+    return messagesMap;
+  }, [chatHistory, userId]);
 
   const fetchAllMessages = async () => {
     const token = getAuthToken();
+    if (!token) {
+      console.log("No auth token for fetching messages");
+      message.error("Authentication error: Please log in again.");
+      return;
+    }
     try {
       const response = await api.get(`/chat/history`, {
         headers: {
@@ -640,15 +690,18 @@ const Chat: React.FC = () => {
       console.log("Fetched chatHistory:", JSON.stringify(messages, null, 2));
       setChatHistory(messages);
 
-      const firstMsg = messages.find(Boolean);
-      if (firstMsg) {
-        const isFromUser = firstMsg.createdBy?.startsWith("Farm Breeder");
-        const id = isFromUser ? firstMsg.fromUserId : firstMsg.toUserId;
-        setUserId(id);
-        console.log(`Set userId: ${id}`);
+      if (!userId) {
+        const firstMsg = messages.find(Boolean);
+        if (firstMsg) {
+          const isFromUser = firstMsg.createdBy?.endsWith("Farm");
+          const id = isFromUser ? firstMsg.fromUserId : firstMsg.toUserId;
+          setUserId(id);
+          console.log(`Set userId from chatHistory: ${id}`);
+        }
       }
     } catch (error) {
       console.error("Failed to fetch messages:", error);
+      message.error("Failed to fetch chat history.");
     }
   };
 
@@ -656,6 +709,11 @@ const Chat: React.FC = () => {
     console.log(`Marking messages as read for fromUserId: ${fromUserId}`);
     setIsMarkingRead(true);
     const token = getAuthToken();
+    if (!token) {
+      console.log("No auth token for marking messages");
+      message.error("Authentication error: Please log in again.");
+      return;
+    }
     try {
       const response = await api.put(
         `/chat/mark-as-read`,
@@ -672,8 +730,7 @@ const Chat: React.FC = () => {
 
       setChatHistory((prev) => {
         const updated = prev.map((msg) =>
-          msg.fromUserId === fromUserId &&
-          !msg.createdBy.startsWith("Farm Breeder")
+          msg.fromUserId === fromUserId && !msg.createdBy.endsWith("Farm")
             ? { ...msg, isRead: true }
             : msg
         );
@@ -691,10 +748,10 @@ const Chat: React.FC = () => {
         `Failed to mark messages as read for ${fromUserId}:`,
         error
       );
+      message.error("Failed to mark messages as read.");
       setChatHistory((prev) => {
         const updated = prev.map((msg) =>
-          msg.fromUserId === fromUserId &&
-          !msg.createdBy.startsWith("Farm Breeder")
+          msg.fromUserId === fromUserId && !msg.createdBy.endsWith("Farm")
             ? { ...msg, isRead: true }
             : msg
         );
@@ -730,37 +787,41 @@ const Chat: React.FC = () => {
     return () => clearInterval(interval);
   }, [isAuthenticated, userRole, isMarkingRead]);
 
+  const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const query = e.target.value;
+    console.log(`Search input changed: "${query}"`);
+    setSearchQuery(query);
+  };
+
   const getUserName = (msg: Message, userId: string | null): string => {
-    if (!userId) return "Unknown";
+    if (!userId) {
+      console.log("No userId, returning Unknown");
+      return "Unknown";
+    }
 
     const isSentByUser = msg.fromUserId === userId;
     const otherUserId = isSentByUser ? msg.toUserId : msg.fromUserId;
+    console.log(
+      `Getting userName for otherUserId: ${otherUserId}, isSentByUser: ${isSentByUser}`
+    );
 
     const relatedMsg = chatHistory.find(
-      (m) =>
-        m.fromUserId === otherUserId && !m.createdBy.startsWith("Farm Breeder")
+      (m) => m.fromUserId === otherUserId && !m.createdBy.endsWith("Farm")
     );
 
     if (relatedMsg) {
+      console.log(`Using relatedMsg.createdBy: ${relatedMsg.createdBy}`);
       return relatedMsg.createdBy;
     }
 
-    return isSentByUser ? msg.toUserId : msg.createdBy || otherUserId;
+    const fallback = isSentByUser ? msg.toUserId : msg.createdBy || otherUserId;
+    console.log(`Using fallback name: ${fallback}`);
+    return fallback;
   };
 
   const getConversations = (): Conversation[] => {
     console.log("Generating conversations, userId:", userId);
     const convoMap = new Map<string, Conversation>();
-
-    const userMessages = new Map<string, Message[]>();
-    chatHistory.forEach((msg) => {
-      const otherUserId =
-        msg.fromUserId === userId ? msg.toUserId : msg.fromUserId;
-      if (!userMessages.has(otherUserId)) {
-        userMessages.set(otherUserId, []);
-      }
-      userMessages.get(otherUserId)!.push(msg);
-    });
 
     userMessages.forEach((messages, otherUserId) => {
       if (!userId) return;
@@ -779,7 +840,7 @@ const Chat: React.FC = () => {
       }
 
       const isUnread = messages.some(
-        (msg) => !msg.isRead && !msg.createdBy.startsWith("Farm Breeder")
+        (msg) => !msg.isRead && !msg.createdBy.endsWith("Farm")
       );
       console.log(
         `Adding conversation: userId=${otherUserId}, userName=${userName}, lastMessage=${latestMsg.content}, isUnread=${isUnread}`
@@ -793,6 +854,21 @@ const Chat: React.FC = () => {
         isUnread,
       });
     });
+
+    if (
+      searchQuery &&
+      searchQuery.toLowerCase().startsWith("m") &&
+      !userMessages.has("MAN-000")
+    ) {
+      console.log("Adding Manager conversation for search query:", searchQuery);
+      convoMap.set("MAN-000", {
+        userId: "MAN-000",
+        userName: "Manager",
+        lastMessage: "",
+        timestamp: "",
+        isUnread: false,
+      });
+    }
 
     return Array.from(convoMap.values());
   };
@@ -812,9 +888,23 @@ const Chat: React.FC = () => {
   }, [filteredMessages]);
 
   const sendMessage = async () => {
-    if (!newMessage.trim() || !selectedUserId || !userId) return;
+    if (!newMessage.trim() || !selectedUserId || !userId) {
+      console.log("Cannot send message:", {
+        newMessage,
+        selectedUserId,
+        userId,
+      });
+      message.error("Cannot send message: Missing user information.");
+      return;
+    }
 
     const token = getAuthToken();
+    if (!token) {
+      console.log("No auth token available");
+      message.error("Authentication error: Please log in again.");
+      return;
+    }
+
     try {
       await api.post(
         "/chat/send",
@@ -852,13 +942,30 @@ const Chat: React.FC = () => {
       scrollToBottom();
 
       await fetchAllMessages();
-    } catch (error) {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } catch (error: any) {
       console.error("Failed to send message:", error);
+      message.error(error.response?.data?.message || "Failed to send message.");
+    }
+  };
+
+  const handleConversationClick = (conversation: Conversation) => {
+    console.log(
+      `Clicked conversation: userId=${conversation.userId}, isUnread=${conversation.isUnread}`
+    );
+    setSelectedUserId(conversation.userId);
+    setSelectedUserName(conversation.userName);
+    if (conversation.isUnread) {
+      markMessagesAsRead(conversation.userId);
     }
   };
 
   if (!isAuthenticated || userRole !== "farmbreeder") {
     return <div>Please log in as a farm breeder to access the chat.</div>;
+  }
+
+  if (!userId) {
+    return <div>Loading user information...</div>;
   }
 
   return (
@@ -874,13 +981,7 @@ const Chat: React.FC = () => {
         className={styles.chatContainer}
         style={{ flex: 3, marginRight: "20px" }}
       >
-        <h2>
-          Chat with{" "}
-          {getConversations().find((c) => c.userId === selectedUserId)
-            ?.userName ||
-            selectedUserId ||
-            "..."}
-        </h2>
+        <h2>Chat with {selectedUserName || selectedUserId || "..."}</h2>
         <div className={styles.messageList}>
           {filteredMessages.length > 0 ? (
             <List
@@ -946,20 +1047,19 @@ const Chat: React.FC = () => {
 
       <div className={styles.conversationList} style={{ flex: 1 }}>
         <h3>Conversations</h3>
+        <Input.Search
+          placeholder="Search conversations..."
+          value={searchQuery}
+          onChange={handleSearch}
+          className={styles.searchInput}
+          allowClear
+        />
         {getConversations().length > 0 ? (
           <List
             dataSource={getConversations()}
             renderItem={(conversation) => (
               <List.Item
-                onClick={() => {
-                  console.log(
-                    `Clicked conversation: userId=${conversation.userId}, isUnread=${conversation.isUnread}`
-                  );
-                  setSelectedUserId(conversation.userId);
-                  if (conversation.isUnread) {
-                    markMessagesAsRead(conversation.userId);
-                  }
-                }}
+                onClick={() => handleConversationClick(conversation)}
                 className={
                   conversation.isUnread ? styles.unreadConversation : ""
                 }
@@ -978,12 +1078,20 @@ const Chat: React.FC = () => {
                   avatar={<Avatar>{conversation.userName.charAt(0)}</Avatar>}
                   title={conversation.userName}
                   description={
-                    <>
-                      <div>{conversation.lastMessage}</div>
-                      <div style={{ fontSize: "12px", color: "#888" }}>
-                        {new Date(conversation.timestamp).toLocaleTimeString()}
-                      </div>
-                    </>
+                    conversation.lastMessage ? (
+                      <>
+                        <div>{conversation.lastMessage}</div>
+                        <div style={{ fontSize: "12px", color: "#888" }}>
+                          {conversation.timestamp
+                            ? new Date(
+                                conversation.timestamp
+                              ).toLocaleTimeString()
+                            : ""}
+                        </div>
+                      </>
+                    ) : (
+                      <div>No messages yet</div>
+                    )
                   }
                 />
                 {conversation.isUnread && (

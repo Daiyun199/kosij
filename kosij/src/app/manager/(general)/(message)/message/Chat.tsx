@@ -291,9 +291,9 @@ const Chat: React.FC = () => {
     if (searchQuery) {
       const query = searchQuery.toLowerCase();
       const roles = [
-        { name: "Sales Staff", prefix: "SAL", count: 5 },
-        { name: "Delivery Staff", prefix: "DEL", count: 5 },
-        { name: "Consulting Staff", prefix: "CON", count: 5 },
+        { name: "Sales Staff", prefix: "SAL", count: 10 },
+        { name: "Delivery Staff", prefix: "DEL", count: 10 },
+        { name: "Consulting Staff", prefix: "CON", count: 10 },
       ];
 
       const farmBreeders = [

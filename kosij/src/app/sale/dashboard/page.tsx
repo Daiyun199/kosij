@@ -73,6 +73,7 @@ interface DetailedData {
   pendingRequests: TripRequest[];
   completedRequests: TripRequest[];
   cancelledRequests: TripRequest[];
+  totalRequests: TripRequest[];
 }
 
 function Page() {
@@ -548,6 +549,16 @@ function Page() {
                     <Table
                       columns={requestColumns}
                       dataSource={detailedData?.cancelledRequests || []}
+                      rowKey="id"
+                      pagination={{ pageSize: 5 }}
+                      scroll={{ x: true }}
+                      loading={!detailedData}
+                    />
+                  </Card>
+                  <Card title="Total Requests" bordered={false}>
+                    <Table
+                      columns={requestColumns}
+                      dataSource={detailedData?.totalRequests || []}
                       rowKey="id"
                       pagination={{ pageSize: 5 }}
                       scroll={{ x: true }}

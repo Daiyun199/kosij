@@ -242,7 +242,7 @@ function Page() {
             <p>Loading...</p>
           ) : (
             <Dashboard
-              title="Dashboard Overview"
+              title="Tour Dashboard Overview"
               metricsData={metricsData}
               selectedTime={selectedTime}
               chartData={chartData}

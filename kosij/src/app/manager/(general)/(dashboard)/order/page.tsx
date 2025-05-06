@@ -239,7 +239,7 @@ function Page() {
             <p>Loading...</p>
           ) : (
             <Dashboard
-              title="Dashboard Overview"
+              title="Order Dashboard Overview"
               metricsData={metricsData}
               selectedTime={selectedTime}
               chartData={chartData}

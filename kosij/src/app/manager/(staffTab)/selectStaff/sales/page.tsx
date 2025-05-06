@@ -180,52 +180,6 @@ function Page() {
           bordered
           pagination={{ pageSize: 5 }}
         />
-        {/* <Modal
-        title="Assign Staff"
-        open={isModalOpen}
-        onCancel={handleModalCancel}
-        footer={[
-          <Button key="cancel" onClick={() => setIsModalOpen(false)}>
-            Cancel
-          </Button>,
-          <Popconfirm
-            key="assign"
-            title="Are you sure you want to assign this staff?"
-            open={isConfirmVisible}
-            onConfirm={async () => {
-              if (selectedStaffId) {
-                await handleAssignStaff(selectedStaffId, note);
-                setIsModalOpen(false);
-              } else {
-                toast.error("No staff selected.");
-              }
-            }}
-            onCancel={() => setIsConfirmVisible(false)}
-            okText="Yes"
-            cancelText="No"
-          >
-            <Button
-              type="primary"
-              loading={loading}
-              onClick={() => {
-                setIsConfirmVisible(true);
-              }}
-            >
-              Assign
-            </Button>
-          </Popconfirm>,
-        ]}
-      >
-        <p>Enter a note for staff assignment:</p>
-        <Input.TextArea
-          value={note}
-          onChange={(e) => {
-            if (e.target.value.length <= 150) {
-              setNote(e.target.value);
-            }
-          }}
-          maxLength={150}
-        /> */}
         <Modal
           title="Assign Staff"
           open={isModalOpen}
@@ -238,10 +192,9 @@ function Page() {
               key="assign"
               title="Are you sure you want to assign this staff?"
               open={isConfirmVisible}
-              onConfirm={() => {
+              onConfirm={async () => {
                 if (selectedStaffId) {
-                  handleAssignStaff(selectedStaffId, note);
-                  setIsConfirmVisible(false);
+                  await handleAssignStaff(selectedStaffId, note);
                   setIsModalOpen(false);
                 } else {
                   toast.error("No staff selected.");
@@ -266,7 +219,12 @@ function Page() {
           <p>Enter a note for staff assignment:</p>
           <Input.TextArea
             value={note}
-            onChange={(e) => setNote(e.target.value)}
+            onChange={(e) => {
+              if (e.target.value.length <= 150) {
+                setNote(e.target.value);
+              }
+            }}
+            maxLength={150}
           />
         </Modal>
       </ManagerLayout>

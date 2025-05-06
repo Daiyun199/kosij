@@ -225,7 +225,7 @@ function Page() {
             <p>Loading...</p>
           ) : (
             <Dashboard
-              title="Trip Revenue Dashboard"
+              title="Finance Dashboard Overview"
               metricsData={metricsData}
               selectedTime={selectedTime}
               chartData={chartData}

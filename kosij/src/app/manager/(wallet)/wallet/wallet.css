@@ -137,3 +137,16 @@
   background-color: #3b82f6;
   color: white;
 }
+.tx-icon {
+  vertical-align: middle;
+  margin-right: 8px;
+  font-size: 20px;
+}
+
+.tx-icon.sent {
+  color: #e74c3c; /* đỏ */
+}
+
+.tx-icon.received {
+  color: #2ecc71; /* xanh lá */
+}

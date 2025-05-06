@@ -6,6 +6,7 @@ import ManagerLayout from "@/app/components/ManagerLayout/ManagerLayout";
 import "./wallet.css";
 import api from "@/config/axios.config";
 import { DotLottieReact } from "@lottiefiles/dotlottie-react";
+import { FiArrowDownCircle, FiArrowUpCircle } from "react-icons/fi";
 
 interface WalletResponse {
   balance: number;
@@ -107,25 +108,35 @@ function Page() {
                 ) : (
                   <>
                     <div className="transactions-list">
-                      {paginatedTransactions.map((tx) => (
-                        <div key={tx.id} className="transaction-card">
-                          <div className="tx-type">{tx.transactionType}</div>
-                          <div className="tx-details">
-                            <span className="tx-amount">
-                              {formatCurrency(tx.amount, wallet.currency)}
-                            </span>
-                            <span className="tx-time">
-                              {new Date(tx.createdTime).toLocaleString()}
-                            </span>
-                            <span
-                              className={`tx-status ${tx.transactionStatus.toLowerCase()}`}
-                            >
-                              {tx.transactionStatus}
-                            </span>
+                      {paginatedTransactions.map((tx) => {
+                        const isSent = tx.transactor === "manager";
+                        return (
+                          <div key={tx.id} className="transaction-card">
+                            <div className="tx-type">
+                              {isSent ? (
+                                <FiArrowUpCircle className="tx-icon sent" />
+                              ) : (
+                                <FiArrowDownCircle className="tx-icon received" />
+                              )}{" "}
+                              {tx.transactionType}
+                            </div>
+                            <div className="tx-details">
+                              <span className="tx-amount">
+                                {formatCurrency(tx.amount, wallet.currency)}
+                              </span>
+                              <span className="tx-time">
+                                {new Date(tx.createdTime).toLocaleString()}
+                              </span>
+                              <span
+                                className={`tx-status ${tx.transactionStatus.toLowerCase()}`}
+                              >
+                                {tx.transactionStatus}
+                              </span>
+                            </div>
+                            <div className="tx-meta">By: {tx.transactor}</div>
                           </div>
-                          <div className="tx-meta">By: {tx.transactor}</div>
-                        </div>
-                      ))}
+                        );
+                      })}
                     </div>
 
                     {/* Pagination controls */}

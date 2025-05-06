@@ -185,21 +185,21 @@ function Page() {
                         <strong>Total Amount:</strong>{" "}
                         {order.totalAmount
                           ? order.totalAmount.toLocaleString()
-                          : "N/A"}{" "}
+                          : "0"}{" "}
                         VND
                       </p>
                       <p>
                         <strong>Paid:</strong>{" "}
                         {order.paidAmount
                           ? order.paidAmount.toLocaleString()
-                          : "N/A"}{" "}
+                          : "0"}{" "}
                         VND
                       </p>
                       <p>
                         <strong>Remaining:</strong>{" "}
                         {order.remaining
                           ? order.remaining.toLocaleString()
-                          : "N/A"}{" "}
+                          : "0"}{" "}
                         VND
                       </p>
                       <p>
@@ -212,8 +212,8 @@ function Page() {
                         </p>
                       )}
                       <p>
-                        <strong> Estimated Delivery Date:</strong>{" "}
-                        {order.expectedDeliveryDate}
+                        <strong>Estimated Delivery Date:</strong>{" "}
+                        {order.expectedDeliveryDate.slice(0, 10)}
                       </p>
                       <Button
                         type="default"

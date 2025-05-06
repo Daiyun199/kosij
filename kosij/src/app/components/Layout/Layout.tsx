@@ -101,7 +101,7 @@ const CustomLayout: React.FC<LayoutProps> = ({
     <div className="layout">
       <aside className="sidebar">
         <div className="sidebar-header">
-          <Image src="/logo.png" alt="Logo" width={50} height={50} />
+          <Image src="/logo.png" alt="Logo" width={50} height={5} />
           <div className="logo">KOSIJ</div>
         </div>
         <nav className="menu">{renderMenu(menuItems)}</nav>

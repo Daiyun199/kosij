@@ -9,6 +9,7 @@ import {
   Space,
   Statistic,
   Tag,
+  Tooltip,
 } from "antd";
 import { cn } from "@/lib/utils/cn.util";
 import { EyeOutlined, LogoutOutlined } from "@ant-design/icons";
@@ -29,6 +30,7 @@ type TransactionItem = {
   amount: number;
   transactionStatus: string;
   url: string;
+  docId: number;
 };
 
 const columns: ProColumns<TransactionItem>[] = [
@@ -87,12 +89,11 @@ const columns: ProColumns<TransactionItem>[] = [
     valueType: "option",
     render: (_, record) => [
       // eslint-disable-next-line react/jsx-key
-      <a href={record.url} target="_blank" rel="noopener noreferrer">
-        <EyeOutlined
-          key="view"
-          style={{ cursor: "pointer", alignContent: "center" }}
-        />
-      </a>,
+      <Tooltip title={`Doc ID: ${record.docId}`} key="view">
+        <a href={record.url} target="_blank" rel="noopener noreferrer">
+          <EyeOutlined style={{ cursor: "pointer", alignContent: "center" }} />
+        </a>
+      </Tooltip>,
     ],
   },
 ];
@@ -129,7 +130,6 @@ function WalletPage() {
   const formatNumber = (num: { toString: () => string }) => {
     return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
   };
-  console.log("Transactions Data:", transactions);
 
   return (
     <ProtectedRoute allowedRoles={["farmbreeder"]}>

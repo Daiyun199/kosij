@@ -167,7 +167,7 @@ const FarmMap: React.FC<Props> = ({ address, farmName }) => {
   if (error || !coordinates) {
     return (
       <div style={{ height: "400px", display: "grid", placeItems: "center" }}>
-        Không thể tìm thấy địa chỉ
+        Unable to find the address
       </div>
     );
   }

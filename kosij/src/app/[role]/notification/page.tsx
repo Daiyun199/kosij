@@ -117,7 +117,7 @@ const Page = () => {
       case "WithdrawalRequest":
         return {
           text: "Statement of money →",
-          url: `/manager/withdrawals/${refId}`,
+          url: `/manager/withdrawals`,
         };
       default:
         return null;

@@ -7,7 +7,6 @@ import {
   Button,
   Modal,
   Input,
-  message,
   Popconfirm,
   Descriptions,
   Popover,
@@ -85,7 +84,7 @@ const WithdrawalsTable: React.FC = () => {
         isApproved: true,
         deniedReason: "",
       });
-      message.success("Withdrawal approved successfully!");
+      toast.success("Withdrawal approved successfully!");
       fetchWithdrawals();
     } catch (error) {
       handleApiError(error, "Failed to approve withdrawal");
@@ -109,7 +108,7 @@ const WithdrawalsTable: React.FC = () => {
         isApproved: false,
         deniedReason,
       });
-      message.success("Withdrawal denied successfully!");
+      toast.success("Withdrawal denied successfully!");
       setDenyModalVisible(false);
       setDeniedReason("");
       fetchWithdrawals();

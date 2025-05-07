@@ -143,7 +143,7 @@ function Page() {
       title: "Pricing Rate",
       dataIndex: "pricingRate",
       key: "pricingRate",
-      render: (rate) => (rate != null ? `${rate * 100}%` : "-"),
+      render: (rate) => (rate != null ? `${(rate * 100).toFixed(2)}%` : "-"),
       width: 120,
     },
   ];

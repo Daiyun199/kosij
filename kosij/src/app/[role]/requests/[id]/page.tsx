@@ -60,9 +60,9 @@ const TripRequestDetail = () => {
   const handleMessage = () => {
     if (trip?.customerAccountId && trip?.customerUserName) {
       router.push(
-        `/sale/message?userId=${trip.customerAccountId}&userName=${encodeURIComponent(
-          trip.customerUserName
-        )}`
+        `/sale/message?userId=${
+          trip.customerAccountId
+        }&userName=${encodeURIComponent(trip.customerUserName)}`
       );
     } else {
       toast.error("Customer information not available.");
@@ -409,7 +409,6 @@ const TripRequestDetail = () => {
               placeholder="Enter feedback description"
             />
           </Modal>
-          ;
         </div>
       </LayoutComponent>
     </ProtectedRoute>

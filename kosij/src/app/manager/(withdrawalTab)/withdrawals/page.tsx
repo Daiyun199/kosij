@@ -29,6 +29,7 @@ interface Withdrawal {
   holderName: string;
   withdrawStatus: string;
   deniedReason: string;
+  createdBy: string;
 }
 
 interface ApiError {
@@ -307,7 +308,9 @@ const WithdrawalsTable: React.FC = () => {
               <Descriptions.Item label="Wallet ID" style={{ display: "none" }}>
                 {selectedWithdrawal.walletId}
               </Descriptions.Item>
-
+              <Descriptions.Item label="Created By">
+                {selectedWithdrawal.createdBy}
+              </Descriptions.Item>
               <Descriptions.Item label="Amount">
                 {new Intl.NumberFormat("vi-VN").format(
                   selectedWithdrawal.amount

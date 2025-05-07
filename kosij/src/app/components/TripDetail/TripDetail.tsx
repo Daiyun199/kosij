@@ -112,7 +112,9 @@ const TripDetail = ({
       <div className="mt-4">
         <Card className="mt-4 border border-gray-200 shadow-sm">
           <h3 className="font-semibold">Tour Details</h3>
-          <p>Visa Fee: {data.visaFee}</p>
+          <p>
+            Visa Fee: {new Intl.NumberFormat("vi-VN").format(data.visaFee)}{" "}
+          </p>
           <p>Registration Before: {data.registrationDaysBefore} days</p>
           <p>Registation Conditions: {data.registrationConditions}</p>
         </Card>

@@ -304,9 +304,10 @@ const WithdrawalsTable: React.FC = () => {
               <Descriptions.Item label="ID">
                 {selectedWithdrawal.id}
               </Descriptions.Item>
-              <Descriptions.Item label="Wallet ID">
+              <Descriptions.Item label="Wallet ID" style={{ display: "none" }}>
                 {selectedWithdrawal.walletId}
               </Descriptions.Item>
+
               <Descriptions.Item label="Amount">
                 {new Intl.NumberFormat("vi-VN").format(
                   selectedWithdrawal.amount

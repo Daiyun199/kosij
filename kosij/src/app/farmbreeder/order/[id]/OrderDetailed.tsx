@@ -8,6 +8,7 @@ import { Order, OrderDetail } from "@/lib/domain/Order/Order.dto";
 import { PageContainer } from "@ant-design/pro-layout";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { Card, Descriptions, Table, Button, Tag, App } from "antd";
+import dayjs from "dayjs";
 import { useParams, useRouter } from "next/navigation";
 
 const statusColors: { [key in Order["orderStatus"]]: string } = {
@@ -238,7 +239,9 @@ function OrderDetailedPage() {
                   {deliveryInfo.staffName}
                 </Descriptions.Item>
                 <Descriptions.Item label="Expected Delivery">
-                  {deliveryInfo.expectedDelivery}
+                  {dayjs(deliveryInfo.expectedDelivery, "YYYY-MM-DD").format(
+                    "DD-MM-YYYY"
+                  )}
                 </Descriptions.Item>
               </Descriptions>
             </Descriptions.Item>
@@ -276,7 +279,10 @@ function OrderDetailedPage() {
                 marginBottom: "8px",
               }}
             >
-              <span>Amount:</span>
+              <span>
+                Amount After Commission (
+                {data?.commissionPercentage.toLocaleString()}%):
+              </span>
               <strong>{data?.totalAfterCommission.toLocaleString()} VND</strong>
             </div>
           </div>
